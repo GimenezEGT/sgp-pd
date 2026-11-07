@@ -103,6 +103,16 @@ de Projeto", alteracao "Alteração de Projeto".
 | occurred_at | data/hora |
 | comment | texto (obrigatório em `returned`) |
 
+## Pendências para submeter (FR-012)
+
+- Produto: nome do projeto, nome do produto, tecnologia, órgão; classe e regra quando ANVISA.
+- TAP: justificativa, objetivo, ao menos um item de escopo incluído e de entrega, ao menos um risco
+  e uma parte interessada, ao menos um marco ativo com data planejada.
+- Plano de Negócios: data, objetivo, descrição, custo total, prazo (meses ou término), mercado-alvo,
+  as 5 previsões, concorrentes, faixas de preço dos concorrentes e de venda, custo máximo de
+  produção, venda anual prevista, apresentações dos concorrentes e as três avaliações de
+  viabilidade produtiva.
+
 ## projects.ProjectCodeSequence
 
 | Campo | Tipo |
