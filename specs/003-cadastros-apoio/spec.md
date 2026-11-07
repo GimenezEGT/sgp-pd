@@ -120,6 +120,9 @@ O analista mantém a biblioteca de normas (identificação, título, abrangênci
 - Certificado em formato não aceito ou acima do tamanho máximo: recusado na anexação.
 - Arquivo de certificado alterado no armazenamento: o download é recusado e o incidente vai para a trilha.
 - Painel que referencia amostra desativada: continua mostrando a amostra, com a indicação de desativada.
+- Amostra que ganha nova versão: os painéis continuam na versão que referenciavam até serem corrigidos; bloquear um painel bloqueia as versões de amostras dele.
+- Código ocupado entre a pré-visualização e a confirmação da importação: a linha é revalidada na confirmação e vai para as rejeitadas.
+- Amostras não recebem anexos nesta versão (evita laudos com dados de pacientes).
 
 ## Requirements *(mandatory)*
 
