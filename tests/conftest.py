@@ -128,10 +128,16 @@ PLAN_COMPLETE = {
 def vocab_seed(db):
     """Garante a carga inicial das listas (testes transacionais esvaziam o banco)."""
     from django.apps import apps as django_apps
+    from django.utils import timezone
 
+    from sgp.formtemplates import seed_v05
     from sgp.vocab.seed import ALL_SEEDS, load
 
     load(django_apps, ALL_SEEDS)
+    # Modelos versão 05 (feature 004); vigência retroativa para os testes com datas fixas.
+    seed_v05.load(
+        django_apps, valid_from=timezone.localdate().replace(year=2020), published_at=timezone.now()
+    )
 
 
 @pytest.fixture

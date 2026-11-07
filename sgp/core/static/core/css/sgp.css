@@ -97,3 +97,21 @@ pre.json { white-space: pre-wrap; word-break: break-word; margin: .25rem 0 0; fo
 
 .htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
 .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { opacity: 1; }
+
+/* Feature 004: pré-visualização da capa e formulários dos subdocumentos */
+.capa-previa { border: 1px solid #c9ced6; background: #fff; padding: 1.5rem; max-width: 46rem; margin: 1rem 0; font-family: Calibri, Carlito, sans-serif; }
+.capa-titulo { font-size: 1.6rem; font-weight: bold; text-align: center; margin: 0 0 .75rem; }
+.capa-produto { font-size: 1.3rem; font-weight: bold; text-align: center; text-transform: uppercase; }
+.capa-versao { font-size: 1.3rem; text-align: center; }
+.capa-conter { font-weight: bold; font-size: 1.1rem; }
+.capa-colunas { display: flex; gap: 2rem; flex-wrap: wrap; }
+.capa-topicos { list-style: none; padding-left: 0; }
+.capa-rodape { font-size: .8rem; margin-top: 1.5rem; }
+textarea.codigo { font-family: Consolas, "DejaVu Sans Mono", monospace; font-size: .85rem; width: 100%; }
+.topico { border-left: 3px solid #2f5d8a; padding-left: 1rem; margin: 1.5rem 0; }
+.topico h2 { font-size: 1.1rem; }
+.campo { margin: .75rem 0; }
+.campo-erro { color: #a4262c; }
+.tabela-editavel input, .tabela-editavel select { width: 100%; min-width: 6rem; }
+.chips label { display: inline-block; margin: 0 .5rem .25rem 0; }
+.marca-revisao { background: #fff4ce; border: 1px solid #c19c00; padding: .5rem .75rem; }

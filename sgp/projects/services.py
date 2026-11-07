@@ -404,3 +404,26 @@ def cancel_milestone(milestone: Milestone, *, by, reason: str) -> Milestone:
         milestone.save(update_fields=["canceled_at", "canceled_by", "cancel_reason"])
         _event("projects.milestone_canceled", project, by, obj=milestone, reason=reason)
     return milestone
+
+
+# ------------------------------------------------------------- versão do projeto
+
+
+def bump_version(project: Project, *, by, reason: str) -> Project:
+    """Alteração de Projeto aprovada (feature 004): a versão do projeto sobe, com evento."""
+    with transaction.atomic():
+        project = Project.objects.select_for_update().get(pk=project.pk)
+        before = project.version_display
+        project.version = (project.version or 0) + 1
+        project.row_version += 1
+        project.save(update_fields=["version", "row_version", "updated_at"])
+        _event(
+            "projects.version_changed",
+            project,
+            by,
+            obj=project,
+            old_value={"versao": before},
+            new_value={"versao": project.version_display},
+            reason=reason,
+        )
+    return project

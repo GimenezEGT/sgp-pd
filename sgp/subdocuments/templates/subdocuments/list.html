@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Subdocumentos – {{ project }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
+<h1>Subdocumentos do projeto {{ project.code|default:project.title }}</h1>
+<p class="descricao">Ordem recomendada: Entrada → Formulação → Lote Piloto → RAPD → Análise Crítica → Validação → Verificação Final → Saída. A Entrada aprovada é exigida por todos os outros.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Subdocumento</th><th>Documentos</th><th>Modelo vigente</th><th>Ordem do fluxo</th><th>Ação</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.type.label }}</td>
+      <td>
+        {% for doc in row.documents %}
+          <a href="{% url 'subdocuments:detail' doc.pk %}">{{ doc }}</a> <small>({{ doc.get_status_display }}, formulário {{ doc.template.version_display }})</small>
+          {% if doc.review_requested_by %}<br><span class="marca-revisao">Marcado para revisão pela {{ doc.review_requested_by }}</span>{% endif %}<br>
+        {% empty %}—{% endfor %}
+      </td>
+      <td>{% if row.template %}Versão {{ row.template.version_display }}{% else %}—{% endif %}</td>
+      <td>{% if row.needed %}Falta: {{ row.needed.missing }}{% if not row.needed.overridable %} (obrigatória){% endif %}{% else %}OK{% endif %}</td>
+      <td>
+        {% if can_edit and row.can_create %}
+        <form method="post" action="{% url 'subdocuments:new' project.pk %}">
+          {% csrf_token %}<input type="hidden" name="tipo" value="{{ row.type.code }}">
+          <button type="submit" class="botao botao-secundario">Criar</button>
+        </form>
+        {% endif %}
+        {% if is_manager and row.can_create and row.needed and row.needed.overridable %}
+        <details><summary>Autorizar fora da ordem</summary>
+          <form method="post" action="{% url 'subdocuments:authorize' project.pk %}">
+            {% csrf_token %}<input type="hidden" name="tipo" value="{{ row.type.code }}">
+            <p><label>Motivo <textarea name="motivo" rows="2" required></textarea></label></p>
+            <button type="submit" class="botao botao-secundario">Autorizar</button>
+          </form>
+        </details>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

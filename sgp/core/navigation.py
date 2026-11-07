@@ -29,6 +29,13 @@ NAV_ITEMS: list[NavItem] = [
         "Abrir projetos, preencher TAP e Plano de Negócios, acompanhar aprovações.",
     ),
     NavItem(
+        "Modelos de formulário",
+        "formtemplates:list",
+        frozenset(Profile),
+        "Cadastros",
+        "Modelos dos subdocumentos do PSG 20, com versões e vigência.",
+    ),
+    NavItem(
         "Cadastros",
         "catalog:index",
         frozenset(Profile),

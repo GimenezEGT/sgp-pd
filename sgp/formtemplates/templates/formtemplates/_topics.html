@@ -1,0 +1,15 @@
+<h2>Tópicos e campos</h2>
+{% for number, topic in numbered %}
+<section class="painel">
+  <h3>{% if number %}{{ number }}. {% endif %}{{ topic.body_label|default:topic.label }}</h3>
+  <p class="descricao">
+    {% if not topic.in_cover|default_if_none:True %}Fora da lista da capa.{% endif %}
+    {% if topic.allow_not_applicable %}Aceita "não aplicável" com justificativa.{% endif %}
+    {% if topic.regulatory_body %}Só em projetos {{ topic.regulatory_body }}.{% endif %}
+    {% if topic.inherit %}Herdado de {{ topic.inherit.subdocument }} ({{ topic.inherit.topic }}).{% endif %}
+  </p>
+  <ul>
+    {% for field in topic.fields %}<li>{{ field.label|default:field.key }} <small>({{ field.type }}{% if field.vocabulary %}: {{ field.vocabulary }}{% endif %}{% if field.kind %}: {{ field.kind }}{% endif %}{% if field.required %}, obrigatório{% endif %})</small>{% if field.columns %}<br><small>Colunas: {% for column in field.columns %}{{ column.label }}{% if not forloop.last %}; {% endif %}{% endfor %}</small>{% endif %}</li>{% endfor %}
+  </ul>
+</section>
+{% endfor %}

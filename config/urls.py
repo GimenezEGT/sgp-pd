@@ -10,4 +10,6 @@ urlpatterns = [
     path("cadastros/", include("sgp.catalog.urls")),
     path("arquivos/", include("sgp.files.urls")),
     path("listas/", include("sgp.vocab.urls")),
+    path("modelos/", include("sgp.formtemplates.urls")),
+    path("", include("sgp.subdocuments.urls")),
 ]
