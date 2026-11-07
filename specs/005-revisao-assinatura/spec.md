@@ -8,6 +8,18 @@
 
 **Input**: User description: "Ciclo de revisão, versões e assinatura eletrônica dos subdocumentos, do TAP e do Plano de Negócios. Leia docs/contexto/04-requisitos-regulatorios.md. Objetivo: eliminar a impressão para assinatura. Todo documento tem versão, Analista Responsável (nome/função), Gestor de P&D e data; as assinaturas desses dois papéis passam a ser eletrônicas. Histórias: 1. Como analista, envio um documento em rascunho para revisão; ele fica bloqueado para edição enquanto estiver em revisão. 2. Como Gestor de P&D, aprovo ou devolvo com comentário obrigatório; os comentários ficam no histórico do documento. 3. Para assinar, informo de novo minha senha de rede e escolho o significado (elaborado, revisado, aprovado); a assinatura guarda nome, função, data e hora do servidor e a identificação exata do conteúdo assinado. 4. Documento assinado pelos dois papéis fica "Aprovado" e imutável. Para corrigir, crio nova versão (02, 03...) com motivo; a anterior fica "Substituída" e continua consultável. 5. Como qualquer pessoa autorizada, verifico se um documento foi alterado depois de assinado. 6. Como Gestor de P&D, delego a aprovação a outra pessoa por um período, com motivo registrado. Regras: quem elaborou não aprova o mesmo documento; uma assinatura nunca vale para outra versão; três falhas de senha seguidas bloqueiam a assinatura e geram alerta; a Validação do Produto usa o rótulo "Gestor de P&D responsável pela Aprovação", como no formulário atual. Fora do escopo: certificado ICP-Brasil individual (avaliar depois) e geração do PDF (006), que exibirá as assinaturas."
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Quais significados de assinatura são aceitos e quais são obrigatórios? → A: Elaborado (obrigatório; Analista Responsável, quem envia para revisão), Aprovado (obrigatório; Gestor de P&D ou delegado) e Revisado (opcional; qualquer pessoa com acesso ao projeto que não seja a elaboradora nem a aprovadora) (ratificar com a Garantia da Qualidade).
+- Q: A delegação de aprovação é permitida? Para quem? → A: Sim, provisoriamente: o Gestor de P&D delega, com motivo, por até 30 dias, a pessoa com perfil Gestor de P&D, Líder de projeto ou Qualidade/AR; a assinatura do delegado registra "em delegação de" (ratificar com a Garantia da Qualidade e o PSG 20).
+- Q: A Qualidade assina algum documento obrigatoriamente (ex.: Saída)? → A: Não nesta versão; a Qualidade pode assinar "Revisado" em qualquer documento em revisão; Elaborado e Aprovado continuam os únicos obrigatórios (ratificar com a Garantia da Qualidade).
+- Q: Qual o prazo máximo de revisão antes do alerta? → A: 5 dias corridos, configurável; o documento aparece como atrasado na fila de revisão e o e-mail vem na feature 010 (ratificar com o Gestor de P&D).
+- Q: Por quanto tempo a assinatura fica bloqueada depois de três falhas? → A: 15 minutos, configurável, como o bloqueio de login da feature 001 (ratificar com a TI).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Enviar para revisão com a assinatura de quem elaborou (Priority: P1)
@@ -133,7 +145,7 @@ O Gestor de P&D delega a aprovação a outra pessoa por um período, com motivo;
 
 - **FR-006**: Toda assinatura DEVE exigir reautenticação com a senha de rede (sem guardar a senha) e o significado (Elaborado, Revisado ou Aprovado), e DEVE guardar pessoa, função, significado, data e hora do servidor, versão do documento e resumo criptográfico do conteúdo assinado.
 - **FR-007**: Uma assinatura NÃO DEVE valer para outra versão nem para outro conteúdo: alteração depois da assinatura exige assinar de novo.
-- **FR-008**: Três falhas de senha seguidas DEVEM bloquear a assinatura da pessoa pelo tempo configurado e gerar alerta na trilha; indisponibilidade do diretório não conta como falha.
+- **FR-008**: Três falhas de senha seguidas DEVEM bloquear a assinatura da pessoa pelo tempo configurado (padrão 15 minutos) e gerar alerta na trilha; indisponibilidade do diretório não conta como falha.
 - **FR-009**: Pessoa com acesso ao projeto que não é elaboradora nem aprovadora DEVE poder assinar "revisado" um documento em revisão, sem mudar a situação.
 
 **Integridade**
@@ -147,8 +159,8 @@ O Gestor de P&D delega a aprovação a outra pessoa por um período, com motivo;
 
 **Delegação e prazos**
 
-- **FR-013**: O Gestor de P&D DEVE poder delegar a aprovação a outra pessoa elegível por um período, com motivo, e encerrá-la antes do fim; a assinatura do delegado registra a delegação.
-- **FR-014**: Documento em revisão há mais que o prazo configurado DEVE aparecer como atrasado na fila de revisão do Gestor de P&D.
+- **FR-013**: O Gestor de P&D DEVE poder delegar a aprovação, com motivo e por até 30 dias, a pessoa com perfil Gestor de P&D, Líder de projeto ou Qualidade/AR, e encerrá-la antes do fim; a assinatura do delegado registra a delegação.
+- **FR-014**: Documento em revisão há mais que o prazo configurado (padrão 5 dias corridos) DEVE aparecer como atrasado na fila de revisão do Gestor de P&D.
 - **FR-015**: Na Validação do Produto, o bloco de assinatura DEVE usar o rótulo "Gestor de P&D responsável pela Aprovação:".
 - **FR-016**: Envio, assinatura, falha e bloqueio de assinatura, devolução, aprovação, nova versão, delegação e verificação de integridade DEVEM gerar eventos na trilha.
 
@@ -174,6 +186,4 @@ O Gestor de P&D delega a aprovação a outra pessoa por um período, com motivo;
 
 - A reautenticação usa o mesmo diretório da rede do login (feature 001).
 - A geração do PDF com as assinaturas e o selo é da feature 006.
-- [NEEDS CLARIFICATION: Quais significados de assinatura a Garantia da Qualidade aceita, e quais são obrigatórios?]
-- [NEEDS CLARIFICATION: A delegação de aprovação é permitida pelo PSG 20? Para quais perfis?]
-- [NEEDS CLARIFICATION: A Qualidade também assina algum documento (ex.: Saída de Projeto)? E qual o prazo máximo de revisão antes do alerta?]
+- Significados, delegação, assinatura da Qualidade, prazo de revisão e tempo de bloqueio definidos nas respostas provisórias do esclarecimento (sessão 2026-11-07).
