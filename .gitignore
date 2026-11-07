@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+
+# Ambiente e segredos (nunca no repositório)
+.env
+*.env.local
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Dados locais de desenvolvimento
+/var/
+/media/
+/staticfiles/
+
+# Claude Code: configuração local da máquina
+.claude/settings.local.json
