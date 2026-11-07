@@ -145,7 +145,7 @@ O Gestor de P&D vê a lista de projetos com filtros por status, líder e produto
 - **FR-007**: O líder DEVE poder preencher o Plano de Negócios com data, objetivo, descrição geral, custo total, prazo de execução (em meses e/ou data de término), mercado-alvo, retorno esperado (receita líquida prevista, em R$) de cada um dos 5 anos, viabilidade financeira (principais concorrentes, faixa de preço por teste dos concorrentes, principais apresentações dos concorrentes, custo máximo de produção considerando matéria-prima, faixa de preço de venda prevista, venda anual prevista em testes por ano) e viabilidade produtiva (estrutura fabril, equipe de produção, controle de qualidade); nome do projeto e líder DEVEM vir do projeto, sem redigitação.
 - **FR-008**: O retorno total em 5 anos DEVE ser calculado como a soma das previsões anuais e NÃO DEVE ser digitável.
 - **FR-009**: Valores monetários DEVEM ter 2 casas decimais, aceitar e exibir o formato brasileiro (R$ 1.234.567,89) e recusar valores negativos.
-- **FR-010**: Custo total, previsões anuais e total, preço dos concorrentes, custo máximo de produção, preço de venda previsto e venda anual prevista são dados financeiros: DEVEM aparecer só para o Gestor de P&D, o líder do projeto e os perfis autorizados por configuração (nenhum por padrão), em telas, listas, exportações e na trilha de auditoria; para os demais aparecem como restritos.
+- **FR-010**: Custo total, previsões anuais e total, preço dos concorrentes, custo máximo de produção, preço de venda previsto e venda anual prevista são dados financeiros: DEVEM aparecer só para o Gestor de P&D, o líder do projeto e os perfis autorizados por configuração (nenhum por padrão), em telas, listas, exportações e na trilha de auditoria; para os demais aparecem como restritos. "Líder" é o líder atual do projeto; Administrador e Qualidade/AR acessam o projeto, mas não os dados financeiros, salvo configuração.
 
 **Fluxo de aprovação**
 
@@ -191,3 +191,4 @@ O Gestor de P&D vê a lista de projetos com filtros por status, líder e produto
 - Projetos MAPA (uso veterinário) não seguem a classificação de risco da RDC 830/2023.
 - A aprovação desta feature é uma confirmação registrada na trilha; a feature 005 a substitui por assinatura eletrônica.
 - Textos longos são texto simples com quebras de linha; o editor de texto rico chega na feature 008.
+- Os documentos gerados nas features 006 e 009 seguirão a mesma regra de visibilidade dos dados financeiros (dependência registrada para essas features).
