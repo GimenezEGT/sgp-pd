@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -32,3 +32,4 @@
 ## Notes
 
 - Validação 1 (2026-11-07): três marcações [NEEDS CLARIFICATION] (tópico 9 da Entrada, tópicos da Análise Crítica, pré-preenchimento do "Realizado") ficam para o `/speckit-clarify`; os demais itens passam.
+- Validação 2 (2026-11-07, depois do `/speckit-clarify`): marcações resolvidas; o pré-preenchimento do "Realizado" ficou registrado como pendência explícita nas premissas.

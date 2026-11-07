@@ -8,6 +8,20 @@
 
 **Input**: User description: "Modelos de formulário versionados e preenchimento dos subdocumentos do projeto. Leia docs/contexto/02-dicionario-documentos.md (todos os subdocumentos), 03-padroes-formatacao.md e 05-vocabularios.md. Problema: os formulários do PSG 20 mudam de versão ("Formulário Versão: 05") e cada aba da planilha Capas Projeto tem tópicos próprios. O sistema precisa refletir isso sem programação a cada mudança. Histórias: 1. Como Garantia da Qualidade, cadastro um modelo de formulário: tipo de subdocumento, versão do formulário, referência (ex.: "PSG 20 - Pesquisa e Desenvolvimento de Produtos"), vigência, título da capa, tópicos numerados da lista "ESTE RELATÓRIO DEVE CONTER" e, para cada tópico, os campos: texto formatado, lista, tabela com colunas definidas, seleção de vocabulário, referência a cadastro, anexo e "não aplicável" com justificativa. 2. Publico uma nova versão do modelo; documentos já iniciados continuam no modelo em que começaram, a menos que o gestor migre o documento. 3. Como analista, crio num projeto aberto os subdocumentos: Entrada de Projeto, Elaboração de Formulação, Elaboração de Lote Piloto, RAPD, Análise Crítica, Validação do Produto, Verificação Final de Validação, Saída de Projeto e, quando necessário, Alteração de Projeto. 4. Na Entrada de Projeto preencho os 13 tópicos e a parte estruturada do formulário opcional (amostras, funcionalidade, classificação, automação, usuário, armazenamento, filtros, classificação de uso) e marco "aplica / não se aplica" em cada requisito de desempenho. 5. A Verificação Final de Validação é montada pelo sistema: uma linha por tópico da Entrada, com "Previsto" vindo da Entrada aprovada, "Realizado" preenchido pelo analista e "Disposição" (aprovado, reprovado ou outros, com justificativa). 6. Na Saída de Projeto escolho os setores que recebem a transferência (Produção, Supply Chain, Controle de Qualidade, SAC, Comercial, Marketing, S&OP); os itens marcados "MAPA" só aparecem em projetos com esse órgão. 7. A Alteração de Projeto registra versão alterada e nova versão, justificativa, requisitos de entrada afetados e outros dados; quando aprovada, a versão do projeto sobe e os subdocumentos afetados ficam marcados para revisão. Regras: "não aplicável" exige justificativa e bloqueia a lista daquele tópico; a numeração de tópicos e tabelas é automática; requisitos marcados "aplica" na Entrada geram pendências na Validação; o sistema avisa quando a ordem do fluxo não foi seguida (ex.: Lote Piloto antes da Formulação aprovada) e só segue com autorização do gestor. Fora do escopo: assinatura (005), geração de DOCX/PDF (006) e cálculos estatísticos (007)."
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: A ordem dos subdocumentos é obrigatória ou só recomendada? → A: Recomendada: criar um subdocumento com o antecessor ainda não aprovado mostra aviso e só segue com autorização registrada do Gestor de P&D, com motivo (ratificar com o Gestor de P&D).
+- Q: O tópico 9 da Entrada, que repete o rótulo do tópico 6 ("Classificação de Uso"), é a classe de risco da RDC 830/2023? → A: Sim; no modelo versão 05 do sistema o tópico 9 passa a se chamar "Classificação de Risco (RDC 830/2023)", com a classe (I a IV) e a regra de classificação; a linha 9 da Verificação Final acompanha (ratificar com Assuntos Regulatórios e a Garantia da Qualidade).
+- Q: Na Análise Crítica, vale a lista da capa (3 tópicos) ou a do projeto (4)? → A: O modelo versão 05 segue a capa, com 3 tópicos; um quarto tópico só entra por nova versão do modelo publicada pela Qualidade (ratificar com a Garantia da Qualidade).
+- Q: O "Realizado" da Verificação Final é pré-preenchido? → A: Não nesta versão: o analista preenche cada linha e a tela mostra, ao lado, o acesso à Validação e à Saída do projeto; a regra de correspondência para o pré-preenchimento fica pendente de definição pela Qualidade (pendência a esclarecer).
+- Q: Como tratar a edição simultânea do mesmo documento por dois analistas? → A: Controle otimista: os dois podem abrir; a segunda gravação feita sobre a versão desatualizada é recusada com aviso para recarregar, sem bloqueio exclusivo (ratificar com o Gestor de P&D).
+
+Decisão de estrutura: a capa atual da Saída numera dois itens como "11"; com a numeração automática, a Saída versão 05 do sistema tem os itens 1 a 12.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Cadastrar o modelo de formulário (Priority: P1)
@@ -172,7 +186,7 @@ A Alteração de Projeto registra a versão alterada e a nova versão do projeto
 
 - **FR-017**: A Entrada DEVE ter os 13 tópicos do dicionário, a parte estruturada do formulário opcional (nome do projeto, versão, data e analito; seleções de amostra, funcionalidade, classificação do teste, automação, usuário, armazenamento, filtros e classificação de uso) e a tabela "aplica / não se aplica" dos 16 requisitos de desempenho, com justificativa obrigatória para "não se aplica".
 - **FR-018**: Cada requisito "aplica" da Entrada aprovada DEVE gerar uma pendência na Validação do Produto, cumprida com o registro da evidência; os "não se aplica" seguem para a Validação com a justificativa.
-- **FR-019**: A Verificação Final DEVE ser criada só com a Entrada aprovada, com uma linha por requisito de entrada do modelo, "Previsto" vindo da Entrada aprovada, "Realizado" preenchido pelo analista e "Disposição" da lista controlada; disposição diferente de Aprovado exige justificativa.
+- **FR-019**: A Verificação Final DEVE ser criada só com a Entrada aprovada, com uma linha por requisito de entrada do modelo, "Previsto" vindo da Entrada aprovada, "Realizado" preenchido pelo analista (sem pré-preenchimento nesta versão) e "Disposição" da lista controlada; disposição diferente de Aprovado exige justificativa.
 
 **Saída e Alteração**
 
@@ -202,6 +216,5 @@ A Alteração de Projeto registra a versão alterada e a nova versão do projeto
 - A revisão controlada dos modelos (elaboração, aprovação e vigência) é a feature 013; aqui a Qualidade publica diretamente.
 - A geração de DOCX/PDF (006) e os estudos com cálculo (007) usam os dados gravados aqui; nesta feature a pendência da Validação é cumprida com o registro da evidência em texto.
 - Os rótulos e tópicos dos modelos versão 05 vêm de docs/contexto/02-dicionario-documentos.md; os dados dos arquivos de docs/modelos/ não são usados.
-- [NEEDS CLARIFICATION: O tópico 9 da Entrada repete o rótulo do tópico 6 ("Classificação de Uso"); é a classe de risco da RDC 830/2023?]
-- [NEEDS CLARIFICATION: A Análise Crítica tem 3 tópicos na capa e 4 num projeto; qual lista vale na versão 05?]
-- [NEEDS CLARIFICATION: "Realizado" da Verificação Final é pré-preenchido com dados da Validação ou da Saída? Com que regra?]
+- Tópico 9 da Entrada, tópicos da Análise Crítica e numeração da Saída definidos nas respostas provisórias do esclarecimento (sessão 2026-11-07).
+- Pendente de definição pela Qualidade: a regra de pré-preenchimento do "Realizado" da Verificação Final a partir da Validação e da Saída.
