@@ -7,10 +7,22 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
-from .forms import DecisionForm, GrantProfileForm, PeopleSearchForm, ReasonForm
+from .forms import (
+    DecisionForm,
+    GrantProfileForm,
+    PeopleSearchForm,
+    ReasonForm,
+    RevokeProfileForm,
+)
 from .models import AccessRequest, LoginLockout, ProfileAssignment, User
 from .profiles import EXPECTED_APPROVER, Profile, profile_required
-from .services import decide_access_request, grant_profile, release_lockout, revoke_profile
+from .services import (
+    decide_access_request,
+    grant_profile,
+    release_lockout,
+    revoke_profile,
+    set_person_active,
+)
 
 
 def _errors(request, exc: ValidationError) -> None:
@@ -47,7 +59,8 @@ def person_detail(request, user_id):
         "assignments": assignments,
         "active": [a for a in assignments if a.revoked_at is None],
         "grant_form": GrantProfileForm(unavailable=active_codes),
-        "revoke_form": ReasonForm(),
+        "revoke_form": RevokeProfileForm(),
+        "status_form": ReasonForm(),
         "approvers": {Profile(code).label: who for code, who in EXPECTED_APPROVER.items()},
     }
     return render(request, "accounts/person_detail.html", context)
@@ -82,17 +95,51 @@ def grant_profile_view(request, user_id):
 @profile_required(Profile.ADMIN)
 def revoke_profile_view(request, user_id, assignment_id):
     assignment = get_object_or_404(ProfileAssignment, pk=assignment_id, user_id=user_id)
-    form = ReasonForm(request.POST)
+    form = RevokeProfileForm(request.POST)
     if not form.is_valid():
-        messages.error(request, "Informe o motivo da revogação.")
+        messages.error(request, "Informe o motivo e a referência da aprovação da revogação.")
         return redirect("accounts:person_detail", user_id=user_id)
     try:
-        revoke_profile(assignment, by=request.user, reason=form.cleaned_data["reason"])
+        revoke_profile(
+            assignment,
+            by=request.user,
+            reason=form.cleaned_data["reason"],
+            approval_reference=form.cleaned_data["approval_reference"],
+        )
     except ValidationError as exc:
         _errors(request, exc)
     else:
         messages.success(request, f"Perfil {assignment.get_profile_display()} revogado.")
     return redirect("accounts:person_detail", user_id=user_id)
+
+
+@require_POST
+@profile_required(Profile.ADMIN)
+def deactivate_person_view(request, user_id):
+    return _set_active(request, user_id, active=False)
+
+
+@require_POST
+@profile_required(Profile.ADMIN)
+def reactivate_person_view(request, user_id):
+    return _set_active(request, user_id, active=True)
+
+
+def _set_active(request, user_id, *, active: bool):
+    person = get_object_or_404(User, pk=user_id)
+    form = ReasonForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, "Informe o motivo.")
+        return redirect("accounts:person_detail", user_id=person.pk)
+    try:
+        set_person_active(
+            person, by=request.user, active=active, reason=form.cleaned_data["reason"]
+        )
+    except ValidationError as exc:
+        _errors(request, exc)
+    else:
+        messages.success(request, "Pessoa reativada." if active else "Pessoa desativada.")
+    return redirect("accounts:person_detail", user_id=person.pk)
 
 
 @require_GET

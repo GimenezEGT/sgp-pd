@@ -15,7 +15,9 @@ fragmento da tabela.
 | `/administracao/pessoas/` | GET | ADMIN | lista com busca por login ou nome e perfis ativos | — |
 | `/administracao/pessoas/<id>/` | GET | ADMIN | dados da pessoa, perfis ativos, histórico de concessões e formulário de concessão | — |
 | `/administracao/pessoas/<id>/perfis/conceder/` | POST | ADMIN | perfil, motivo e referência da aprovação obrigatórios; recusa duplicado | `accounts.profile_granted` |
-| `/administracao/pessoas/<id>/perfis/<concessao>/revogar/` | POST | ADMIN | motivo obrigatório; recusa o último ADMIN ativo | `accounts.profile_revoked` |
+| `/administracao/pessoas/<id>/perfis/<concessao>/revogar/` | POST | ADMIN | motivo e referência da aprovação obrigatórios; recusa o último ADMIN ativo | `accounts.profile_revoked` |
+| `/administracao/pessoas/<id>/desativar/` | POST | ADMIN | motivo obrigatório; recusa o último ADMIN ativo | `accounts.user_updated` |
+| `/administracao/pessoas/<id>/reativar/` | POST | ADMIN | motivo obrigatório | `accounts.user_updated` |
 | `/administracao/solicitacoes/` | GET | ADMIN | pendentes e decididas recentemente | — |
 | `/administracao/solicitacoes/<id>/decidir/` | POST | ADMIN | `decisao` = `granted` ou `rejected` e motivo obrigatório | `accounts.access_request_decided` |
 | `/administracao/bloqueios/` | GET | ADMIN | bloqueios ativos | — |

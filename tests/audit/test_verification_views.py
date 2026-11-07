@@ -64,5 +64,18 @@ def test_comando_retorna_1_quando_ha_quebra(capsys):
     with pytest.raises(SystemExit) as exit_info:
         call_command("verify_audit_chain", "--agendada")
     assert exit_info.value.code == 1
-    assert "content_altered" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "evento 1: Conteúdo alterado" in output and "content_altered" not in output
     assert ChainVerification.objects.first().trigger == ChainVerification.Trigger.SCHEDULED
+
+
+@pytest.mark.req("001:FR-021")
+def test_tela_mostra_tipo_de_quebra_em_portugues(client, login_as):
+    record_event("audit.exported", actor=None)
+    record_event("audit.exported", actor=None)
+    tamper("DELETE FROM audit_auditevent WHERE seq = 1")
+    verify_chain()
+    login_as(Profile.QUALITY)
+    content = client.get(reverse("audit:integrity")).content.decode()
+    assert "Lacuna na sequência" in content and "Encadeamento rompido" in content
+    assert "sequence_gap" not in content and "chain_broken" not in content

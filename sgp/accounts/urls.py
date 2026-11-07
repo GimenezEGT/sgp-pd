@@ -20,6 +20,16 @@ urlpatterns = [
         views_admin.revoke_profile_view,
         name="revoke_profile",
     ),
+    path(
+        "administracao/pessoas/<int:user_id>/desativar/",
+        views_admin.deactivate_person_view,
+        name="deactivate_person",
+    ),
+    path(
+        "administracao/pessoas/<int:user_id>/reativar/",
+        views_admin.reactivate_person_view,
+        name="reactivate_person",
+    ),
     path("administracao/solicitacoes/", views_admin.access_requests_list, name="access_requests"),
     path(
         "administracao/solicitacoes/<int:request_id>/decidir/",

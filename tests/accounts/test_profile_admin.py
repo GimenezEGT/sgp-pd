@@ -76,7 +76,10 @@ def test_revogacao_preserva_historico(client, login_as, make_user):
     admin = login_as(Profile.ADMIN)
     person = make_user("ana", Profile.READER)
     assignment = ProfileAssignment.objects.get(user=person)
-    response = client.post(revoke_url(assignment), {"reason": "Saiu do projeto"})
+    response = client.post(
+        revoke_url(assignment),
+        {"reason": "Saiu do projeto", "approval_reference": "E-mail do Gestor de P&D"},
+    )
     assert response.status_code == 302
     assignment.refresh_from_db()
     assert assignment.revoked_at is not None and assignment.revoked_by == admin
@@ -94,17 +97,19 @@ def test_revogacao_sem_motivo_ou_repetida_e_recusada(make_user):
     person = make_user("ana", Profile.READER)
     assignment = ProfileAssignment.objects.get(user=person)
     with pytest.raises(ValidationError):
-        revoke_profile(assignment, by=admin, reason=" ")
-    revoke_profile(assignment, by=admin, reason="ok")
+        revoke_profile(assignment, by=admin, reason=" ", approval_reference="ok")
+    revoke_profile(assignment, by=admin, reason="ok", approval_reference="ok")
     with pytest.raises(ValidationError, match="já foi revogada"):
-        revoke_profile(assignment, by=admin, reason="de novo")
+        revoke_profile(assignment, by=admin, reason="de novo", approval_reference="ok")
 
 
 @pytest.mark.req("001:FR-012")
 def test_ultimo_administrador_nao_e_revogado(client, login_as):
     admin = login_as(Profile.ADMIN)
     assignment = ProfileAssignment.objects.get(user=admin)
-    response = client.post(revoke_url(assignment), {"reason": "Teste"}, follow=True)
+    response = client.post(
+        revoke_url(assignment), {"reason": "Teste", "approval_reference": "TI"}, follow=True
+    )
     assert "último Administrador" in response.content.decode()
     assignment.refresh_from_db()
     assert assignment.revoked_at is None
@@ -114,7 +119,12 @@ def test_ultimo_administrador_nao_e_revogado(client, login_as):
 def test_com_dois_administradores_um_pode_ser_revogado(make_user):
     first = make_user("admin1", Profile.ADMIN)
     make_user("admin2", Profile.ADMIN)
-    revoke_profile(ProfileAssignment.objects.get(user=first), by=first, reason="Troca de função")
+    revoke_profile(
+        ProfileAssignment.objects.get(user=first),
+        by=first,
+        reason="Troca de função",
+        approval_reference="Gestão da TI",
+    )
     assert not ProfileAssignment.objects.filter(user=first, revoked_at__isnull=True).exists()
 
 
@@ -125,7 +135,9 @@ def test_administrador_desativado_nao_conta_como_ativo(make_user):
     second.is_active = False
     second.save()
     with pytest.raises(ValidationError):
-        revoke_profile(ProfileAssignment.objects.get(user=first), by=first, reason="x")
+        revoke_profile(
+            ProfileAssignment.objects.get(user=first), by=first, reason="x", approval_reference="y"
+        )
 
 
 @pytest.mark.req("001:FR-010")
@@ -156,3 +168,24 @@ def test_detalhe_oferece_so_perfis_ainda_nao_ativos(client, login_as, make_user)
     response = client.get(reverse("accounts:person_detail", args=[person.pk]))
     choices = [code for code, _ in response.context["grant_form"].fields["profile"].choices]
     assert Profile.READER not in choices and Profile.ANALYST in choices
+
+
+@pytest.mark.req("001:FR-010")
+@pytest.mark.req("001:SC-004")
+def test_revogacao_exige_e_registra_referencia_da_aprovacao(client, login_as, make_user):
+    login_as(Profile.ADMIN)
+    person = make_user("ana", Profile.READER)
+    assignment = ProfileAssignment.objects.get(user=person)
+    client.post(revoke_url(assignment), {"reason": "Saiu do projeto", "approval_reference": ""})
+    assignment.refresh_from_db()
+    assert assignment.revoked_at is None
+    with pytest.raises(ValidationError, match="aprovação"):
+        revoke_profile(assignment, by=person, reason="Saiu", approval_reference=" ")
+    client.post(
+        revoke_url(assignment),
+        {"reason": "Saiu do projeto", "approval_reference": "Gestor de P&D, 07/11/2026"},
+    )
+    assignment.refresh_from_db()
+    assert assignment.revoke_approval_reference == "Gestor de P&D, 07/11/2026"
+    event = AuditEvent.objects.get(event_type="accounts.profile_revoked")
+    assert event.new_value["aprovacao"] == "Gestor de P&D, 07/11/2026"

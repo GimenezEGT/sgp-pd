@@ -56,8 +56,10 @@ versões foram conferidas no PyPI, no npm e no Docker Hub em 2026-11-07.
   cadastro (criação/alteração com valor anterior e novo), sincroniza perfis de grupo e encaminha
   para a página inicial ou para "Solicitar acesso".
 - **Sessão**: sessões no banco (`django.contrib.sessions`), middleware de inatividade que guarda o
-  último acesso na sessão, encerra e registra `auth.session_expired` quando passa do limite;
-  `SESSION_COOKIE_AGE` acompanha o limite, cookies `Secure`, `HttpOnly`, `SameSite=Lax`.
+  último acesso na sessão, encerra e registra `auth.session_expired` quando passa do limite. O
+  cookie vale 12 h e é renovado a cada acesso (`SESSION_SAVE_EVERY_REQUEST`), sempre acima do
+  limite de inatividade, para que a sessão ainda exista e o encerramento possa ser registrado;
+  expira também ao fechar o navegador. Cookies `Secure`, `HttpOnly`, `SameSite=Lax`.
 - **Acesso por padrão negado**: `LoginRequiredMiddleware` do Django 5.2 e middleware que restringe a
   pessoa sem perfil à página "Solicitar acesso" e ao logout.
 - **Rationale**: o bloqueio da aplicação protege a conta de rede de bloqueio no AD e evita enviar

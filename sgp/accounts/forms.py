@@ -52,6 +52,17 @@ class ReasonForm(forms.Form):
     )
 
 
+class RevokeProfileForm(forms.Form):
+    reason = forms.CharField(
+        label="Motivo da revogação", max_length=2000, widget=forms.Textarea(attrs={"rows": 2})
+    )
+    approval_reference = forms.CharField(
+        label="Referência da aprovação",
+        max_length=500,
+        help_text="Quem aprovou a revogação e onde.",
+    )
+
+
 class DecisionForm(forms.Form):
     decision = forms.ChoiceField(
         label="Decisão",

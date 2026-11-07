@@ -21,6 +21,19 @@ REQUEST_USER = object()
 VERIFY_CHUNK = 2000
 MAX_BREAKS_STORED = 1000
 
+# Rótulos dos tipos de quebra exibidos na tela e na linha de comando (interface em português).
+BREAK_LABELS = {
+    "content_altered": "Conteúdo alterado",
+    "chain_broken": "Encadeamento rompido",
+    "sequence_gap": "Lacuna na sequência",
+    "checkpoint_missing": "Ponto de controle ausente",
+    "checkpoint_mismatch": "Ponto de controle divergente",
+}
+
+
+def break_label(kind: str) -> str:
+    return BREAK_LABELS.get(kind, kind)
+
 
 def record_event(
     event_type: str,

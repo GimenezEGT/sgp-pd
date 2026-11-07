@@ -23,6 +23,8 @@ ROUTE_CONTRACT = {
     "accounts:person_detail": ("GET", {Profile.ADMIN}),
     "accounts:grant_profile": ("POST", {Profile.ADMIN}),
     "accounts:revoke_profile": ("POST", {Profile.ADMIN}),
+    "accounts:deactivate_person": ("POST", {Profile.ADMIN}),
+    "accounts:reactivate_person": ("POST", {Profile.ADMIN}),
     "accounts:access_requests": ("GET", {Profile.ADMIN}),
     "accounts:decide_access_request": ("POST", {Profile.ADMIN}),
     "accounts:lockouts": ("GET", {Profile.ADMIN}),

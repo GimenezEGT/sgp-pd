@@ -98,6 +98,9 @@ class ProfileAssignment(ProtectedModel):
         User, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
     )
     revoke_reason = models.TextField("motivo da revogação", blank=True)
+    revoke_approval_reference = models.CharField(
+        "referência da aprovação da revogação", max_length=500, blank=True
+    )
 
     class Meta:
         verbose_name = "concessão de perfil"

@@ -26,6 +26,8 @@
           {% csrf_token %}
           <label for="motivo-revogacao-{{ a.pk }}">Motivo da revogação</label>
           <textarea id="motivo-revogacao-{{ a.pk }}" name="reason" rows="2" required></textarea>
+          <label for="aprovacao-revogacao-{{ a.pk }}">Referência da aprovação</label>
+          <input type="text" id="aprovacao-revogacao-{{ a.pk }}" name="approval_reference" maxlength="500" required>
           <button type="submit" class="botao botao-perigo">Revogar</button>
         </form>
       </td>
@@ -50,6 +52,17 @@
 </div>
 {% endif %}
 
+<h2>{% if person.is_active %}Desativar pessoa{% else %}Reativar pessoa{% endif %}</h2>
+<div class="painel">
+  <form method="post" action="{% if person.is_active %}{% url 'accounts:deactivate_person' person.pk %}{% else %}{% url 'accounts:reactivate_person' person.pk %}{% endif %}">
+    {% csrf_token %}
+    <label for="motivo-situacao">Motivo</label>
+    <textarea id="motivo-situacao" name="reason" rows="2" required></textarea>
+    <p class="helptext">O cadastro nunca é apagado; a pessoa desativada não entra no sistema e não recebe perfis.</p>
+    <button type="submit" class="botao {% if person.is_active %}botao-perigo{% endif %}">{% if person.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+  </form>
+</div>
+
 <h2>Histórico de concessões</h2>
 <div class="tabela-rolagem">
 <table>
@@ -62,7 +75,7 @@
       <td>{{ a.granted_at|datahora }} por {{ a.granted_by.username|default:"sistema" }}</td>
       <td>{{ a.grant_reason }}{% if a.approval_reference %}<br><small>Aprovação: {{ a.approval_reference }}</small>{% endif %}</td>
       <td>{% if a.revoked_at %}{{ a.revoked_at|datahora }} por {{ a.revoked_by.username|default:"sistema" }}{% else %}—{% endif %}</td>
-      <td>{{ a.revoke_reason|default:"—" }}</td>
+      <td>{{ a.revoke_reason|default:"—" }}{% if a.revoke_approval_reference %}<br><small>Aprovação: {{ a.revoke_approval_reference }}</small>{% endif %}</td>
     </tr>
   {% empty %}
     <tr><td colspan="6">Sem concessões.</td></tr>

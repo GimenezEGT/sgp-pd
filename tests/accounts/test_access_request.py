@@ -65,7 +65,12 @@ def test_pessoa_que_perde_o_ultimo_perfil_passa_a_ser_recusada(client, login_as,
     admin = make_user("admin", Profile.ADMIN)
     user = login_as(Profile.READER)
     assert client.get(reverse("core:home")).status_code == 200
-    revoke_profile(ProfileAssignment.objects.get(user=user), by=admin, reason="Saiu do projeto")
+    revoke_profile(
+        ProfileAssignment.objects.get(user=user),
+        by=admin,
+        reason="Saiu do projeto",
+        approval_reference="Gestor de P&D",
+    )
     response = client.get(reverse("core:home"))
     assert response["Location"] == reverse("accounts:access_request")
 

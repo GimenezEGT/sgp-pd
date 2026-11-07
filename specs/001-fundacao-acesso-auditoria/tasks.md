@@ -271,9 +271,9 @@ Task: "Testes de integração LDAP em tests/accounts/test_ldap_integration.py"
 
 ## Phase 9: Convergence
 
-- [ ] T061 CRITICAL: exibir em português os tipos de quebra ("conteúdo alterado", "encadeamento rompido", "lacuna na sequência", "ponto de controle ausente", "ponto de controle divergente") na tela de integridade e na saída de `verify_audit_chain`, com teste, per Constitution IX / US3/AC2 / FR-021 (contradicts)
-- [ ] T062 Exigir referência da aprovação também na revogação manual de perfil (campo `revoke_approval_reference` com migração, formulário, evento `accounts.profile_revoked` e histórico; sincronização registra "Saída do grupo da rede"), com testes, per FR-010 / SC-004 (partial)
-- [ ] T063 Permitir ao Administrador desativar e reativar uma pessoa com motivo (evento `accounts.user_updated` com `is_active` anterior e novo; recusar desativar o último Administrador ativo), com testes e rota no contrato da varredura, per FR-026 (partial)
-- [ ] T064 Completar `contracts/configuracao.md` com todas as variáveis de ambiente usadas pelo código e pelo Compose, per plan: contracts/configuracao.md (partial)
-- [ ] T065 Alinhar `data-model.md`: `AuditEvent.actor` mantém a FK com restrição no banco (pessoas nunca são apagadas), per plan: data-model (contradicts)
-- [ ] T066 Corrigir em `research.md` (R4) a descrição da sessão: cookie de 12 h renovado a cada acesso e inatividade controlada pelo middleware, per plan: research R4 (contradicts)
+- [X] T061 CRITICAL: exibir em português os tipos de quebra ("conteúdo alterado", "encadeamento rompido", "lacuna na sequência", "ponto de controle ausente", "ponto de controle divergente") na tela de integridade e na saída de `verify_audit_chain`, com teste, per Constitution IX / US3/AC2 / FR-021 (contradicts)
+- [X] T062 Exigir referência da aprovação também na revogação manual de perfil (campo `revoke_approval_reference` com migração, formulário, evento `accounts.profile_revoked` e histórico; sincronização registra "Saída do grupo da rede"), com testes, per FR-010 / SC-004 (partial)
+- [X] T063 Permitir ao Administrador desativar e reativar uma pessoa com motivo (evento `accounts.user_updated` com `is_active` anterior e novo; recusar desativar o último Administrador ativo), com testes e rota no contrato da varredura, per FR-026 (partial)
+- [X] T064 Completar `contracts/configuracao.md` com todas as variáveis de ambiente usadas pelo código e pelo Compose, per plan: contracts/configuracao.md (partial)
+- [X] T065 Alinhar `data-model.md`: `AuditEvent.actor` mantém a FK com restrição no banco (pessoas nunca são apagadas), per plan: data-model (contradicts)
+- [X] T066 Corrigir em `research.md` (R4) a descrição da sessão: cookie de 12 h renovado a cada acesso e inatividade controlada pelo middleware, per plan: research R4 (contradicts)

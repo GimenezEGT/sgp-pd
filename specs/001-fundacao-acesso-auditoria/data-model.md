@@ -20,7 +20,9 @@ as marcadas *append-only* também não admitem UPDATE (`AppendOnlyModel`).
 | last_login | timestamptz | atualizado a cada login aceito |
 
 Regras: criado no primeiro login aceito (FR-002); atributos de rede atualizados a cada login, com
-evento `accounts.user_updated` (valor anterior e novo só dos campos alterados).
+evento `accounts.user_updated` (valor anterior e novo só dos campos alterados). O Administrador
+desativa e reativa a pessoa com motivo (FR-026), também com `accounts.user_updated`; o último
+Administrador ativo não pode ser desativado.
 
 ## accounts.ProfileAssignment — "Concessão de perfil"
 
@@ -38,6 +40,7 @@ evento `accounts.user_updated` (valor anterior e novo só dos campos alterados).
 | revoked_at | timestamptz null | preenchido na revogação |
 | revoked_by | FK User null | |
 | revoke_reason | text | obrigatório na revogação |
+| revoke_approval_reference | varchar(500) | obrigatório na revogação manual; "Saída do grupo da rede" na sincronização |
 
 Restrições: índice único parcial `(user, profile) WHERE revoked_at IS NULL` (no máximo uma concessão
 ativa por perfil). Estados: ativa → revogada (definitivo). Não se revoga o último `ADMIN` ativo
@@ -98,7 +101,7 @@ não contam.
 | --- | --- | --- |
 | seq | bigint PK | 1, 2, 3… sem lacunas, atribuído sob trava |
 | occurred_at | timestamptz | horário do servidor, obtido depois da trava |
-| actor | FK User null (PROTECT, sem restrição no banco) | nulo = "sistema" |
+| actor | FK User null (PROTECT, com restrição de chave estrangeira no banco) | nulo = "sistema" ou "anônimo" (`actor_username` diz qual); pessoas nunca são apagadas, então a FK não impede a trilha |
 | actor_username | varchar(150) | instantâneo do login ou `sistema` |
 | event_type | varchar(64), indexado | catálogo em `contracts/eventos-auditoria.md` |
 | object_type | varchar(100) | ex.: `accounts.user` |

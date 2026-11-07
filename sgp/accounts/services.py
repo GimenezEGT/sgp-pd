@@ -243,7 +243,7 @@ def grant_profile(
         raise ValidationError("Informe o motivo da concessão.")
     if source == ProfileAssignment.Source.MANUAL and not approval_reference:
         raise ValidationError("Informe a referência da aprovação (quem aprovou e onde).")
-    if not user.is_active:
+    if not User.objects.filter(pk=user.pk, is_active=True).exists():
         raise ValidationError("Pessoa desativada não recebe perfil.")
     try:
         with transaction.atomic():
@@ -280,12 +280,20 @@ def grant_profile(
 
 
 def revoke_profile(
-    assignment: ProfileAssignment, *, by: User | None, reason: str
+    assignment: ProfileAssignment,
+    *,
+    by: User | None,
+    reason: str,
+    approval_reference: str = "",
 ) -> ProfileAssignment:
-    """Revoga sem apagar (FR-011); nunca deixa o sistema sem Administrador ativo (FR-012)."""
+    """Revoga sem apagar (FR-011) com motivo e aprovação (FR-010); nunca deixa o sistema sem
+    Administrador ativo (FR-012). Revogação pelo sistema (by=None) vem da sincronização."""
     reason = (reason or "").strip()
+    approval_reference = (approval_reference or "").strip()
     if not reason:
         raise ValidationError("Informe o motivo da revogação.")
+    if by is not None and not approval_reference:
+        raise ValidationError("Informe a referência da aprovação da revogação.")
     with transaction.atomic():
         assignment = ProfileAssignment.objects.select_for_update().get(pk=assignment.pk)
         if assignment.revoked_at is not None:
@@ -305,7 +313,10 @@ def revoke_profile(
         assignment.revoked_at = timezone.now()
         assignment.revoked_by = by
         assignment.revoke_reason = reason
-        assignment.save(update_fields=["revoked_at", "revoked_by", "revoke_reason"])
+        assignment.revoke_approval_reference = approval_reference
+        assignment.save(
+            update_fields=["revoked_at", "revoked_by", "revoke_reason", "revoke_approval_reference"]
+        )
         record_event(
             "accounts.profile_revoked",
             actor=by,
@@ -315,6 +326,7 @@ def revoke_profile(
                 "perfis": [code for code in before if code != assignment.profile],
                 "perfil": assignment.profile,
                 "origem": assignment.source,
+                "aprovacao": approval_reference,
             },
             reason=reason,
         )
@@ -351,6 +363,7 @@ def sync_network_profiles(user: User, group_dns: set[str]) -> None:
                     assignment,
                     by=None,
                     reason=f"Pessoa fora do grupo da rede {assignment.source_group}",
+                    approval_reference="Saída do grupo da rede",
                 )
             except ValidationError:
                 logger.warning(
@@ -358,6 +371,46 @@ def sync_network_profiles(user: User, group_dns: set[str]) -> None:
                     assignment.profile,
                     user.username,
                 )
+
+
+# --------------------------------------------------------------------------- pessoas
+
+
+def set_person_active(person: User, *, by: User, active: bool, reason: str) -> User:
+    """Desativa ou reativa a pessoa sem apagar o cadastro (FR-026); nunca desativa o último
+    Administrador ativo (FR-012)."""
+    reason = (reason or "").strip()
+    if not reason:
+        raise ValidationError("Informe o motivo.")
+    with transaction.atomic():
+        person = User.objects.select_for_update().get(pk=person.pk)
+        if person.is_active == active:
+            raise ValidationError(
+                "A pessoa já está ativa." if active else "A pessoa já está desativada."
+            )
+        if not active:
+            is_admin = ProfileAssignment.objects.filter(
+                user=person, profile=Profile.ADMIN, revoked_at__isnull=True
+            ).exists()
+            other_admins = (
+                ProfileAssignment.objects.select_for_update()
+                .filter(profile=Profile.ADMIN, revoked_at__isnull=True, user__is_active=True)
+                .exclude(user=person)
+            )
+            if is_admin and not list(other_admins):
+                raise ValidationError("Não é possível desativar o último Administrador ativo.")
+        person.is_active = active
+        person.save(update_fields=["is_active"])
+        record_event(
+            "accounts.user_updated",
+            actor=by,
+            obj=person,
+            old_value={"is_active": not active},
+            new_value={"is_active": active},
+            reason=reason,
+        )
+    clear_profile_cache(person)
+    return person
 
 
 # ----------------------------------------------------------- solicitações de acesso

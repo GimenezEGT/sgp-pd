@@ -30,3 +30,13 @@ Nenhum segredo fica no repositório; `.env.example` lista as variáveis com valo
 | `LDAP_PROFILE_GROUPS` | vazio | JSON perfil → DN do grupo, ex.: `{"ANALYST": "CN=SGP-Analistas,OU=Grupos,DC=empresa,DC=local"}` |
 | `LDAP_TIMEOUT_SECONDS` | `5` | tempo máximo de rede do LDAP |
 | `LOG_LEVEL` | `INFO` | nível de log |
+| `LDAP_LOG_LEVEL` | `WARNING` | nível de log do django-auth-ldap (nunca registra senha) |
+| `DB_APP_ROLE` | `sgp_app` | papel que recebe os privilégios do `apply_db_privileges` |
+| `DB_CONN_MAX_AGE` | `60` | reaproveitamento de conexões do banco, em segundos |
+| `DJANGO_SECURE_COOKIES` | `true` | cookies de sessão e CSRF só por HTTPS |
+| `SGP_CLIENT_IP_HEADER` | `HTTP_X_REAL_IP` | cabeçalho com o IP de origem enviado pelo Nginx |
+| `HTTPS_PORT` / `HTTP_PORT` | `443` / `80` | portas publicadas pelo Nginx (desenvolvimento: `8443` / `8080`) |
+| `SGP_CERT_CN` | `localhost` | nome do certificado autoassinado gerado só quando nenhum certificado é montado |
+| `GUNICORN_WORKERS` / `GUNICORN_TIMEOUT` | `3` / `120` | processos e tempo limite do gunicorn |
+| `CELERY_CONCURRENCY` / `CELERY_LOG_LEVEL` | `2` / `INFO` | worker do Celery |
+| `LDAP_DEV_ADMIN_PASSWORD` | fictícia | só no `docker-compose.override.yml` (LDAP de desenvolvimento) |

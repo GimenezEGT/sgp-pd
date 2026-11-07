@@ -28,6 +28,13 @@ def rotulo_evento(code):
 
 
 @register.filter
+def rotulo_quebra(kind):
+    from sgp.audit.services import break_label
+
+    return break_label(kind)
+
+
+@register.filter
 def rotulo_perfil(code):
     from sgp.accounts.profiles import Profile
 

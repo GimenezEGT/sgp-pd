@@ -5,7 +5,7 @@ import sys
 from django.core.management.base import BaseCommand
 
 from sgp.audit.models import ChainVerification
-from sgp.audit.services import verify_chain
+from sgp.audit.services import break_label, verify_chain
 
 
 class Command(BaseCommand):
@@ -30,6 +30,8 @@ class Command(BaseCommand):
             f"último evento: {result.head_seq} · resumo: {result.head_hash}"
         )
         for item in result.breaks:
-            self.stdout.write(f"  evento {item['seq']}: {item['kind']} — {item['detail']}")
+            self.stdout.write(
+                f"  evento {item['seq']}: {break_label(item['kind'])} — {item['detail']}"
+            )
         if result.status == ChainVerification.Status.BROKEN:
             sys.exit(1)

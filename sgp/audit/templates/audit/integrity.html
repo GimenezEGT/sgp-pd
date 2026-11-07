@@ -17,7 +17,7 @@
       <thead><tr><th>Evento</th><th>Tipo de quebra</th><th>Detalhe</th></tr></thead>
       <tbody>
       {% for item in latest.breaks %}
-        <tr><td class="numero">{{ item.seq }}</td><td>{{ item.kind }}</td><td>{{ item.detail }}</td></tr>
+        <tr><td class="numero">{{ item.seq }}</td><td>{{ item.kind|rotulo_quebra }}</td><td>{{ item.detail }}</td></tr>
       {% endfor %}
       </tbody>
     </table>
