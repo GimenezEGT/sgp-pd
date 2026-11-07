@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     "sgp.audit",
     "sgp.vocab",
     "sgp.projects",
+    "sgp.files",
+    "sgp.catalog",
 ]
 
 MIDDLEWARE = [
@@ -160,6 +162,13 @@ ACCESS_REQUEST_INSTRUCTIONS = env_str(
 # Projetos (feature 002): prefixo do código e perfis com acesso aos dados financeiros.
 PROJECT_CODE_PREFIX = env_str("PROJECT_CODE_PREFIX", "PD")
 FINANCIAL_DATA_PROFILES = env_list("FINANCIAL_DATA_PROFILES", "")
+
+# Cadastros de apoio (feature 003)
+# Padrão do código de lote; provisório até a Qualidade definir o padrão oficial.
+LOT_CODE_PATTERN = env_str("LOT_CODE_PATTERN", r"^[A-Za-z0-9][A-Za-z0-9./-]*$")
+# Tamanho máximo de cada arquivo anexado ou importado, em MB.
+FILE_MAX_MB = env_int("FILE_MAX_MB", 20)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # Internacionalização: interface em português; datas gravadas em UTC, exibidas em Brasília.
 LANGUAGE_CODE = "pt-br"

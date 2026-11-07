@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ kind.label }} {{ record }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'catalog:list' kind.slug %}">← {{ kind.label_plural }}</a></p>
+<h1>{{ record }}</h1>
+<p class="descricao">{{ kind.label }} · versão {{ record.version_display }}{% if record.is_current %} (vigente){% endif %}</p>
+
+{% if not record.is_current and current %}
+<div class="mensagem mensagem-warning" role="status">Esta é a versão {{ record.version_display }}, substituída. Os documentos que a referenciam continuam com estes valores. <a href="{% url 'catalog:detail' kind.slug current.pk %}">Ver a versão vigente ({{ current.version_display }})</a>.</div>
+{% endif %}
+{% if not record.is_active %}<div class="mensagem mensagem-warning" role="status">Cadastro desativado: não aparece na busca para novas referências.</div>{% endif %}
+{% if record.is_locked %}<div class="mensagem" role="status">Bloqueado em {{ record.locked_at|datahora }} por {{ record.locked_by.get_full_name|default:record.locked_by.username }}: {{ record.lock_reason }}. Correções criam nova versão com motivo.</div>{% endif %}
+{% if is_materials and record.certificate_expired %}<div class="mensagem mensagem-error" role="alert">Certificado vencido em {{ record.certificate_valid_until|data }}. O uso não é bloqueado.</div>{% endif %}
+{% if is_materials and record.certificate_pending %}<div class="mensagem mensagem-warning" role="status">Certificado pendente: anexe o certificado de análise.</div>{% endif %}
+
+<div class="painel">
+  <dl>
+    {% for row in rows %}
+    <dt>{{ row.label }}</dt>
+    <dd>{% if row.file %}<a href="{% url 'files:download' row.file.pk %}">{{ row.file.original_name }}</a> <small>({{ row.file.size_display }}, SHA-256 {{ row.file.sha256 }})</small>{% else %}{{ row.value|linebreaksbr }}{% endif %}</dd>
+    {% endfor %}
+  </dl>
+  {% if can_edit %}
+  <div class="acoes">
+    <a class="botao" href="{% url 'catalog:edit' kind.slug record.pk %}">Corrigir</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if samples is not None %}
+<h2>Amostras do painel</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Amostra</th><th>Versão</th><th>Tipo</th><th>Situação</th></tr></thead>
+  <tbody>
+  {% for link in samples %}
+    <tr>
+      <td><a href="{% url 'catalog:detail' 'amostras' link.sample.pk %}">{{ link.sample.identifier }}</a></td>
+      <td>{{ link.sample.version_display }}{% if not link.sample.is_current %} (substituída){% endif %}</td>
+      <td>{{ link.sample.sample_type }}</td>
+      <td>{% if not link.sample.is_active %}<span class="situacao situacao-pendente">Desativada</span>{% else %}Ativa{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4">Nenhuma amostra no painel.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+<h2>Versões</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Versão</th><th>Criada em</th><th>Por</th><th>Motivo</th><th>Bloqueio</th><th>Situação</th></tr></thead>
+  <tbody>
+  {% for version in versions %}
+    <tr>
+      <td><a href="{% url 'catalog:detail' kind.slug version.pk %}">{{ version.version_display }}</a>{% if version.pk == record.pk %} (esta){% endif %}</td>
+      <td>{{ version.created_at|datahora }}</td>
+      <td>{{ version.created_by.get_full_name|default:version.created_by.username }}</td>
+      <td>{{ version.version_reason|default:"—" }}</td>
+      <td>{% if version.is_locked %}{{ version.locked_at|datahora }} – {{ version.lock_reason }}{% else %}—{% endif %}</td>
+      <td>{% if version.is_current %}Vigente{% else %}Substituída{% endif %}{% if not version.is_active %} · desativado{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Histórico na trilha de auditoria</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Seq.</th><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Valores</th><th>Motivo</th></tr></thead>
+  <tbody>
+  {% for event in events %}
+    <tr>
+      <td class="numero">{{ event.seq }}</td>
+      <td>{{ event.occurred_at|datahora }}</td>
+      <td>{{ event.actor_username }}</td>
+      <td>{{ event.event_type|rotulo_evento }}</td>
+      <td>
+        {% if event.display_old is not None %}<pre class="json">Anterior: {{ event.display_old|json_compacto }}</pre>{% endif %}
+        {% if event.display_new is not None %}<pre class="json">Novo: {{ event.display_new|json_compacto }}</pre>{% endif %}
+      </td>
+      <td>{{ event.reason }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">Nenhum evento registrado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if can_edit %}
+<h2>Situação</h2>
+<div class="painel painel-estreito">
+  <form method="post" action="{% url 'catalog:status' kind.slug record.pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="{% if record.is_active %}desativar{% else %}reativar{% endif %}">
+    <p><label for="motivo-situacao">Motivo</label><textarea id="motivo-situacao" name="reason" rows="2" required></textarea></p>
+    <button type="submit" class="botao {% if record.is_active %}botao-perigo{% else %}botao-secundario{% endif %}">{% if record.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

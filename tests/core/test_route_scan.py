@@ -8,6 +8,7 @@ import pytest
 from django.urls import URLPattern, URLResolver, get_resolver, reverse
 
 from sgp.accounts.profiles import AUDIT_TRAIL_PROFILES, INTEGRITY_PROFILES, Profile
+from sgp.catalog.permissions import EDITOR_PROFILES
 
 ANONYMOUS = "anonymous"
 AUTHENTICATED = "authenticated"
@@ -49,6 +50,24 @@ ROUTE_CONTRACT = {
     "projects:submit": ("POST", PROJECT_ACCESS),
     "projects:approve": ("POST", {Profile.RD_MANAGER}),
     "projects:return": ("POST", {Profile.RD_MANAGER}),
+    # Feature 003: consulta por qualquer perfil (lotes: acesso ao projeto, coberto em
+    # tests/catalog); edição só pelos editores dos cadastros.
+    "catalog:index": ("GET", ANY_PROFILE),
+    "catalog:list": ("GET", ANY_PROFILE),
+    "catalog:search": ("GET", ANY_PROFILE),
+    "catalog:detail": ("GET", ANY_PROFILE),
+    "catalog:new": ("GET", EDITOR_PROFILES),
+    "catalog:edit": ("GET", EDITOR_PROFILES),
+    "catalog:status": ("POST", EDITOR_PROFILES),
+    "catalog:import": ("GET", EDITOR_PROFILES),
+    "catalog:import_batch": ("GET", EDITOR_PROFILES),
+    "catalog:import_rejections": ("GET", EDITOR_PROFILES),
+    "catalog:import_template": ("GET", EDITOR_PROFILES),
+    # Arquivo: decidido pela política do registro dono (tests/files/test_download.py).
+    "files:download": ("GET", ANY_PROFILE),
+    "vocab:lists": ("GET", {Profile.QUALITY}),
+    "vocab:detail": ("GET", {Profile.QUALITY}),
+    "vocab:term": ("POST", {Profile.QUALITY}),
 }
 
 

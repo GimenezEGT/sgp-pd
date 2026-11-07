@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if record %}Corrigir {{ kind.label|lower }}{% else %}Novo cadastro{% endif %}{% endblock %}
+{% block content %}
+{% if record %}<p><a href="{% url 'catalog:detail' kind.slug record.pk %}">← {{ record }}</a></p>{% else %}<p><a href="{% url 'catalog:list' kind.slug %}">← {{ kind.label_plural }}</a></p>{% endif %}
+<h1>{% if record %}Corrigir {{ kind.label|lower }}{% else %}Novo cadastro: {{ kind.label|lower }}{% endif %}</h1>
+{% if record and record.is_locked %}
+<div class="mensagem mensagem-warning" role="status">Este cadastro já foi usado em documento assinado: salvar uma correção cria a versão {{ record.version|add:1|stringformat:"02d" }} e a versão {{ record.version_display }} continua igual.</div>
+{% endif %}
+<div class="painel">
+  <form method="post"{% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Salvar</button>
+  </form>
+</div>
+{% endblock %}

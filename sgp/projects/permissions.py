@@ -1,12 +1,13 @@
 """Acesso, edição e dados financeiros de projetos (FR-003, FR-010, FR-014)."""
 
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
-from sgp.accounts.profiles import Profile, active_profiles, deny_access
+from sgp.accounts.profiles import GLOBAL_PROJECT_ACCESS, Profile, active_profiles, deny_access
 from sgp.core.access import can_access_project
 
-from .models import Project, ProjectStatus
+from .models import Project, ProjectMember, ProjectStatus
 
 CREATE_PROFILES = frozenset({Profile.PROJECT_LEADER, Profile.RD_MANAGER})
 FINANCIAL_FIELDS = (
@@ -20,6 +21,19 @@ FINANCIAL_FIELDS = (
     "sale_price_max",
     "annual_sales_tests",
 )
+
+
+def accessible_projects(user):
+    """Projetos que a pessoa acessa pela regra única (perfil global, líder ou membro ativo)."""
+    queryset = Project.objects.select_related("leader", "technology", "business_plan")
+    if active_profiles(user) & GLOBAL_PROJECT_ACCESS:
+        return queryset
+    member_projects = (
+        ProjectMember.objects.active()
+        .filter(user=user, project__status=ProjectStatus.OPEN)
+        .values("project_id")
+    )
+    return queryset.filter(Q(leader=user) | Q(pk__in=member_projects))
 
 
 def is_leader(user, project: Project) -> bool:

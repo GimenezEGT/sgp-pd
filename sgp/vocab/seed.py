@@ -1,5 +1,7 @@
 """Carga inicial das listas controladas (docs/contexto/05-vocabularios.md e 02-dicionario)."""
 
+MINUS = chr(0x2212)
+
 SEED = {
     "tecnologia": (
         "Tecnologia do produto",
@@ -25,6 +27,36 @@ SEED = {
         ],
     ),
 }
+
+
+# Feature 003: listas das amostras (docs/contexto/05-vocabularios.md).
+SAMPLE_SEED = {
+    "tipo-amostra": (
+        "Tipos de amostra",
+        [
+            ("soro", "Soro"),
+            ("plasma", "Plasma"),
+            ("sangue-total", "Sangue total"),
+            ("urina", "Urina"),
+            ("liquor", "Líquor"),
+            ("dna", "DNA"),
+            ("rna", "RNA"),
+            ("outros", "Outros"),
+        ],
+    ),
+    "armazenamento": (
+        "Condições de armazenamento",
+        [
+            ("menos-20", MINUS + "20 °C"),
+            ("2-8", "2 a 8 °C"),
+            ("2-30", "2 a 30 °C"),
+            ("15-30", "15 a 30 °C"),
+            ("37", "37 °C"),
+        ],
+    ),
+}
+
+ALL_SEEDS = {**SEED, **SAMPLE_SEED}
 
 
 def load(apps, seed: dict) -> None:

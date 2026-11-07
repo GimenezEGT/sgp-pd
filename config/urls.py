@@ -7,4 +7,7 @@ urlpatterns = [
     path("", include("sgp.accounts.urls")),
     path("auditoria/", include("sgp.audit.urls")),
     path("projetos/", include("sgp.projects.urls")),
+    path("cadastros/", include("sgp.catalog.urls")),
+    path("arquivos/", include("sgp.files.urls")),
+    path("listas/", include("sgp.vocab.urls")),
 ]

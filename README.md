@@ -40,11 +40,26 @@ AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
 `DJANGO_DEBUG=false`. As variáveis estão em
 [specs/001-fundacao-acesso-auditoria/contracts/configuracao.md](specs/001-fundacao-acesso-auditoria/contracts/configuracao.md).
 
+## Funções já entregues
+
+| Feature | O que entrega |
+| --- | --- |
+| 001 | Login pela rede (AD/LDAP), perfis com motivo e aprovação, sessão com expiração, trilha de auditoria encadeada por SHA-256 e verificação de integridade |
+| 002 | Abertura de projeto: TAP, Plano de Negócios (dados financeiros restritos), submissão, devolução e aprovação com código `PD-AAAA-NNN` |
+| 003 | Cadastros de apoio versionados (lotes, insumos, kits, amostras, painéis, normas, referências), anexos com SHA-256 conferido, importação de insumos e listas controladas mantidas pela Qualidade |
+
+Cadastros (feature 003): em **Cadastros**, cada registro é corrigido no próprio lugar até ser
+usado em documento assinado; depois disso a correção cria nova versão com motivo e a anterior
+continua intacta. A importação de insumos aceita CSV (`;` ou `,`) ou XLSX no layout de
+`/cadastros/insumos/modelo.csv`, mostra a pré-visualização e só grava depois da confirmação.
+Amostras guardam só o código interno e dados analíticos (LGPD). As listas controladas ficam em
+**Listas controladas**, só para a Qualidade/AR.
+
 ## Estrutura
 
 ```text
 config/        settings, urls, celery
-sgp/           apps (core, accounts, audit, ...)
+sgp/           apps (core, accounts, audit, vocab, projects, files, catalog)
 tests/         pytest, espelhando as apps
 deploy/        Dockerfile, Nginx, PostgreSQL, LDAP de desenvolvimento
 docs/          contexto do kit, plano, validação

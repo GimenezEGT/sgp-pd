@@ -18,11 +18,18 @@ def test_cada_tipo_de_edicao_gera_evento_do_projeto(make_project, make_user):
     leader = project.leader
     services.update_product(project, by=leader, data={"product_family": "Família X"})
     services.update_charter(project, by=leader, data={"objective": "Novo objetivo"})
-    services.update_business_plan(project, by=leader, data={"objective": "Plano"}, forecasts={1: Decimal("1.00")})
-    member = services.add_member(project, by=leader, user=make_user(None, Profile.ANALYST), role="Formulação")
+    services.update_business_plan(
+        project, by=leader, data={"objective": "Plano"}, forecasts={1: Decimal("1.00")}
+    )
+    member = services.add_member(
+        project, by=leader, user=make_user(None, Profile.ANALYST), role="Formulação"
+    )
     services.end_member(member, by=leader, reason="Saiu")
     milestone = services.add_milestone(
-        project, by=leader, subdocument_type=get_term(SUBDOCUMENT_TYPE, "rapd"), planned_date=date(2027, 1, 10)
+        project,
+        by=leader,
+        subdocument_type=get_term(SUBDOCUMENT_TYPE, "rapd"),
+        planned_date=date(2027, 1, 10),
     )
     services.update_milestone(milestone, by=leader, planned_date=date(2027, 2, 10))
     services.cancel_milestone(milestone, by=leader, reason="Replanejado")
@@ -43,7 +50,10 @@ def test_cada_tipo_de_edicao_gera_evento_do_projeto(make_project, make_user):
     assert events["projects.updated"].old_value == {"product_family": ""}
     assert events["projects.charter_updated"].new_value == {"objective": "Novo objetivo"}
     plan_event = events["projects.business_plan_updated"]
-    assert plan_event.old_value["forecasts"]["1"] is None and plan_event.new_value["forecasts"]["1"] == "1.00"
+    assert (
+        plan_event.old_value["forecasts"]["1"] is None
+        and plan_event.new_value["forecasts"]["1"] == "1.00"
+    )
     assert events["projects.milestone_updated"].old_value == {"data_planejada": "2027-01-10"}
     assert all(event.actor == leader for event in events.values())
 
