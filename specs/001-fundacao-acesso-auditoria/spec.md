@@ -139,6 +139,7 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 - **FR-006**: O sistema DEVE bloquear o login de um usuário depois de um número configurável de tentativas inválidas seguidas (valor inicial: 5), por um período configurável (valor inicial: 15 minutos); durante o bloqueio a tentativa NÃO DEVE ser enviada à rede; um login aceito zera a contagem.
 - **FR-007**: O Administrador DEVE poder desbloquear um login antes do fim do período, informando o motivo.
 - **FR-008**: O usuário DEVE poder sair (logout) de qualquer página.
+- **FR-027**: A comunicação com o serviço de autenticação da rede DEVE ser cifrada, e a senha digitada NUNCA DEVE aparecer em eventos, registros técnicos ou mensagens.
 
 **Perfis e permissões**
 
@@ -154,14 +155,14 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 **Trilha de auditoria**
 
 - **FR-017**: O sistema DEVE registrar, no mínimo, os eventos: login aceito, login recusado, logout, encerramento por inatividade, bloqueio e desbloqueio de login, solicitação de acesso e sua decisão, criação e alteração de cadastro de pessoa, concessão e revogação de perfil, acesso negado, exportação da trilha e verificação de integridade.
-- **FR-018**: Cada evento DEVE guardar data e hora do servidor, autor (pessoa ou "sistema"), tipo, objeto afetado, projeto quando houver, valor anterior, valor novo, motivo quando houver e endereço de origem da requisição.
+- **FR-018**: Cada evento DEVE guardar data e hora do servidor, autor (pessoa ou "sistema"), tipo, objeto afetado, projeto quando houver, valor anterior, valor novo, motivo quando houver e endereço de origem da requisição; o evento e a mudança que ele descreve DEVEM ser gravados juntos, de modo que não exista mudança sem evento nem evento de mudança desfeita.
 - **FR-019**: A trilha DEVE ser somente de inclusão: o sistema NÃO DEVE oferecer edição nem exclusão de eventos, e o armazenamento DEVE recusar alteração e exclusão feitas pela aplicação.
 - **FR-020**: Cada evento DEVE ser encadeado ao anterior por um resumo criptográfico, numa sequência sem lacunas, de modo que alteração, inserção ou exclusão de evento fora do sistema seja detectável.
-- **FR-021**: O sistema DEVE verificar a integridade de toda a cadeia uma vez por dia, sem ação humana, e sob demanda pelos perfis Qualidade/AR e Administrador; o resultado DEVE informar "Íntegra" ou a posição e o tipo de cada quebra (conteúdo alterado, encadeamento rompido, lacuna na sequência, último ponto de controle ausente ou divergente), e DEVE ficar registrado.
+- **FR-021**: O sistema DEVE verificar a integridade de toda a cadeia uma vez por dia, sem ação humana, e sob demanda pelos perfis Qualidade/AR e Administrador; o resultado DEVE informar "Íntegra" ou a posição e o tipo de cada quebra (conteúdo alterado, encadeamento rompido, lacuna na sequência, último ponto de controle ausente ou divergente), e DEVE ficar registrado, com a mesma proteção contra alteração da trilha.
 - **FR-022**: Enquanto a última verificação indicar quebra, o sistema DEVE exibir um alerta aos perfis Qualidade/AR e Administrador.
 - **FR-023**: Os perfis Qualidade/AR, Gestor de P&D e Administrador DEVEM consultar a trilha com filtros combináveis por usuário, projeto, período e tipo de evento, em ordem cronológica e com paginação.
 - **FR-024**: O resultado filtrado DEVE ser exportável em CSV e XLSX, com os filtros aplicados e a data e hora da exportação no arquivo; cada exportação DEVE gerar um evento com os filtros e a quantidade de eventos exportados.
-- **FR-025**: Datas e horas DEVEM vir do servidor, ser gravadas sem ambiguidade de fuso e exibidas no horário de Brasília (America/Sao_Paulo).
+- **FR-025**: Datas e horas DEVEM vir do servidor, ser gravadas sem ambiguidade de fuso e exibidas no horário de Brasília (America/Sao_Paulo), com precisão de segundos na tela e na exportação.
 - **FR-026**: Nenhum cadastro de pessoa, concessão de perfil, solicitação de acesso, tentativa de login, verificação ou evento DEVE ser apagado fisicamente; pessoas saem de uso por desativação. O sistema NÃO DEVE oferecer expurgo: a retenção é por tempo indeterminado até existir procedimento aprovado de arquivamento (nunca menos de 2 anos).
 
 ### Key Entities *(include if feature involves data)*
