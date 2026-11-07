@@ -8,6 +8,17 @@
 
 **Input**: User description: "Fundação do SGP-P&D: acesso, perfis e trilha de auditoria. Leia docs/contexto/01-visao-geral.md e docs/contexto/04-requisitos-regulatorios.md. Contexto: o sistema roda na intranet e guarda registros de controle de projeto sujeitos às Boas Práticas de Fabricação (RDC 665/2022). Só pessoas autorizadas entram, e tudo o que acontece precisa ser rastreável. Perfis: Administrador do sistema; Gestor de P&D; Líder de projeto; Analista/Pesquisador; Qualidade/Assuntos Regulatórios (leitura ampla e revisão); Leitor (consulta). Uma pessoa pode ter mais de um perfil. O acesso a cada projeto depende de ser membro dele, exceto para Gestor de P&D, Qualidade e Administrador. Histórias: 1. Como colaborador, entro com meu usuário e senha de rede; sem perfil no sistema, vejo como pedir acesso. 2. Como administrador, concedo e revogo perfis; cada mudança de permissão registra quem fez, quando e por quê. 3. Como usuário, minha sessão expira após inatividade configurável e o login bloqueia após tentativas inválidas, conforme a política da TI. 4. Como auditor da Qualidade, consulto a trilha de auditoria por usuário, projeto, período e tipo de evento, e exporto o resultado. 5. Como Garantia da Qualidade, preciso provar que a trilha não foi adulterada: o sistema verifica a integridade da cadeia de eventos e aponta qualquer quebra. Regras: nenhum registro é apagado fisicamente; data e hora vêm do servidor sincronizado; eventos guardam valor anterior, valor novo e motivo quando houver; colaborador desativado na rede perde o acesso no próximo login. Fora do escopo: projetos e documentos (features seguintes)."
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial. Todos os valores são parâmetros de configuração, para que a ratificação não exija programação.
+
+- Q: Quais valores a política da TI define para o tempo de inatividade da sessão, o número de tentativas inválidas seguidas e o período de bloqueio? → A: 30 minutos de inatividade, bloqueio após 5 tentativas inválidas seguidas e bloqueio de 15 minutos, todos configuráveis na implantação (ratificar com a TI).
+- Q: Quem aprova a concessão de um perfil antes de o Administrador registrá-la no sistema? → A: O Administrador registra a concessão com a referência da aprovação; o aprovador esperado é o Gestor de P&D para os perfis Gestor de P&D, Líder de projeto, Analista/Pesquisador e Leitor, a Garantia da Qualidade para o perfil Qualidade/AR e a gestão da TI para o perfil Administrador; o sistema registra a referência informada, sem fluxo de aprovação interno nesta feature (ratificar com o Gestor de P&D e a Garantia da Qualidade).
+- Q: Por quanto tempo a trilha de auditoria e os registros desta feature devem ser mantidos? → A: Por tempo indeterminado: o sistema não oferece expurgo; a retenção por produto (tempo de vida do produto, nunca menos de 2 anos, RDC 665/2022, art. 37) só será aplicada quando existir procedimento aprovado de arquivamento (ratificar com a Garantia da Qualidade).
+- Q: Consultores externos sem conta na rede precisam acessar o sistema? → A: Não; quem precisar de acesso recebe da TI uma conta de rede temporária e entra pelo login de rede, sem contas locais no sistema (ratificar com a TI e o Gestor de P&D).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Entrar com o login de rede (Priority: P1)
@@ -120,19 +131,19 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 
 **Autenticação e sessão**
 
-- **FR-001**: O sistema DEVE autenticar os colaboradores somente com o usuário e a senha de rede da empresa, sem guardar a senha.
+- **FR-001**: O sistema DEVE autenticar os colaboradores somente com o usuário e a senha de rede da empresa, sem guardar a senha; NÃO DEVEM existir contas locais (consultor externo entra com conta de rede temporária fornecida pela TI).
 - **FR-002**: No primeiro login aceito, o sistema DEVE criar o cadastro da pessoa com login, nome, e-mail e função vindos da rede, e DEVE atualizá-los a cada login, registrando na trilha a criação e cada alteração com valor anterior e novo.
 - **FR-003**: Pessoa autenticada sem perfil ativo NÃO DEVE acessar nenhuma função; DEVE ver a página "Solicitar acesso", com as instruções para pedir acesso, e poder registrar uma solicitação com justificativa obrigatória.
 - **FR-004**: O login de colaborador desativado na rede, com senha inválida ou com usuário inexistente DEVE ser recusado com a mesma mensagem genérica; o sistema NÃO DEVE oferecer forma alternativa de entrada.
-- **FR-005**: O sistema DEVE encerrar a sessão após um tempo de inatividade configurável, levar o usuário ao login com a mensagem de sessão expirada e registrar o encerramento.
-- **FR-006**: O sistema DEVE bloquear o login de um usuário depois de um número configurável de tentativas inválidas seguidas, por um período configurável; durante o bloqueio a tentativa NÃO DEVE ser enviada à rede; um login aceito zera a contagem.
+- **FR-005**: O sistema DEVE encerrar a sessão após um tempo de inatividade configurável (valor inicial: 30 minutos), levar o usuário ao login com a mensagem de sessão expirada e registrar o encerramento.
+- **FR-006**: O sistema DEVE bloquear o login de um usuário depois de um número configurável de tentativas inválidas seguidas (valor inicial: 5), por um período configurável (valor inicial: 15 minutos); durante o bloqueio a tentativa NÃO DEVE ser enviada à rede; um login aceito zera a contagem.
 - **FR-007**: O Administrador DEVE poder desbloquear um login antes do fim do período, informando o motivo.
 - **FR-008**: O usuário DEVE poder sair (logout) de qualquer página.
 
 **Perfis e permissões**
 
 - **FR-009**: O sistema DEVE oferecer os perfis Administrador do sistema, Gestor de P&D, Líder de projeto, Analista/Pesquisador, Qualidade/Assuntos Regulatórios e Leitor; uma pessoa DEVE poder ter vários perfis ativos, e suas permissões são a soma deles.
-- **FR-010**: Só o Administrador DEVE conceder e revogar perfis; cada concessão e revogação DEVE exigir motivo e referência da aprovação e registrar autor, data e hora.
+- **FR-010**: Só o Administrador DEVE conceder e revogar perfis; cada concessão e revogação DEVE exigir motivo e referência da aprovação (quem aprovou: Gestor de P&D para os perfis Gestor de P&D, Líder de projeto, Analista/Pesquisador e Leitor; Garantia da Qualidade para Qualidade/AR; gestão da TI para Administrador) e registrar autor, data e hora.
 - **FR-011**: Revogar um perfil NÃO DEVE apagar a concessão; o histórico de concessões e revogações de cada pessoa DEVE ficar consultável.
 - **FR-012**: O sistema NÃO DEVE permitir revogar o perfil do último Administrador ativo.
 - **FR-013**: Quando houver mapeamento configurado entre grupos da rede e perfis, o sistema DEVE, a cada login, conceder os perfis dos grupos a que a pessoa pertence e revogar os perfis sincronizados de grupos a que ela não pertence mais, registrando cada mudança com o grupo como origem; concessões manuais NÃO DEVEM ser revogadas pela sincronização.
@@ -151,7 +162,7 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 - **FR-023**: Os perfis Qualidade/AR, Gestor de P&D e Administrador DEVEM consultar a trilha com filtros combináveis por usuário, projeto, período e tipo de evento, em ordem cronológica e com paginação.
 - **FR-024**: O resultado filtrado DEVE ser exportável em CSV e XLSX, com os filtros aplicados e a data e hora da exportação no arquivo; cada exportação DEVE gerar um evento com os filtros e a quantidade de eventos exportados.
 - **FR-025**: Datas e horas DEVEM vir do servidor, ser gravadas sem ambiguidade de fuso e exibidas no horário de Brasília (America/Sao_Paulo).
-- **FR-026**: Nenhum cadastro de pessoa, concessão de perfil, solicitação de acesso, tentativa de login, verificação ou evento DEVE ser apagado fisicamente; pessoas saem de uso por desativação.
+- **FR-026**: Nenhum cadastro de pessoa, concessão de perfil, solicitação de acesso, tentativa de login, verificação ou evento DEVE ser apagado fisicamente; pessoas saem de uso por desativação. O sistema NÃO DEVE oferecer expurgo: a retenção é por tempo indeterminado até existir procedimento aprovado de arquivamento (nunca menos de 2 anos).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -179,7 +190,8 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 
 - A autenticação usa o Active Directory da empresa, acessível a partir do servidor da intranet; a TI fornece uma conta de serviço de consulta e um ambiente de homologação.
 - O horário do servidor é sincronizado pela TI (NTP); o sistema não confia no horário do computador do usuário.
-- Os parâmetros de segurança (tempo de inatividade, número de tentativas e período de bloqueio) são definidos pela TI e alterados por configuração controlada da implantação; os valores iniciais estão em Clarifications até a confirmação da TI.
+- Os parâmetros de segurança (tempo de inatividade, número de tentativas e período de bloqueio) são definidos pela TI e alterados por configuração controlada da implantação; os valores iniciais (30 min, 5 tentativas, 15 min) aguardam ratificação da TI.
+- Não há contas locais: consultores externos usam conta de rede temporária criada pela TI.
 - Os seis perfis são fixos nesta feature; as permissões finas de cada perfil sobre projetos e documentos são detalhadas nas features 002 a 012.
 - O primeiro Administrador é designado na implantação por um procedimento da TI, registrado na trilha.
 - Projetos ainda não existem nesta feature: o filtro por projeto e a regra de acesso por projeto são entregues prontos para uso pelas features seguintes.
