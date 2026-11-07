@@ -29,6 +29,13 @@ NAV_ITEMS: list[NavItem] = [
         "Abrir projetos, preencher TAP e Plano de Negócios, acompanhar aprovações.",
     ),
     NavItem(
+        "Fila de revisão",
+        "signatures:queue",
+        frozenset({Profile.RD_MANAGER}),
+        "Projetos",
+        "Documentos aguardando a sua aprovação, com os dias de espera.",
+    ),
+    NavItem(
         "Modelos de formulário",
         "formtemplates:list",
         frozenset(Profile),

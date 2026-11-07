@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Delegações de aprovação{% endblock %}
+{% block content %}
+<h1>Delegações de aprovação</h1>
+<div class="painel painel-estreito">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Delegar</button>
+  </form>
+</div>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Delegado</th><th>Período</th><th>Motivo</th><th>Situação</th><th></th></tr></thead>
+  <tbody>
+  {% for delegation in delegations %}
+    <tr>
+      <td>{{ delegation.delegate.get_full_name }}</td>
+      <td>{{ delegation.starts_on|data }} a {{ delegation.ends_on|data }}</td>
+      <td>{{ delegation.reason }}</td>
+      <td>{% if delegation.ended_at %}Encerrada em {{ delegation.ended_at|datahora }}{% elif delegation.ends_on < today %}Vencida{% else %}Vigente{% endif %}</td>
+      <td>{% if not delegation.ended_at and delegation.ends_on >= today %}<form method="post" action="{% url 'signatures:delegation_end' delegation.pk %}">{% csrf_token %}{{ end_form.as_p }}<button type="submit" class="botao botao-perigo">Encerrar</button></form>{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Nenhuma delegação.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

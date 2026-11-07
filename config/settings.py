@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "sgp.catalog",
     "sgp.formtemplates",
     "sgp.subdocuments",
+    "sgp.signatures",
 ]
 
 MIDDLEWARE = [
@@ -173,6 +174,11 @@ FILE_MAX_MB = env_int("FILE_MAX_MB", 20)
 # Tipos aceitos nos anexos de documentos (só os de assinatura conhecida: pdf, png, jpeg).
 FILE_DOCUMENT_TYPES = env_list("FILE_DOCUMENT_TYPES", "pdf,png,jpeg")
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
+
+# Assinatura eletrônica (feature 005)
+SIGNATURE_MAX_FAILURES = env_int("SIGNATURE_MAX_FAILURES", 3)
+SIGNATURE_LOCK_MINUTES = env_int("SIGNATURE_LOCK_MINUTES", 15)
+REVIEW_ALERT_DAYS = env_int("REVIEW_ALERT_DAYS", 5)
 
 # Internacionalização: interface em português; datas gravadas em UTC, exibidas em Brasília.
 LANGUAGE_CODE = "pt-br"

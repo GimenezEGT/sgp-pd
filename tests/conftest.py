@@ -248,3 +248,39 @@ def bare_project(make_user, vocab_seed):
         )
 
     return _bare
+
+
+SIGNING_PASSWORD = "Senha#Assina1"
+
+
+@pytest.fixture
+def signing(directory):
+    """Assinatura nos testes: cadastra a pessoa no diretório falso e roda o ciclo real (005)."""
+    from types import SimpleNamespace
+
+    from sgp.signatures import services
+
+    def enable(*users):
+        for user in users:
+            directory.add_person(user.username, password=SIGNING_PASSWORD)
+        return users[0] if len(users) == 1 else users
+
+    def submit(kind, obj, by):
+        enable(by)
+        return services.submit(kind, obj, by=by, password=SIGNING_PASSWORD)
+
+    def approve(kind, obj, by):
+        enable(by)
+        return services.approve(kind, obj, by=by, password=SIGNING_PASSWORD)
+
+    def submit_and_approve(kind, obj, elaborator, approver):
+        submit(kind, obj, elaborator)
+        return approve(kind, obj, approver)
+
+    return SimpleNamespace(
+        password=SIGNING_PASSWORD,
+        enable=enable,
+        submit=submit,
+        approve=approve,
+        submit_and_approve=submit_and_approve,
+    )

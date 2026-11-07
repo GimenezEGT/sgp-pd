@@ -1,0 +1,37 @@
+{% load sgp %}
+<section class="painel assinaturas" aria-label="Assinaturas">
+  <h2>Assinaturas – versão {{ sig.version|stringformat:"02d" }}</h2>
+  {% for signature in sig.signatures %}
+  <p><strong>{% if signature.meaning == "elaborated" %}Analista Responsável (Nome/Função):{% elif signature.meaning == "approved" %}{{ sig.approver_label }}{% else %}Revisado por:{% endif %}</strong>
+    {{ signature.signer_name }}{% if signature.signer_title %} / {{ signature.signer_title }}{% endif %} — {{ signature.get_meaning_display }} em {{ signature.signed_at|datahora }}{% if signature.delegation %} (em delegação de {{ signature.delegation.delegator.get_full_name }}){% endif %}
+    <br><small>Resumo assinado: {{ signature.content_hash }}</small></p>
+  {% empty %}
+  <p class="descricao">Ainda sem assinaturas nesta versão.</p>
+  {% endfor %}
+  {% if sig.versions %}
+  <p>Versões aprovadas:
+    {% for item in sig.versions %}<a href="{% url 'signatures:version' sig.kind sig.obj.pk item.version %}">{{ item.version_display }}</a> ({% if item.superseded %}Substituída{% else %}Vigente{% endif %}, {{ item.approved_at|data }}){% if not forloop.last %}; {% endif %}{% endfor %}
+  </p>
+  {% endif %}
+  <div class="acoes">
+    {% if sig.can_submit %}<a class="botao" href="{% url 'signatures:submit' sig.kind sig.obj.pk %}">Enviar para revisão (assinar)</a>{% endif %}
+    {% if sig.can_approve %}<a class="botao" href="{% url 'signatures:approve' sig.kind sig.obj.pk %}">Aprovar ou devolver</a>{% endif %}
+    <form method="post" action="{% url 'signatures:verify' sig.kind sig.obj.pk %}">{% csrf_token %}<button type="submit" class="botao botao-secundario">Verificar integridade</button></form>
+  </div>
+  {% if sig.can_review %}
+  <details><summary>Assinar como revisor</summary>
+    <form method="post" action="{% url 'signatures:review' sig.kind sig.obj.pk %}">{% csrf_token %}
+      <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
+      <button type="submit" class="botao botao-secundario">Assinar (Revisado)</button>
+    </form>
+  </details>
+  {% endif %}
+  {% if sig.can_new_version %}
+  <details><summary>Criar nova versão</summary>
+    <form method="post" action="{% url 'signatures:new_version' sig.kind sig.obj.pk %}">{% csrf_token %}
+      <p><label>Motivo da nova versão <textarea name="motivo" rows="2" required></textarea></label></p>
+      <button type="submit" class="botao botao-secundario">Criar versão {{ sig.version|add:1|stringformat:"02d" }}</button>
+    </form>
+  </details>
+  {% endif %}
+</section>

@@ -12,4 +12,5 @@ urlpatterns = [
     path("listas/", include("sgp.vocab.urls")),
     path("modelos/", include("sgp.formtemplates.urls")),
     path("", include("sgp.subdocuments.urls")),
+    path("assinaturas/", include("sgp.signatures.urls")),
 ]

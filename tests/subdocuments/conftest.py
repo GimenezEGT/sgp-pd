@@ -110,12 +110,14 @@ def make_subdocument(analyst):
 
 
 @pytest.fixture
-def approved_entry(project, analyst, manager, standard, make_subdocument):
+def approved_entry(project, analyst, manager, standard, make_subdocument, signing):
     from sgp.subdocuments import services
 
     entry = make_subdocument(project, "entrada")
     entry = services.save_subdocument(entry, by=analyst, data={"topics": entry_topics(standard.pk)})
-    return services.approve(entry, by=manager)
+    signing.submit_and_approve("subdocument", entry, analyst, manager)
+    entry.refresh_from_db()
+    return entry
 
 
 @pytest.fixture

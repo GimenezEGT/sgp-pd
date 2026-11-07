@@ -21,5 +21,4 @@ urlpatterns = [
     path("subdocumentos/<int:pk>/linha/", views.table_row, name="row"),
     path("subdocumentos/<int:pk>/atualizar-derivados/", views.refresh, name="refresh"),
     path("subdocumentos/<int:pk>/migrar/", views.migrate, name="migrate"),
-    path("subdocumentos/<int:pk>/aprovar/", views.approve, name="approve"),
 ]

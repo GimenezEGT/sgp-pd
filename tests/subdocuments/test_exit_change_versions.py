@@ -100,7 +100,7 @@ def test_setores_e_insumos_novos(
 
 @pytest.mark.req("004:FR-021")
 def test_alteracao_sobe_a_versao_e_marca_para_revisao(
-    project, approved_entry, make_subdocument, approve_quick, analyst, manager, events
+    project, approved_entry, make_subdocument, approve_quick, analyst, manager, events, signing
 ):
     formulation = approve_quick(make_subdocument(project, "formulacao"))
     change = make_subdocument(project, "alteracao")
@@ -121,10 +121,10 @@ def test_alteracao_sobe_a_versao_e_marca_para_revisao(
     }
     change = services.save_subdocument(change, by=analyst, data={"topics": topics})
     with pytest.raises(ValidationError, match="preencha Avaliação de risco ou Anexos"):
-        services.approve(change, by=manager)
+        signing.submit("subdocument", change, analyst)
     topics["analise_risco"]["values"]["texto"] = "Risco baixo; estabilidade a confirmar"
     change = services.save_subdocument(change, by=analyst, data={"topics": topics})
-    services.approve(change, by=manager)
+    signing.submit_and_approve("subdocument", change, analyst, manager)
     project.refresh_from_db()
     assert project.version == 2
     version_event = events("projects.version_changed")[-1]
