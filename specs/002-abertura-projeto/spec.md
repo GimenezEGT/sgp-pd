@@ -8,6 +8,18 @@
 
 **Input**: User description: "Abertura de projeto com Termo de Abertura de Projeto (TAP) e Plano de Negócios. Leia docs/contexto/02-dicionario-documentos.md, seções TAP e Plano de Negócios. Objetivo: o líder abre um projeto de produto para diagnóstico in vitro pelo sistema, em vez de documentos avulsos; o Gestor de P&D aprova; a partir daí o projeto aceita subdocumentos. Histórias: 1. Como líder de projeto, crio um projeto em rascunho informando o produto: nome, família (quando houver), tecnologia (ex.: bioquímica, imunologia, biologia molecular), órgão regulador (ANVISA ou MAPA), classe de risco prevista e regra de classificação. 2. Preencho o TAP: justificativa, objetivo, escopo incluído e excluído, entregas, premissas, restrições, riscos iniciais, partes interessadas, equipe com papéis e marcos planejados por subdocumento. 3. Preencho o Plano de Negócios: nome do projeto, data, líder, objetivo, descrição geral, custo total do projeto, prazo de execução, mercado-alvo e retorno esperado ano a ano por 5 anos. Incluo a viabilidade financeira (concorrentes, preço por teste dos concorrentes, apresentações dos concorrentes, custo máximo de produção, preço de venda previsto, venda anual prevista) e a viabilidade produtiva (estrutura fabril, equipe de produção, controle de qualidade). 4. Submeto para aprovação; o Gestor de P&D aprova ou devolve com comentário obrigatório. Na aprovação, o projeto recebe código único, fica "Aberto" na versão 01 e a equipe ganha acesso. 5. Como Gestor de P&D, vejo a lista de projetos com filtros por status, líder e produto. Regras: dados financeiros só aparecem para Gestor de P&D, líder do projeto e perfis autorizados; o retorno total em 5 anos é a soma das previsões anuais; cada marco tem data planejada e, depois, data realizada; toda edição vai para a trilha de auditoria. Fora do escopo: subdocumentos técnicos (004) e assinatura eletrônica (005). Nesta feature a aprovação é uma confirmação registrada na auditoria; a 005 a substitui por assinatura."
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo Gestor de P&D antes do uso oficial.
+
+- Q: Quais campos o TAP deve ter, já que o pedido original não os lista? → A: Os da proposta de `docs/contexto/02-dicionario-documentos.md`: produto (nome, família, tecnologia, órgão regulador, classe de risco e regra), justificativa, objetivo, escopo incluído e excluído, entregas, premissas, restrições, riscos iniciais (risco, impacto, resposta), partes interessadas (nome/área, interesse), equipe (pessoa, papel) e marcos (subdocumento, data prevista, data realizada); código gerado na aprovação (ratificar com o Gestor de P&D).
+- Q: Qual é o formato do código do projeto? → A: PD-AAAA-NNN, com o ano da aprovação e sequência de 3 dígitos que recomeça a cada ano (ex.: PD-2026-001), configurável no prefixo (ratificar com o Gestor de P&D).
+- Q: O "retorno esperado" é receita, margem ou lucro, e precisa de indicador como payback? → A: Receita líquida prevista de cada ano, em R$, com o total calculado; nenhum indicador adicional (payback) nesta versão (ratificar com o Gestor de P&D).
+- Q: Projetos acima de certo custo exigem aprovação da diretoria? → A: Não nesta versão; o Gestor de P&D aprova todos os projetos, e uma alçada por custo vira nova feature se for exigida (ratificar com o Gestor de P&D).
+- Q: Quem além do Gestor de P&D e do líder do projeto vê os dados financeiros? → A: Ninguém por padrão; a lista de perfis autorizados é uma configuração da implantação (ratificar com o Gestor de P&D).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Criar o projeto em rascunho com os dados do produto (Priority: P1)
@@ -130,17 +142,17 @@ O Gestor de P&D vê a lista de projetos com filtros por status, líder e produto
 
 **Plano de Negócios**
 
-- **FR-007**: O líder DEVE poder preencher o Plano de Negócios com data, objetivo, descrição geral, custo total, prazo de execução (em meses e/ou data de término), mercado-alvo, retorno esperado de cada um dos 5 anos, viabilidade financeira (principais concorrentes, faixa de preço por teste dos concorrentes, principais apresentações dos concorrentes, custo máximo de produção considerando matéria-prima, faixa de preço de venda prevista, venda anual prevista em testes por ano) e viabilidade produtiva (estrutura fabril, equipe de produção, controle de qualidade); nome do projeto e líder DEVEM vir do projeto, sem redigitação.
+- **FR-007**: O líder DEVE poder preencher o Plano de Negócios com data, objetivo, descrição geral, custo total, prazo de execução (em meses e/ou data de término), mercado-alvo, retorno esperado (receita líquida prevista, em R$) de cada um dos 5 anos, viabilidade financeira (principais concorrentes, faixa de preço por teste dos concorrentes, principais apresentações dos concorrentes, custo máximo de produção considerando matéria-prima, faixa de preço de venda prevista, venda anual prevista em testes por ano) e viabilidade produtiva (estrutura fabril, equipe de produção, controle de qualidade); nome do projeto e líder DEVEM vir do projeto, sem redigitação.
 - **FR-008**: O retorno total em 5 anos DEVE ser calculado como a soma das previsões anuais e NÃO DEVE ser digitável.
 - **FR-009**: Valores monetários DEVEM ter 2 casas decimais, aceitar e exibir o formato brasileiro (R$ 1.234.567,89) e recusar valores negativos.
-- **FR-010**: Custo total, previsões anuais e total, preço dos concorrentes, custo máximo de produção, preço de venda previsto e venda anual prevista são dados financeiros: DEVEM aparecer só para o Gestor de P&D, o líder do projeto e os perfis autorizados por configuração, em telas, listas, exportações e na trilha de auditoria; para os demais aparecem como restritos.
+- **FR-010**: Custo total, previsões anuais e total, preço dos concorrentes, custo máximo de produção, preço de venda previsto e venda anual prevista são dados financeiros: DEVEM aparecer só para o Gestor de P&D, o líder do projeto e os perfis autorizados por configuração (nenhum por padrão), em telas, listas, exportações e na trilha de auditoria; para os demais aparecem como restritos.
 
 **Fluxo de aprovação**
 
 - **FR-011**: O projeto DEVE seguir a máquina de estados Rascunho → Submetido → (Aberto | Devolvido), com Devolvido → Submetido; transições fora dessa ordem DEVEM ser recusadas.
 - **FR-012**: Só o líder DEVE submeter, e a submissão DEVE ser recusada enquanto houver pendências (campos obrigatórios do produto, do TAP e do Plano de Negócios, ao menos um marco e um item de escopo e de entrega), listadas ao líder.
 - **FR-013**: Projeto submetido DEVE ficar bloqueado para edição até ser devolvido.
-- **FR-014**: Só o Gestor de P&D DEVE aprovar ou devolver; a devolução DEVE exigir comentário; o líder do projeto NÃO DEVE aprovar o próprio projeto.
+- **FR-014**: Só o Gestor de P&D DEVE aprovar ou devolver, qualquer que seja o custo do projeto; a devolução DEVE exigir comentário; o líder do projeto NÃO DEVE aprovar o próprio projeto.
 - **FR-015**: Na aprovação, o projeto DEVE receber código único no formato PD-AAAA-NNN (ano da aprovação e sequência anual), ficar "Aberto" na versão 01, e os membros com vigência ativa DEVEM passar a acessá-lo; aprovações simultâneas NÃO DEVEM gerar códigos repetidos.
 - **FR-016**: Cada submissão, devolução e aprovação DEVE ficar no histórico do projeto com autor, data e hora e comentário, e na trilha de auditoria.
 - **FR-017**: Depois de aberto, o TAP e o Plano de Negócios DEVEM ficar bloqueados; a equipe e as datas realizadas dos marcos continuam editáveis pelo líder, com registro na trilha.
