@@ -123,6 +123,8 @@ O analista mantém a biblioteca de normas (identificação, título, abrangênci
 - Amostra que ganha nova versão: os painéis continuam na versão que referenciavam até serem corrigidos; bloquear um painel bloqueia as versões de amostras dele.
 - Código ocupado entre a pré-visualização e a confirmação da importação: a linha é revalidada na confirmação e vai para as rejeitadas.
 - Amostras não recebem anexos nesta versão (evita laudos com dados de pacientes).
+- Insumo sem certificado (por exemplo, recém-importado): fica com o alerta "Certificado pendente" até a anexação; quando há certificado, a validade dele é obrigatória.
+- Retirar uma amostra de painel não bloqueado: a retirada fica marcada (quem e quando), sem apagar o vínculo.
 
 ## Requirements *(mandatory)*
 
@@ -194,3 +196,5 @@ O analista mantém a biblioteca de normas (identificação, título, abrangênci
 - O layout da planilha de importação é o do contrato `contracts/importacao-insumos.md`; se a exportação do ERP vier em outro formato, o contrato é ajustado com a TI.
 - A unidade de medida do insumo virá do Sankhya na feature 012.
 - Insumos, kits, amostras, painéis, normas e referências valem para a empresa toda; lotes pertencem a um projeto.
+- O responsável pela produção do lote é escolhido entre as pessoas com conta no sistema (provisório — ratificar com o Gestor de P&D se houver responsáveis sem acesso ao sistema).
+- Arquivos anexados só são entregues a quem pode ver o registro dono do arquivo.

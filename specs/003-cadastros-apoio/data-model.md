@@ -10,6 +10,7 @@
 | is_active | booleano | desativado sai da busca para novas referências |
 | locked_at / locked_by / lock_reason | data/hora, FK, texto | preenchidos quando documento assinado referencia a versão |
 | version_reason | texto | obrigatório a partir da versão 2 |
+| row_version | inteiro | controle otimista: edição com versão de linha antiga é recusada |
 | created_by / created_at / updated_by / updated_at | | |
 
 ## Cadastros
@@ -20,7 +21,7 @@
 | `Material` (Insumo) | code, description, material_type (`raw` matéria-prima, `packaging` material de embalagem), manufacturer, manufacturer_lot, certificate (FK StoredFile), certificate_valid_until, new_to_company | code |
 | `ReferenceKit` (Kit de referência) | name, manufacturer, lot, expiry_date, registration_number (opcional) | — |
 | `Sample` (Amostra) | identifier (código interno), sample_type (FK Term `tipo-amostra`), origin, characterization, storage (FK Term `armazenamento`), storage_detail, collection_date (opcional) | identifier |
-| `Panel` (Painel) | code, description, samples (M2M para versões de `Sample`) | code |
+| `Panel` (Painel) | code, description, amostras por `PanelSample` (panel, versão de `Sample`, position, removed_at/removed_by: retirada marcada, sem exclusão) | code |
 | `Standard` (Norma) | identifier (ex.: "NBR ISO 13485:2016"), title, scope (`national`, `international`) | identifier |
 | `BibliographicReference` | citation, year (opcional), doi_or_url (opcional) | — |
 
@@ -39,7 +40,7 @@ Exibição do lote: `Lote <code> – Fabricação: MM/AAAA – Validade: MM/AAAA
 
 | Campo | Tipo |
 | --- | --- |
-| source_file | FK StoredFile |
+| source_file | FK StoredFile (CSV ou XLSX) |
 | uploaded_by / uploaded_at | |
 | status | `preview` ou `confirmed` |
 | rows | JSONB: lista de `{linha, dados, erros}` |

@@ -1,5 +1,0 @@
-{"t":0,"agent":"system","event":"skill_invoked","skill_name":"speckit-tasks"}
-{"t":0,"agent":"system","event":"skill_invoked","skill_name":"speckit-analyze"}
-{"t":0,"agent":"system","event":"skill_invoked","skill_name":"speckit-implement"}
-{"t":0,"agent":"system","event":"skill_invoked","skill_name":"anthropic-skills:built-in-browser"}
-{"t":0,"agent":"system","event":"skill_invoked","skill_name":"speckit-converge"}
