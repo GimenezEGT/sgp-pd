@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Listas controladas{% endblock %}
+{% block content %}
+<h1>Listas controladas</h1>
+<p class="descricao">Mantidas pela Qualidade/AR. Termos não são apagados: saem de uso por desativação e continuam nos cadastros antigos.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Lista</th><th>Código</th><th>Versão</th></tr></thead>
+  <tbody>
+  {% for vocabulary in vocabularies %}
+    <tr><td><a href="{% url 'vocab:detail' vocabulary.code %}">{{ vocabulary.name }}</a></td><td>{{ vocabulary.code }}</td><td class="numero">{{ vocabulary.version }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

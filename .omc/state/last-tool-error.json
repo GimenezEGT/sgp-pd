@@ -1,7 +1,0 @@
-{
-  "tool_name": "mcp__Claude_Browser__navigate",
-  "tool_input_preview": "{\"url\":\"https://localhost:8443/\",\"tabId\":\"tab-8\"}",
-  "error": "https://localhost:8443 did not load (ERR_CERT_AUTHORITY_INVALID): this computer does not trust the issuer of the site's TLS certificate (self-signed, or from a company CA that is not installed here). For a company site the user can ask their IT team; for a local dev server the user can set up a certificate this computer trusts. Retrying will not help. Turning certificate checks off, or reaching the site another way, is not a fix. The fix (a certificate, a trust setting or the clock on this compu...",
-  "timestamp": "2026-11-07T14:08:32.948Z",
-  "retry_count": 1
-}

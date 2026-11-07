@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Arquivo com integridade comprometida{% endblock %}
+{% block content %}
+<h1>Arquivo não entregue</h1>
+<div class="painel">
+  <p>O conteúdo guardado de <strong>{{ stored.original_name }}</strong> não confere com o resumo SHA-256 registrado no envio. O arquivo pode ter sido alterado ou removido do armazenamento e não será entregue.</p>
+  <p>O incidente foi registrado na trilha de auditoria. Avise a Garantia da Qualidade e a TI.</p>
+</div>
+{% endblock %}

@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from sgp.accounts.profiles import (
-    GLOBAL_PROJECT_ACCESS,
     Profile,
     active_profiles,
     deny_access,
@@ -31,9 +30,10 @@ from .forms import (
     StakeholderFormSet,
     rows_from_formset,
 )
-from .models import Milestone, Project, ProjectMember, ProjectStatus
+from .models import Milestone, ProjectMember, ProjectStatus
 from .permissions import (
     CREATE_PROFILES,
+    accessible_projects,
     can_decide,
     can_edit_documents,
     can_manage_team,
@@ -46,18 +46,6 @@ from .permissions import (
 def _errors(request, exc: ValidationError) -> None:
     for message in exc.messages:
         messages.error(request, message)
-
-
-def accessible_projects(user):
-    queryset = Project.objects.select_related("leader", "technology", "business_plan")
-    if active_profiles(user) & GLOBAL_PROJECT_ACCESS:
-        return queryset
-    member_projects = (
-        ProjectMember.objects.active()
-        .filter(user=user, project__status=ProjectStatus.OPEN)
-        .values("project_id")
-    )
-    return queryset.filter(Q(leader=user) | Q(pk__in=member_projects))
 
 
 @require_GET

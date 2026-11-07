@@ -111,3 +111,27 @@ def test_edicao_com_versao_desatualizada_e_recusada(make_project):
     services.update_product(project, by=project.leader, data={"title": "A"}, row_version=0)
     with pytest.raises(ValidationError, match="Outra pessoa gravou"):
         services.update_product(project, by=project.leader, data={"title": "B"}, row_version=0)
+
+
+@pytest.mark.req("003:FR-019")
+def test_tecnologia_desativada_continua_no_projeto_que_a_usa(client, make_project, make_user):
+    from sgp.vocab import services as vocab_services
+    from sgp.vocab.models import Term
+
+    project = make_project()
+    technology = get_term(TECHNOLOGY, "biologia-molecular")
+    quality = make_user(None, Profile.QUALITY)
+    vocab_services.set_term_active(technology, by=quality, active=False, reason="Teste")
+    client.force_login(project.leader)
+    page = client.get(reverse("projects:edit", args=[project.pk])).content.decode()
+    assert "Biologia molecular" in page
+    response = client.post(
+        reverse("projects:edit", args=[project.pk]),
+        form_data(title="Projeto de teste", product_name="NOME NOVO", row_version=0),
+    )
+    assert response.status_code == 302
+    project.refresh_from_db()
+    assert project.product_name == "NOME NOVO" and project.technology_id == technology.pk
+    new_page = client.get(reverse("projects:new")).content.decode()
+    assert "Biologia molecular" not in new_page
+    assert Term.objects.get(pk=technology.pk).is_active is False

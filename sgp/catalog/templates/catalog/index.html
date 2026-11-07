@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Cadastros{% endblock %}
+{% block content %}
+<h1>Cadastros de apoio</h1>
+<p class="descricao">Cada lote, insumo, kit, amostra, painel, norma e referência é cadastrado uma vez e referenciado pelos documentos na versão usada.</p>
+<div class="cartoes">
+  {% for kind in kinds %}
+  <div class="cartao">
+    <h2><a href="{% url 'catalog:list' kind.slug %}">{{ kind.label_plural }}</a></h2>
+    <p>{{ kind.description }}</p>
+    {% if can_edit %}<p><a class="botao botao-secundario" href="{% url 'catalog:new' kind.slug %}">Novo</a></p>{% endif %}
+  </div>
+  {% endfor %}
+  {% if can_edit %}
+  <div class="cartao">
+    <h2><a href="{% url 'catalog:import' %}">Importar insumos</a></h2>
+    <p>Planilha CSV ou XLSX exportada do ERP, com pré-visualização e relatório de rejeições.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

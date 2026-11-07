@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Importar insumos{% endblock %}
+{% block content %}
+<p><a href="{% url 'catalog:list' 'insumos' %}">← Insumos</a></p>
+<h1>Importar insumos</h1>
+<div class="painel">
+  <p>Use a <a href="{% url 'catalog:import_template' %}">planilha modelo</a> (colunas codigo, descricao, tipo, fabricante, lote_fabricante e novo). Nada é gravado antes da confirmação na pré-visualização.</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Pré-visualizar</button>
+  </form>
+</div>
+{% if recent %}
+<h2>Importações recentes</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Arquivo</th><th>Enviada em</th><th>Por</th><th>Situação</th><th>Linhas</th><th>Criados</th><th>Rejeitadas</th></tr></thead>
+  <tbody>
+  {% for batch in recent %}
+    <tr>
+      <td><a href="{% url 'catalog:import_batch' batch.pk %}">{{ batch.source_file.original_name }}</a></td>
+      <td>{{ batch.uploaded_at|datahora }}</td>
+      <td>{{ batch.uploaded_by.get_full_name|default:batch.uploaded_by.username }}</td>
+      <td>{{ batch.get_status_display }}</td>
+      <td class="numero">{{ batch.total_count }}</td>
+      <td class="numero">{{ batch.created_count }}</td>
+      <td class="numero">{{ batch.rejected_count }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+{% endblock %}

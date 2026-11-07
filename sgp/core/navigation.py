@@ -29,6 +29,20 @@ NAV_ITEMS: list[NavItem] = [
         "Abrir projetos, preencher TAP e Plano de Negócios, acompanhar aprovações.",
     ),
     NavItem(
+        "Cadastros",
+        "catalog:index",
+        frozenset(Profile),
+        "Cadastros",
+        "Lotes, insumos, kits de referência, amostras, painéis, normas e referências.",
+    ),
+    NavItem(
+        "Listas controladas",
+        "vocab:lists",
+        frozenset({Profile.QUALITY}),
+        "Cadastros",
+        "Tipos de amostra, armazenamento, tecnologias e tipos de subdocumento.",
+    ),
+    NavItem(
         "Pessoas e perfis",
         "accounts:people",
         frozenset({Profile.ADMIN}),

@@ -4,7 +4,7 @@ from django.forms import formset_factory
 
 from sgp.accounts.models import ProfileAssignment
 from sgp.accounts.profiles import Profile
-from sgp.vocab.models import SUBDOCUMENT_TYPE, TECHNOLOGY, active_terms
+from sgp.vocab.models import SUBDOCUMENT_TYPE, TECHNOLOGY, Term, active_terms
 
 from .fields import BRLMoneyField, LinesField
 from .models import ProjectStatus, RegulatoryBody, RiskClass
@@ -49,7 +49,12 @@ class ProductForm(forms.Form):
 
     def __init__(self, *args, with_leader=False, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["technology"].queryset = active_terms(TECHNOLOGY)
+        current = self.initial.get("technology")
+        queryset = active_terms(TECHNOLOGY)
+        if current:
+            # Termo desativado depois continua válido no projeto que já o usa (FR-019 da 003).
+            queryset = queryset | Term.objects.of(TECHNOLOGY).filter(pk=current)
+        self.fields["technology"].queryset = queryset
         if with_leader:
             self.fields["leader"] = forms.ModelChoiceField(
                 label="Líder do projeto", queryset=leaders_queryset()

@@ -46,6 +46,12 @@ def django_db_setup(django_db_setup, django_db_blocker):
 
 
 @pytest.fixture(autouse=True)
+def _media_root(settings, tmp_path):
+    """Arquivos de cada teste num diretório temporário (nunca em var/media)."""
+    settings.MEDIA_ROOT = tmp_path / "media"
+
+
+@pytest.fixture(autouse=True)
 def _reset_directory():
     fake_backend.reset()
     yield
@@ -123,9 +129,9 @@ def vocab_seed(db):
     """Garante a carga inicial das listas (testes transacionais esvaziam o banco)."""
     from django.apps import apps as django_apps
 
-    from sgp.vocab.seed import SEED, load
+    from sgp.vocab.seed import ALL_SEEDS, load
 
-    load(django_apps, SEED)
+    load(django_apps, ALL_SEEDS)
 
 
 @pytest.fixture

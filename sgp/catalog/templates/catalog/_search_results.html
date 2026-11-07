@@ -1,0 +1,13 @@
+{% if q %}
+<ul class="resultados-busca">
+  {% for record in results %}
+  <li data-registro="{{ record.pk }}" data-linhagem="{{ record.lineage }}">
+    <a href="{% url 'catalog:detail' kind.slug record.pk %}">{{ record }}</a>
+    <small>versão {{ record.version_display }}</small>
+    {% if is_materials and record.certificate_expired %}<span class="situacao situacao-quebra">Certificado vencido</span>{% endif %}
+  </li>
+  {% empty %}
+  <li>Nenhum cadastro ativo encontrado para "{{ q }}".</li>
+  {% endfor %}
+</ul>
+{% endif %}

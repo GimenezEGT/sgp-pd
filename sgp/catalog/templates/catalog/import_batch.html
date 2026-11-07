@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Importação {{ batch.pk }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'catalog:import' %}">← Importar insumos</a></p>
+<h1>Importação de insumos nº {{ batch.pk }}</h1>
+<div class="painel">
+  <dl>
+    <dt>Arquivo</dt><dd><a href="{% url 'files:download' batch.source_file.pk %}">{{ batch.source_file.original_name }}</a> <small>(SHA-256 {{ batch.source_file.sha256 }})</small></dd>
+    <dt>Situação</dt><dd>{{ batch.get_status_display }}</dd>
+    <dt>Linhas lidas</dt><dd>{{ batch.total_count }}</dd>
+    {% if is_preview %}
+    <dt>Válidas</dt><dd>{{ batch.valid_count }}</dd>
+    {% else %}
+    <dt>Insumos criados</dt><dd>{{ batch.created_count }}</dd>
+    <dt>Confirmada em</dt><dd>{{ batch.confirmed_at|datahora }}</dd>
+    {% endif %}
+    <dt>Rejeitadas</dt><dd>{{ batch.rejected_count }}</dd>
+  </dl>
+  <div class="acoes">
+    {% if is_preview %}
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="botao"{% if not batch.valid_count %} disabled{% endif %}>Confirmar e criar {{ batch.valid_count }} insumo(s)</button>
+    </form>
+    {% endif %}
+    {% if batch.rejected_count %}<a class="botao botao-secundario" href="{% url 'catalog:import_rejections' batch.pk %}">Baixar relatório de rejeições</a>{% endif %}
+  </div>
+  {% if is_preview %}<p class="descricao">Nada foi gravado no cadastro de insumos ainda. Na confirmação, cada código é conferido de novo.</p>{% endif %}
+</div>
+
+{% if rejected %}
+<h2>Linhas rejeitadas</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Linha</th><th>Código</th><th>Descrição</th><th>Motivos</th></tr></thead>
+  <tbody>
+  {% for row in rejected %}
+    <tr><td class="numero">{{ row.linha }}</td><td>{{ row.dados.codigo }}</td><td>{{ row.dados.descricao }}</td><td>{{ row.erros|join:"; " }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+
+{% if is_preview and valid_preview %}
+<h2>Primeiras linhas válidas</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Linha</th><th>Código</th><th>Descrição</th><th>Tipo</th><th>Fabricante</th><th>Lote do fabricante</th><th>Novo</th></tr></thead>
+  <tbody>
+  {% for row in valid_preview %}
+    <tr><td class="numero">{{ row.linha }}</td><td>{{ row.dados.codigo }}</td><td>{{ row.dados.descricao }}</td><td>{% if row.dados.tipo == "raw" %}Matéria-prima{% else %}Material de embalagem{% endif %}</td><td>{{ row.dados.fabricante }}</td><td>{{ row.dados.lote_fabricante }}</td><td>{{ row.dados.novo|yesno:"Sim,Não" }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ vocabulary.name }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'vocab:lists' %}">← Listas controladas</a></p>
+<h1>{{ vocabulary.name }}</h1>
+<p class="descricao">Código {{ vocabulary.code }} · versão {{ vocabulary.version }}</p>
+<div class="painel painel-estreito">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Incluir termo</button>
+  </form>
+</div>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Ordem</th><th>Rótulo</th><th>Código</th><th>Situação</th><th>Mudar</th></tr></thead>
+  <tbody>
+  {% for term in terms %}
+    <tr>
+      <td class="numero">{{ term.position }}</td>
+      <td>{{ term.label }}</td>
+      <td>{{ term.code }}</td>
+      <td>{% if term.is_active %}Ativo{% else %}<span class="situacao situacao-pendente">Desativado</span>{% endif %}</td>
+      <td>
+        <details>
+          <summary>alterar</summary>
+          <form method="post" action="{% url 'vocab:term' term.pk %}">
+            {% csrf_token %}
+            <p><label>Ação <select name="action">
+              <option value="rotulo">Corrigir rótulo</option>
+              {% if term.is_active %}<option value="desativar">Desativar</option>{% else %}<option value="reativar">Reativar</option>{% endif %}
+            </select></label></p>
+            <p><label>Rótulo <input type="text" name="label" value="{{ term.label }}" maxlength="200"></label></p>
+            <p><label>Motivo <textarea name="reason" rows="2" required></textarea></label></p>
+            <button type="submit" class="botao botao-secundario">Gravar</button>
+          </form>
+        </details>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

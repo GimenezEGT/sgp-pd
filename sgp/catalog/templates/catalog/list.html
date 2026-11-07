@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ kind.label_plural }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'catalog:index' %}">← Cadastros</a></p>
+<h1>{{ kind.label_plural }}</h1>
+<div class="acoes">
+  {% if can_edit %}<a class="botao" href="{% url 'catalog:new' kind.slug %}">Novo</a>{% endif %}
+  {% if can_edit and is_materials %}<a class="botao botao-secundario" href="{% url 'catalog:import' %}">Importar planilha</a>{% endif %}
+</div>
+<form method="get" class="painel">
+  <div class="filtros">
+    <p>
+      <label for="busca">Buscar por código ou descrição</label>
+      <input type="search" id="busca" name="q" value="{{ q }}" autocomplete="off"
+             hx-get="{% url 'catalog:search' kind.slug %}" hx-trigger="keyup changed delay:300ms, search"
+             hx-target="#resultados-busca"{% if projects is not None %} hx-include="[name='projeto']"{% endif %}>
+    </p>
+    {% if projects is not None %}
+    <p>
+      <label for="projeto">Projeto</label>
+      <select id="projeto" name="projeto">
+        <option value="">Todos os projetos acessíveis</option>
+        {% for project in projects %}<option value="{{ project.pk }}"{% if project_id == project.pk|stringformat:"s" %} selected{% endif %}>{{ project.code|default:project.title }}</option>{% endfor %}
+      </select>
+    </p>
+    {% endif %}
+    <p><label><input type="checkbox" name="inativos" value="1"{% if show_inactive %} checked{% endif %}> Mostrar desativados</label></p>
+    <p><button type="submit" class="botao">Filtrar</button></p>
+  </div>
+  <div id="resultados-busca" aria-live="polite"></div>
+</form>
+<div class="tabela-rolagem">
+<table>
+  <thead>
+    <tr>{% for header, accessor in kind.columns %}<th>{{ header }}</th>{% endfor %}<th>Versão</th><th>Situação</th></tr>
+  </thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      {% for cell in row.cells %}<td>{% if forloop.first %}<a href="{% url 'catalog:detail' kind.slug row.record.pk %}">{{ cell|default:"—" }}</a>{% else %}{{ cell|default:"—" }}{% endif %}</td>{% endfor %}
+      <td>{{ row.record.version_display }}</td>
+      <td>
+        {% if not row.record.is_active %}<span class="situacao situacao-pendente">Desativado</span>{% endif %}
+        {% if row.record.is_locked %}<span class="situacao">Bloqueado</span>{% endif %}
+        {% if is_materials and row.record.certificate_expired %}<span class="situacao situacao-quebra">Certificado vencido</span>{% elif is_materials and row.record.certificate_pending %}<span class="situacao situacao-pendente">Certificado pendente</span>{% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="{{ kind.columns|length|add:2 }}">Nenhum cadastro encontrado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if page.paginator.num_pages > 1 %}
+<nav class="paginacao" aria-label="Paginação">
+  {% if page.has_previous %}<a href="?q={{ q|urlencode }}&amp;projeto={{ project_id }}{% if show_inactive %}&amp;inativos=1{% endif %}&amp;pagina={{ page.previous_page_number }}">‹ Anterior</a>{% endif %}
+  <span>Página {{ page.number }} de {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a href="?q={{ q|urlencode }}&amp;projeto={{ project_id }}{% if show_inactive %}&amp;inativos=1{% endif %}&amp;pagina={{ page.next_page_number }}">Próxima ›</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

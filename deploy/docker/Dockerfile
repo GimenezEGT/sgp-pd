@@ -36,7 +36,7 @@ COPY --from=builder /opt/venv /opt/venv
 COPY --chown=sgp:sgp . /app
 RUN chmod +x /app/deploy/docker/entrypoint.sh \
     && DJANGO_SECRET_KEY=somente-para-collectstatic python manage.py collectstatic --noinput \
-    && mkdir -p /app/var && chown -R sgp:sgp /app/var /app/staticfiles
+    && mkdir -p /app/var/media && chown -R sgp:sgp /app/var /app/staticfiles
 USER sgp
 EXPOSE 8000
 ENTRYPOINT ["/app/deploy/docker/entrypoint.sh"]
@@ -45,7 +45,7 @@ CMD ["web"]
 FROM base AS dev
 COPY --from=builder-dev /opt/venv /opt/venv
 COPY --chown=sgp:sgp . /app
-RUN chmod +x /app/deploy/docker/entrypoint.sh && mkdir -p /app/var && chown -R sgp:sgp /app/var
+RUN chmod +x /app/deploy/docker/entrypoint.sh && mkdir -p /app/var/media && chown -R sgp:sgp /app/var
 USER sgp
 EXPOSE 8000
 ENTRYPOINT ["/app/deploy/docker/entrypoint.sh"]
