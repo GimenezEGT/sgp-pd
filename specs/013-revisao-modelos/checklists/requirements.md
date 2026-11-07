@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -32,3 +32,4 @@
 ## Notes
 
 - Validação 1 (2026-11-07): duas marcações [NEEDS CLARIFICATION] (perfis que elaboram e aprovam; abrangência para TAP e Plano de Negócios) ficam para o `/speckit-clarify`. "Resumo criptográfico" e "assinatura eletrônica" descrevem garantias pedidas pela constituição, não tecnologia.
+- Validação 2 (2026-11-07, depois do `/speckit-clarify`): marcações resolvidas com respostas provisórias; todos os itens passam.

@@ -10,6 +10,18 @@
 
 Origem: pedido do usuário em 2026-11-07, fora do roteiro original do plano. Numerada como 013 para manter a numeração 001–012 do plano; executada depois da 006, porque usa os modelos de formulário (004), a assinatura eletrônica (005) e os modelos de layout (006).
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Quais perfis elaboram e quais aprovam revisões de modelos? → A: Qualidade/AR elabora (abre, altera, envia e descarta); o Gestor de P&D, dono do processo PSG 20, aprova ou devolve; Administrador do sistema não elabora nem aprova; os demais perfis só consultam (ratificar com a Garantia da Qualidade e o Gestor de P&D).
+- Q: TAP e Plano de Negócios passam a ter modelo de formulário revisável? → A: Não nesta feature: os campos do TAP e do Plano de Negócios continuam os da feature 002; só os modelos de layout deles (capa, cabeçalho, rodapé, estilos) entram na revisão controlada (ratificar com o Gestor de P&D).
+- Q: A aprovação exige assinatura de quem elaborou também? → A: Não; o envio da elaboradora fica registrado na trilha com a sessão autenticada, e só a aprovação exige assinatura eletrônica com reautenticação e significado "aprovado" (ratificar com a Garantia da Qualidade).
+- Q: A vigência pode ser futura? → A: Sim; na aprovação, o aprovador escolhe vigência imediata (padrão) ou uma data futura; até a data, a versão aprovada aguarda vigência e novos documentos continuam na anterior (ratificar com a Garantia da Qualidade).
+- Q: Como um modelo é retirado de uso? → A: Qualidade/AR pede a retirada com motivo e o Gestor de P&D a aprova com assinatura eletrônica, como numa revisão; o modelo retirado continua consultável e não é oferecido a novos documentos (ratificar com a Garantia da Qualidade).
+
 ## Contexto
 
 Os formulários do PSG 20 mudam de versão ("Formulário Versão: 05"), e o rodapé de todos os documentos muda quando o formulário é revisado (docs/contexto/01-visao-geral.md). A Qualidade/Assuntos Regulatórios mantém os modelos de formulário e de layout. O sistema guarda dois tipos de modelo:
@@ -124,11 +136,11 @@ A pessoa autorizada descarta uma revisão em rascunho que não vai adiante, com 
 
 **Abrangência**
 
-- **FR-001**: A revisão controlada DEVE valer para os modelos de subdocumento (modelos de formulário) e para os modelos de documento (modelos de layout) do sistema.
+- **FR-001**: A revisão controlada DEVE valer para os modelos de subdocumento (modelos de formulário) e para os modelos de documento (modelos de layout) do sistema, incluídos os layouts do TAP e do Plano de Negócios; os campos do TAP e do Plano de Negócios continuam os definidos na feature 002.
 
 **Permissões**
 
-- **FR-002**: Só pessoas autenticadas com perfil autorizado a elaborar DEVEM poder abrir, alterar, enviar e descartar revisões de modelos; só pessoas com perfil autorizado a aprovar DEVEM poder aprovar ou devolver; as demais pessoas autenticadas com perfil só consultam modelos e histórico.
+- **FR-002**: Só pessoas autenticadas com o perfil Qualidade/AR DEVEM poder abrir, alterar, enviar e descartar revisões de modelos e pedir a retirada de uso; só pessoas com o perfil Gestor de P&D DEVEM poder aprovar ou devolver; as demais pessoas autenticadas com perfil só consultam modelos e histórico.
 - **FR-003**: Quem elaborou uma revisão NÃO DEVE aprová-la.
 - **FR-004**: Toda tentativa sem permissão DEVE ser negada e registrada na trilha, inclusive por URL direta.
 
@@ -138,8 +150,8 @@ A pessoa autorizada descarta uma revisão em rascunho que não vai adiante, com 
 - **FR-006**: Cada modelo DEVE ter no máximo uma revisão em andamento (rascunho, enviada ou aprovada aguardando vigência).
 - **FR-007**: O envio para aprovação DEVE exigir motivo da revisão e descrição do impacto, e DEVE ser recusado se a revisão não muda nada ou viola as regras do modelo (rótulos únicos, numeração automática sem repetição).
 - **FR-008**: Revisão enviada NÃO DEVE ser alterada; a devolução DEVE exigir comentário e voltar a revisão para rascunho.
-- **FR-009**: A aprovação DEVE exigir assinatura eletrônica (reautenticação e significado "aprovado") e registrar o resumo do conteúdo aprovado.
-- **FR-010**: Na aprovação, DEVE ser definida a vigência (imediata ou a partir de uma data futura); só uma versão do modelo é vigente em cada momento.
+- **FR-009**: A aprovação DEVE exigir assinatura eletrônica (reautenticação e significado "aprovado") e registrar o resumo do conteúdo aprovado; o envio pela elaboradora é registrado sem assinatura.
+- **FR-010**: Na aprovação, DEVE ser definida a vigência: imediata (padrão) ou a partir de uma data futura; só uma versão do modelo é vigente em cada momento.
 - **FR-011**: Revisão em rascunho DEVE poder ser descartada com motivo, sem exclusão física.
 
 **Versões publicadas**
@@ -147,7 +159,7 @@ A pessoa autorizada descarta uma revisão em rascunho que não vai adiante, com 
 - **FR-012**: Versão publicada NÃO DEVE ser alterada; correção só por nova revisão.
 - **FR-013**: Documentos já iniciados DEVEM continuar na versão de modelo em que começaram; documentos novos DEVEM usar a versão vigente na data de criação.
 - **FR-014**: O conteúdo de cada versão publicada DEVE ter resumo criptográfico, e a verificação de integridade DEVE apontar qualquer alteração posterior.
-- **FR-015**: Um modelo DEVE poder ser retirado de uso com motivo e aprovação; retirado, não é oferecido a novos documentos e continua consultável.
+- **FR-015**: Um modelo DEVE poder ser retirado de uso: a Qualidade/AR pede com motivo e o Gestor de P&D aprova com assinatura eletrônica; retirado, não é oferecido a novos documentos e continua consultável.
 
 **Rastreabilidade**
 
@@ -178,5 +190,4 @@ A pessoa autorizada descarta uma revisão em rascunho que não vai adiante, com 
 - Os modelos de formulário (004), a assinatura eletrônica (005) e os modelos de layout (006) existem antes desta feature; ela substitui a publicação direta dessas features pela revisão controlada.
 - A migração de documentos em andamento para a nova versão continua sendo a da feature 004 (decisão do Gestor de P&D).
 - Os modelos criados por features posteriores (modelos de entrada do caderno, 008; textos padrão do dossiê, 011) seguem o mesmo ciclo quando forem especificados.
-- [NEEDS CLARIFICATION: Quais perfis elaboram e quais aprovam revisões de modelos?]
-- [NEEDS CLARIFICATION: TAP e Plano de Negócios passam a ter modelo de formulário revisável ou só o modelo de layout deles entra nesta feature?]
+- Perfis e abrangência definidos nas respostas provisórias do esclarecimento (sessão 2026-11-07).
