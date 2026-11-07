@@ -227,6 +227,8 @@ def approve(kind: str, obj, *, by, password: str, request=None):
     elaborated = elaborated_signature(adapter, obj)
     if elaborated is not None and elaborated.signer_id == by.pk:
         raise ValidationError("Quem elaborou não pode aprovar o mesmo documento.")
+    if signatures_of(adapter, obj).filter(meaning=Meaning.REVIEWED, signer=by).exists():
+        raise ValidationError("Quem assinou como revisor não aprova a mesma versão (FR-009).")
     missing = adapter.completeness(obj)
     if missing:
         raise ValidationError(missing)

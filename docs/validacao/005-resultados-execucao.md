@@ -6,7 +6,7 @@ Ambiente de desenvolvimento, 2026-11-07, dados fictícios. Senhas do LDAP de des
 
 | Item | Resultado |
 | --- | --- |
-| Testes (`pytest`) | 741 aprovados (todas as features até a 005), 0 falhas |
+| Testes (`pytest`) | 742 aprovados (todas as features até a 005, com a convergência), 0 falhas |
 | Cobertura `sgp/core` / `sgp/audit` | 93,5% / 97,1% |
 | Matriz de rastreabilidade | 131 requisitos (001 a 005), 0 sem cobertura |
 | SC-001 adulteração da versão aprovada | apontada pela verificação |

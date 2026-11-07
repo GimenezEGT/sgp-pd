@@ -72,3 +72,9 @@ Setup → Foundational → US1/US3 → US2 → US4 → US5 → US6 → TAP/Plano
 
 MVP = envio, assinatura e aprovação de subdocumentos (US1 a US3); depois versões, integridade,
 delegação e o projeto.
+
+---
+
+## Phase 10: Convergence
+
+- [X] T023 Recusar a aprovação por quem assinou "revisado" a mesma versão (separação dos papéis) em `sgp/signatures/services.py`, com teste em `tests/signatures/test_cycle_and_versions.py` per FR-009 (partial)

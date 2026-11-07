@@ -195,3 +195,15 @@ def test_ciclo_completo_passa_pelas_situacoes_e_gera_os_eventos(
         recorded = events(event_type)
         assert recorded, event_type
         assert recorded[-1].project_id == complete_formulation.project_id
+
+
+@pytest.mark.req("005:FR-009")
+def test_revisor_nao_aprova_a_mesma_versao(complete_formulation, analyst, manager, make_user, signing):
+    signing.submit(KIND, complete_formulation, analyst)
+    signing.enable(manager)
+    services.sign_review(KIND, complete_formulation, by=manager, password=signing.password)
+    with pytest.raises(ValidationError, match="revisor não aprova"):
+        signing.approve(KIND, complete_formulation, manager)
+    other = make_user(None, Profile.RD_MANAGER)
+    signing.approve(KIND, complete_formulation, other)
+    assert Subdocument.objects.get(pk=complete_formulation.pk).status == "approved"
