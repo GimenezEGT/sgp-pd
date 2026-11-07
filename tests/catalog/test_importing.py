@@ -232,3 +232,14 @@ def test_importacao_de_500_linhas_em_menos_de_30_segundos(editor):
     assert Material.objects.count() == 480
     assert len(importing.rejection_report(batch).splitlines()) == 21
     assert elapsed < 30, f"importação levou {elapsed:.1f} s"
+
+
+@pytest.mark.req("003:FR-013")
+def test_exportacao_do_relatorio_vai_para_a_trilha(client, login_as, events):
+    user = login_as(Profile.ANALYST)
+    rows = VALID + [["MP-1", "Repetido", "MP", "", "", ""]]
+    batch = importing.preview(csv_upload(rows), by=user)
+    client.get(reverse("catalog:import_rejections", args=[batch.pk]))
+    event = events("catalog.import_rejections_exported")[-1]
+    assert event.new_value == {"arquivo": "insumos.csv", "linhas": 1}
+    assert event.actor_username == user.username

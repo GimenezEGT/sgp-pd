@@ -112,11 +112,19 @@ def test_sem_acesso_ao_projeto_e_negado_e_registrado(
     assert (
         events("auth.permission_denied")[-1].new_value["motivo"] == "sem acesso ao projeto do lote"
     )
+    denied_before = len(events("auth.permission_denied"))
     response = client.post(reverse("catalog:new", args=["lotes"]), lot_post(project, outsider))
-    assert response.status_code == 200
+    assert response.status_code == 403
     assert not Lot.objects.filter(created_by=outsider).exists()
     listing = client.get(reverse("catalog:list", args=["lotes"])).content.decode()
     assert "LP-001" not in listing
+    filtered = client.get(reverse("catalog:list", args=["lotes"]), {"projeto": project.pk})
+    assert filtered.status_code == 403
+    search = client.get(
+        reverse("catalog:search", args=["lotes"]), {"q": "LP", "projeto": project.pk}
+    )
+    assert search.status_code == 403
+    assert len(events("auth.permission_denied")) == denied_before + 3
 
 
 @pytest.mark.req("003:FR-009")

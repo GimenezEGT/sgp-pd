@@ -125,3 +125,15 @@ def test_metadados_sao_somente_de_inclusao(person):
         run_as_app_role("UPDATE files_storedfile SET sha256 = 'x' WHERE id = %s", [stored.pk])
     with pytest.raises(ProgrammingError, match="permission denied"):
         run_as_app_role("DELETE FROM files_storedfile WHERE id = %s", [stored.pk])
+
+
+@pytest.mark.req("003:FR-020")
+def test_tipos_de_anexo_configuraveis(person, settings):
+    settings.FILE_DOCUMENT_TYPES = ["pdf"]
+    assert storage.document_kinds() == ("pdf",)
+    with pytest.raises(ValidationError, match="Aceitos: PDF."):
+        storage.store_upload(upload("foto.png", PNG), by=person)
+    assert storage.store_upload(upload("laudo.pdf", PDF), by=person).pk
+    settings.FILE_DOCUMENT_TYPES = ["exe", "csv"]
+    with pytest.raises(ValidationError, match="Nenhum tipo de anexo"):
+        storage.store_upload(upload("laudo.pdf", PDF), by=person)

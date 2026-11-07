@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from sgp.accounts.models import User
-from sgp.files.storage import DOCUMENT_KINDS, SPREADSHEET_KINDS, check_upload
+from sgp.files.storage import SPREADSHEET_KINDS, check_upload
 from sgp.projects.models import Project
 from sgp.vocab.models import Term
 
@@ -158,7 +158,7 @@ class MaterialForm(CatalogForm):
     def clean_certificate_file(self):
         uploaded = self.cleaned_data.get("certificate_file")
         if uploaded:
-            check_upload(uploaded, DOCUMENT_KINDS)
+            check_upload(uploaded)
         return uploaded
 
     def clean(self):

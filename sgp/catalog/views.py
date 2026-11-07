@@ -15,7 +15,10 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from sgp.accounts.profiles import deny_access, profile_required
 from sgp.audit.models import AuditEvent
 from sgp.audit.presentation import EventPresenter
-from sgp.files.storage import DOCUMENT_KINDS, store_upload
+from sgp.audit.services import record_event
+from sgp.core.access import can_access_project
+from sgp.files.storage import store_upload
+from sgp.projects.models import Project
 
 from . import importing, versioning
 from .forms import FORMS, ImportForm, StatusForm
@@ -67,10 +70,24 @@ def _rows(kind: Kind, records) -> list[dict]:
     ]
 
 
+NO_PROJECT_ACCESS = "sem acesso ao projeto do lote"
+
+
+def _denied_project(request, raw) -> object | None:
+    """Projeto informado (filtro ou cadastro de lote) sem acesso: nega e registra."""
+    raw = str(raw or "")
+    if not raw.isdigit():
+        return None
+    project = Project.objects.filter(pk=int(raw)).first()
+    if project is not None and not can_access_project(request.user, project):
+        return deny_access(request, NO_PROJECT_ACCESS)
+    return None
+
+
 def _get_record(request, kind: Kind, pk):
     record = get_object_or_404(kind.model, pk=pk)
     if not can_view_record(request.user, record):
-        return None, deny_access(request, "sem acesso ao projeto do lote")
+        return None, deny_access(request, NO_PROJECT_ACCESS)
     return record, None
 
 
@@ -89,8 +106,10 @@ def index(request):
 @require_GET
 def record_list(request, kind):
     kind = get_kind(kind)
-    queryset = _visible(kind, request.user, kind.model.objects.current())
     project_id = request.GET.get("projeto", "")
+    if kind.project_scoped and (denied := _denied_project(request, project_id)):
+        return denied
+    queryset = _visible(kind, request.user, kind.model.objects.current())
     if kind.project_scoped and project_id.isdigit():
         queryset = queryset.filter(project_id=int(project_id))
     show_inactive = request.GET.get("inativos") == "1"
@@ -117,6 +136,8 @@ def record_list(request, kind):
 def search(request, kind):
     """Fragmento HTML com até 20 cadastros vigentes e ativos (FR-007); usado com HTMX."""
     kind = get_kind(kind)
+    if kind.project_scoped and (denied := _denied_project(request, request.GET.get("projeto"))):
+        return denied
     term = request.GET.get("q", "").strip()
     results = []
     if term:
@@ -173,7 +194,7 @@ def _form(kind: Kind, request, **kwargs):
 def _with_certificate(kind: Kind, form, data: dict, by) -> dict:
     uploaded = form.cleaned_data.get("certificate_file") if kind is MATERIALS else None
     if uploaded:
-        data = {**data, "certificate": store_upload(uploaded, by=by, allowed=DOCUMENT_KINDS)}
+        data = {**data, "certificate": store_upload(uploaded, by=by)}
     return data
 
 
@@ -181,6 +202,9 @@ def _with_certificate(kind: Kind, form, data: dict, by) -> dict:
 @profile_required(*EDITOR_PROFILES)
 def record_new(request, kind):
     kind = get_kind(kind)
+    if kind.project_scoped and request.method == "POST":
+        if denied := _denied_project(request, request.POST.get("project")):
+            return denied
     form = _form(kind, request)
     if request.method == "POST" and form.is_valid():
         try:
@@ -309,7 +333,12 @@ def import_batch(request, pk):
 @require_GET
 @profile_required(*EDITOR_PROFILES)
 def import_rejections(request, pk):
-    batch = get_object_or_404(ImportBatch, pk=pk)
+    batch = get_object_or_404(ImportBatch.objects.select_related("source_file"), pk=pk)
+    record_event(
+        "catalog.import_rejections_exported",
+        obj=batch,
+        new_value={"arquivo": batch.source_file.original_name, "linhas": batch.rejected_count},
+    )
     response = HttpResponse(
         importing.rejection_report(batch), content_type="text/csv; charset=utf-8"
     )

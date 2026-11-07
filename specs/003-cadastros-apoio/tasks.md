@@ -134,3 +134,12 @@ MVP = US1 e US2 (lotes versionados com bloqueio); US3 entrega insumos e importa�
 - [P] tasks = different files, no dependencies
 - Verify tests fail before implementing
 - Commit after each logical group
+
+---
+
+## Phase 9: Convergence
+
+- [X] T030 Negar com 403 e registrar `auth.permission_denied` quando o cadastro de lote ou o filtro `projeto` da lista e da busca apontam para projeto sem acesso, em `sgp/catalog/views.py`, com teste em `tests/catalog/test_lots.py` per US1/AC4 (partial)
+- [X] T031 Tornar configuráveis os tipos de anexo de documento (`FILE_DOCUMENT_TYPES`, padrão `pdf,png,jpeg`, só tipos com assinatura conhecida) em `config/settings.py` e `sgp/files/storage.py`, com teste em `tests/files/test_storage.py` per FR-020 (partial)
+- [X] T032 Manter no formulário do produto (`sgp/projects/forms.py`) a tecnologia já usada pelo projeto mesmo desativada, com teste em `tests/projects/test_create.py` per FR-019 (partial)
+- [X] T033 Registrar na trilha a exportação do relatório de rejeições (`catalog.import_rejections_exported`) em `sgp/catalog/views.py` e `event_types.py`, atualizando `contracts/eventos-auditoria.md`, com teste em `tests/catalog/test_importing.py` per Constitution II (partial)

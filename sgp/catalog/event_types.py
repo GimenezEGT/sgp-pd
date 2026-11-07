@@ -12,5 +12,6 @@ register_many(
         "catalog.reactivated": "Cadastro reativado",
         "catalog.import_previewed": "Importação de insumos pré-visualizada",
         "catalog.import_confirmed": "Importação de insumos confirmada",
+        "catalog.import_rejections_exported": "Relatório de rejeições exportado",
     }
 )

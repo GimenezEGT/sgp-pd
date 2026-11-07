@@ -62,6 +62,7 @@ KINDS = {
 }
 DOCUMENT_KINDS = ("pdf", "png", "jpeg")
 SPREADSHEET_KINDS = ("csv", "xlsx")
+DOCUMENTS = None  # tipos de anexo de documento habilitados em FILE_DOCUMENT_TYPES
 HEAD_SIZE = 4096
 
 
@@ -93,8 +94,17 @@ def _read_head(uploaded) -> bytes:
     return head
 
 
-def check_upload(uploaded, allowed=DOCUMENT_KINDS) -> FileKind:
+def document_kinds() -> tuple[str, ...]:
+    """Tipos de anexo de documento habilitados (FR-020), sempre dentro dos conhecidos."""
+    configured = [str(code).strip().lower() for code in settings.FILE_DOCUMENT_TYPES]
+    return tuple(code for code in DOCUMENT_KINDS if code in configured)
+
+
+def check_upload(uploaded, allowed=DOCUMENTS) -> FileKind:
     """Confere tamanho, extensão e assinatura do arquivo; devolve o tipo reconhecido."""
+    allowed = document_kinds() if allowed is DOCUMENTS else tuple(allowed)
+    if not allowed:
+        raise ValidationError("Nenhum tipo de anexo está habilitado; avise a TI.")
     size = getattr(uploaded, "size", None) or 0
     if size == 0:
         raise ValidationError("O arquivo está vazio.")
@@ -112,7 +122,7 @@ def check_upload(uploaded, allowed=DOCUMENT_KINDS) -> FileKind:
     raise ValidationError(f"Tipo de arquivo não aceito. Aceitos: {_kind_labels(allowed)}.")
 
 
-def store_upload(uploaded, *, by, allowed=DOCUMENT_KINDS) -> StoredFile:
+def store_upload(uploaded, *, by, allowed=DOCUMENTS) -> StoredFile:
     """Grava o conteúdo pelo SHA-256 e registra o arquivo e o evento files.uploaded."""
     kind = check_upload(uploaded, allowed)
     root = media_root()

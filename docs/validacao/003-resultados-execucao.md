@@ -6,7 +6,7 @@ Ambiente de desenvolvimento, 2026-11-07, dados fictícios.
 
 | Item | Resultado |
 | --- | --- |
-| Testes (`pytest`) | 555 aprovados (todas as features até a 003), 0 falhas |
+| Testes (`pytest`) | 558 aprovados (todas as features até a 003, com a convergência), 0 falhas |
 | Cobertura `sgp/core` / `sgp/audit` | 93,5% / 97,1% |
 | Matriz de rastreabilidade | 84 requisitos (001 a 003), 0 sem cobertura |
 | SC-002 importação de 500 linhas | 480 criadas e 20 rejeitadas, bem abaixo de 30 s |

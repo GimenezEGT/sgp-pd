@@ -168,6 +168,8 @@ FINANCIAL_DATA_PROFILES = env_list("FINANCIAL_DATA_PROFILES", "")
 LOT_CODE_PATTERN = env_str("LOT_CODE_PATTERN", r"^[A-Za-z0-9][A-Za-z0-9./-]*$")
 # Tamanho máximo de cada arquivo anexado ou importado, em MB.
 FILE_MAX_MB = env_int("FILE_MAX_MB", 20)
+# Tipos aceitos nos anexos de documentos (só os de assinatura conhecida: pdf, png, jpeg).
+FILE_DOCUMENT_TYPES = env_list("FILE_DOCUMENT_TYPES", "pdf,png,jpeg")
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # Internacionalização: interface em português; datas gravadas em UTC, exibidas em Brasília.
