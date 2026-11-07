@@ -1,0 +1,37 @@
+# Desenvolvimento: LDAP fictício, código montado e servidor com recarga automática.
+services:
+  web:
+    image: sgp-pd:dev
+    build:
+      target: dev
+    command: ["web-dev"]
+    environment:
+      DJANGO_DEBUG: "true"
+    volumes:
+      - .:/app
+    depends_on:
+      ldap:
+        condition: service_started
+
+  worker:
+    image: sgp-pd:dev
+    build:
+      target: dev
+    volumes:
+      - .:/app
+
+  ldap:
+    image: osixia/openldap:1.5.0
+    command: ["--copy-service", "--loglevel", "warning"]
+    environment:
+      LDAP_ORGANISATION: "Empresa ficticia (dev)"
+      LDAP_DOMAIN: "sgp.dev.local"
+      LDAP_ADMIN_PASSWORD: ${LDAP_DEV_ADMIN_PASSWORD:-admin-dev-ficticio}
+    volumes:
+      - ./deploy/ldap-dev/seed.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/50-seed.ldif:ro
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
+    ports:
+      - "3890:389"

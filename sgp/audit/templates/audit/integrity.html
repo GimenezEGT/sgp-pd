@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Integridade da trilha{% endblock %}
+{% block content %}
+<h1>Integridade da trilha de auditoria</h1>
+<div class="painel">
+  {% if latest %}
+    <p>
+      Última verificação: {{ latest.finished_at|datahora }} ({{ latest.get_trigger_display }}{% if latest.triggered_by %}, por {{ latest.triggered_by.username }}{% endif %}) —
+      {% if latest.status == "intact" %}<span class="situacao situacao-ok">Íntegra</span>{% else %}<span class="situacao situacao-quebra">Com quebra</span>{% endif %}
+    </p>
+    <p>{{ latest.events_checked }} evento{{ latest.events_checked|pluralize }} verificado{{ latest.events_checked|pluralize }}; último evento {{ latest.head_seq|default_if_none:"—" }}.</p>
+    <p class="hash"><small>Resumo do último evento: {{ latest.head_hash|default:"—" }}</small></p>
+    {% if latest.breaks %}
+    <h2>Quebras encontradas</h2>
+    <table>
+      <thead><tr><th>Evento</th><th>Tipo de quebra</th><th>Detalhe</th></tr></thead>
+      <tbody>
+      {% for item in latest.breaks %}
+        <tr><td class="numero">{{ item.seq }}</td><td>{{ item.kind }}</td><td>{{ item.detail }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  {% else %}
+    <p>Nenhuma verificação registrada ainda.</p>
+  {% endif %}
+  <form method="post" action="{% url 'audit:verify_now' %}">
+    {% csrf_token %}
+    <button type="submit" class="botao">Verificar agora</button>
+  </form>
+  <p class="helptext">A rotina diária verifica a cadeia inteira automaticamente.</p>
+</div>
+<h2>Histórico de verificações</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Fim</th><th>Origem</th><th>Eventos</th><th>Situação</th><th>Quebras</th></tr></thead>
+  <tbody>
+  {% for item in page.object_list %}
+    <tr>
+      <td>{{ item.finished_at|datahora }}</td>
+      <td>{{ item.get_trigger_display }}{% if item.triggered_by %} ({{ item.triggered_by.username }}){% endif %}</td>
+      <td class="numero">{{ item.events_checked }}</td>
+      <td>{{ item.get_status_display }}</td>
+      <td class="numero">{{ item.breaks|length }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Sem verificações.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+[project]
+name = "sgp-pd"
+version = "0.1.0"
+description = "SGP-P&D — Sistema de Gestão de Projetos de P&D de produtos para diagnóstico in vitro"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Django>=5.2.19,<5.3",
+    "django-auth-ldap>=5.4,<5.5",
+    "python-ldap>=3.4.8,<3.5",
+    "psycopg[binary]>=3.3,<3.4",
+    "celery[redis]>=5.7,<5.8",
+    "gunicorn>=26,<27",
+    "whitenoise>=6.12,<7",
+    "openpyxl>=3.1.5,<3.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2,<10",
+    "pytest-django>=4.14,<5",
+    "pytest-cov>=7.1,<8",
+    "ruff>=0.17,<0.18",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings_test"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers --ds=config.settings_test --cov=sgp --cov-report=term-missing:skip-covered --cov-report=json:var/coverage.json -m 'not slow'"
+markers = [
+    "req(id): requisito da especificação coberto pelo teste, no formato NNN:FR-NNN ou NNN:SC-NNN",
+    "ldap: integração com o servidor LDAP de desenvolvimento",
+    "slow: medições de desempenho (rodar com -m slow)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:celery.*",
+    "ignore::DeprecationWarning:kombu.*",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["sgp"]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+skip_empty = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["*/migrations/*", ".specify", ".claude"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S"]
+ignore = ["S101", "S105", "S106", "DJ001", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "B011"]

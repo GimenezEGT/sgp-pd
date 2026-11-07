@@ -31,14 +31,14 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Criar `pyproject.toml` (projeto `sgp-pd`, Python `>=3.12,<3.13`) com Django `==5.2.19`, django-auth-ldap `5.4`, python-ldap `3.4.8`, psycopg[binary] `3.3`, celery[redis] `5.7`, gunicorn, whitenoise, openpyxl `3.1.5`; grupo dev com pytest `9`, pytest-django `4.14`, pytest-cov `7`, ruff; configurar `[tool.pytest.ini_options]` (`DJANGO_SETTINGS_MODULE=config.settings_test`, marcadores `req`, `ldap`, `slow`, cobertura de `sgp.core` e `sgp.audit` com `--cov-fail-under=90`) e `[tool.ruff]`; gerar `uv.lock`
-- [ ] T002 Criar o projeto Django em `manage.py` e `config/` (`settings.py` lendo variáveis de ambiente de `contracts/configuracao.md`, `LANGUAGE_CODE="pt-br"`, `TIME_ZONE="America/Sao_Paulo"`, `USE_TZ=True`, sem `django.contrib.admin`; `settings_test.py` com credenciais do papel dono e backend de autenticação falso; `urls.py`; `wsgi.py`; `celery.py`)
-- [ ] T003 [P] Criar `deploy/docker/Dockerfile` (estágios `builder` com libldap2-dev/libsasl2-dev e uv, `runtime` sem ferramentas de build e usuário não root, `dev` com dependências de teste) e `deploy/docker/entrypoint.sh` (aguarda o banco, `migrate` com `DB_OWNER_*`, `apply_db_privileges`, inicia o processo com `DB_USER`)
-- [ ] T004 [P] Criar `deploy/postgres/initdb/01-papeis.sh` que cria o papel `sgp_app` (LOGIN, senha de `APP_DB_PASSWORD`, sem privilégios iniciais)
-- [ ] T005 [P] Criar `deploy/nginx/Dockerfile`, `deploy/nginx/nginx.conf` (HTTPS só, redireciono de HTTP, cabeçalhos HSTS, CSP `default-src 'self'`, `X-Frame-Options DENY`, proxy para `web:8000`) e `deploy/nginx/10-certificado-dev.sh` (gera certificado autoassinado em `/etc/nginx/certs` se ausente)
-- [ ] T006 [P] Criar `deploy/ldap-dev/seed.ldif` com os usuários fictícios do quickstart (senha `Senha#Dev01`; `ex.colaborador` sem senha) e grupos `sgp-administradores`, `sgp-gestores`, `sgp-analistas`, `sgp-qualidade`
-- [ ] T007 Criar `docker-compose.yml` (db postgres:17-bookworm, redis:7.4-alpine, web, worker `celery -A config worker --beat`, nginx; healthchecks; volume `pgdata`), `docker-compose.override.yml` (ldap osixia/openldap:1.5.0 com `ulimits.nofile=1024`, código montado em `/app`, `runserver`, alvo `dev`) e `.env.example`; criar `.dockerignore`
-- [ ] T008 [P] Baixar HTMX 2.0.11 do registro npm para `sgp/core/static/core/vendor/htmx.min.js` com a licença em `sgp/core/static/core/vendor/HTMX-LICENSE`
+- [X] T001 Criar `pyproject.toml` (projeto `sgp-pd`, Python `>=3.12,<3.13`) com Django `==5.2.19`, django-auth-ldap `5.4`, python-ldap `3.4.8`, psycopg[binary] `3.3`, celery[redis] `5.7`, gunicorn, whitenoise, openpyxl `3.1.5`; grupo dev com pytest `9`, pytest-django `4.14`, pytest-cov `7`, ruff; configurar `[tool.pytest.ini_options]` (`DJANGO_SETTINGS_MODULE=config.settings_test`, marcadores `req`, `ldap`, `slow`, cobertura de `sgp.core` e `sgp.audit` com `--cov-fail-under=90`) e `[tool.ruff]`; gerar `uv.lock`
+- [X] T002 Criar o projeto Django em `manage.py` e `config/` (`settings.py` lendo variáveis de ambiente de `contracts/configuracao.md`, `LANGUAGE_CODE="pt-br"`, `TIME_ZONE="America/Sao_Paulo"`, `USE_TZ=True`, sem `django.contrib.admin`; `settings_test.py` com credenciais do papel dono e backend de autenticação falso; `urls.py`; `wsgi.py`; `celery.py`)
+- [X] T003 [P] Criar `deploy/docker/Dockerfile` (estágios `builder` com libldap2-dev/libsasl2-dev e uv, `runtime` sem ferramentas de build e usuário não root, `dev` com dependências de teste) e `deploy/docker/entrypoint.sh` (aguarda o banco, `migrate` com `DB_OWNER_*`, `apply_db_privileges`, inicia o processo com `DB_USER`)
+- [X] T004 [P] Criar `deploy/postgres/initdb/01-papeis.sh` que cria o papel `sgp_app` (LOGIN, senha de `APP_DB_PASSWORD`, sem privilégios iniciais)
+- [X] T005 [P] Criar `deploy/nginx/Dockerfile`, `deploy/nginx/nginx.conf` (HTTPS só, redireciono de HTTP, cabeçalhos HSTS, CSP `default-src 'self'`, `X-Frame-Options DENY`, proxy para `web:8000`) e `deploy/nginx/10-certificado-dev.sh` (gera certificado autoassinado em `/etc/nginx/certs` se ausente)
+- [X] T006 [P] Criar `deploy/ldap-dev/seed.ldif` com os usuários fictícios do quickstart (senha `Senha#Dev01`; `ex.colaborador` sem senha) e grupos `sgp-administradores`, `sgp-gestores`, `sgp-analistas`, `sgp-qualidade`
+- [X] T007 Criar `docker-compose.yml` (db postgres:17-bookworm, redis:7.4-alpine, web, worker `celery -A config worker --beat`, nginx; healthchecks; volume `pgdata`), `docker-compose.override.yml` (ldap osixia/openldap:1.5.0 com `ulimits.nofile=1024`, código montado em `/app`, `runserver`, alvo `dev`) e `.env.example`; criar `.dockerignore`
+- [X] T008 [P] Baixar HTMX 2.0.11 do registro npm para `sgp/core/static/core/vendor/htmx.min.js` com a licença em `sgp/core/static/core/vendor/HTMX-LICENSE`
 
 ---
 
@@ -48,22 +48,22 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Criar `tests/conftest.py` com o plugin de rastreabilidade (opção `--req-report=<arquivo>` que grava JSON teste → requisitos), fixtures de pessoas com perfis, `auth_client(perfis)` e o backend falso `tests/fake_backend.py` (credenciais por dicionário, grupos de rede simulados, simulação de indisponibilidade)
-- [ ] T010 [P] Escrever testes que falham para modelos protegidos em `tests/core/test_protected_models.py` (FR-026: `delete()` e `QuerySet.delete()` recusados; append-only recusa `save()` de registro existente)
-- [ ] T011 Implementar `ProtectedModel`, `AppendOnlyModel` e `ProtectedQuerySet` em `sgp/core/models.py`
-- [ ] T012 Implementar `accounts.User` em `sgp/accounts/models.py` com os campos de data-model.md ("username varchar(150), único — login de rede normalizado em minúsculas"; "password sempre inutilizável"; `full_name`, `first_name`, `last_name`, `email`, `job_title`, `is_active`, `created_at`, `last_login`) e gerenciador; `AUTH_USER_MODEL="accounts.User"`; migração `sgp/accounts/migrations/0001_initial.py`
-- [ ] T013 Implementar `ProfileAssignment` em `sgp/accounts/models.py` ("profile varchar(20): ADMIN, RD_MANAGER, PROJECT_LEADER, ANALYST, QUALITY, READER"; "source manual ou network_group"; "índice único parcial (user, profile) WHERE revoked_at IS NULL"; motivo obrigatório) com migração
-- [ ] T014 [P] Escrever testes que falham da serialização canônica e do hash em `tests/audit/test_chain.py` (FR-020: chaves ordenadas, UTC com microssegundos, genesis com 64 zeros, valores sem ponto flutuante, hash estável após ida e volta pelo banco)
-- [ ] T015 Implementar `sgp/audit/chain.py` (`to_jsonable`, `canonical_payload`, `compute_hash`, `GENESIS_HASH`)
-- [ ] T016 Implementar `AuditEvent` e `ChainVerification` em `sgp/audit/models.py` conforme data-model.md ("seq bigint PK 1, 2, 3… sem lacunas"; "hash char(64), único"; índices de consulta) e migração com o trigger `audit_event_immutable` (BEFORE UPDATE OR DELETE, também em `audit_chainverification`)
-- [ ] T017 [P] Implementar o catálogo de eventos em `sgp/audit/event_types.py` (códigos e rótulos de `contracts/eventos-auditoria.md`, registro extensível pelas outras apps)
-- [ ] T018 Escrever testes que falham de `record_event` em `tests/audit/test_record_event.py` (FR-018, FR-020: sequência sem lacunas, encadeamento, autor "sistema", rollback desfaz evento e mudança, gravação concorrente em duas threads sem bifurcação)
-- [ ] T019 Implementar `record_event` com `pg_advisory_xact_lock` e captura da origem da requisição em `sgp/audit/services.py` e `sgp/core/request_context.py` (middleware que guarda IP e usuário da requisição)
-- [ ] T020 [P] Escrever testes que falham dos privilégios de banco em `tests/core/test_db_privileges.py` (FR-019, FR-026: com `SET ROLE sgp_app`, UPDATE/DELETE em `audit_auditevent` e DELETE em tabelas de negócio falham; INSERT funciona)
-- [ ] T021 Implementar `sgp/core/db_privileges.py` e o comando `sgp/core/management/commands/apply_db_privileges.py` (lista de tabelas append-only vinda dos modelos `AppendOnlyModel`; DELETE só em `django_session`)
-- [ ] T022 [P] Escrever testes que falham de perfis e permissões em `tests/accounts/test_profiles.py` (FR-009: soma de perfis; FR-015: decorator recusa com 403 e grava `auth.permission_denied`) e da regra de projeto em `tests/core/test_access.py` (FR-014)
-- [ ] T023 Implementar `sgp/accounts/profiles.py` (enum `Profile`, rótulos, `GLOBAL_PROJECT_ACCESS`, `active_profiles(user)`, `has_profile`, decorator `profile_required`) e `sgp/core/access.py` (`can_access_project(user, project)`)
-- [ ] T024 Criar o layout em `sgp/core/templates/base.html`, `403.html`, `404.html`, `500.html`, `sgp/core/static/core/css/sgp.css`, a página inicial `sgp/core/views.py` (`/`) com atalhos por perfil, o context processor `sgp/core/context_processors.py` e a verificação de saúde `/saude/`
+- [X] T009 Criar `tests/conftest.py` com o plugin de rastreabilidade (opção `--req-report=<arquivo>` que grava JSON teste → requisitos), fixtures de pessoas com perfis, `auth_client(perfis)` e o backend falso `tests/fake_backend.py` (credenciais por dicionário, grupos de rede simulados, simulação de indisponibilidade)
+- [X] T010 [P] Escrever testes que falham para modelos protegidos em `tests/core/test_protected_models.py` (FR-026: `delete()` e `QuerySet.delete()` recusados; append-only recusa `save()` de registro existente)
+- [X] T011 Implementar `ProtectedModel`, `AppendOnlyModel` e `ProtectedQuerySet` em `sgp/core/models.py`
+- [X] T012 Implementar `accounts.User` em `sgp/accounts/models.py` com os campos de data-model.md ("username varchar(150), único — login de rede normalizado em minúsculas"; "password sempre inutilizável"; `full_name`, `first_name`, `last_name`, `email`, `job_title`, `is_active`, `created_at`, `last_login`) e gerenciador; `AUTH_USER_MODEL="accounts.User"`; migração `sgp/accounts/migrations/0001_initial.py`
+- [X] T013 Implementar `ProfileAssignment` em `sgp/accounts/models.py` ("profile varchar(20): ADMIN, RD_MANAGER, PROJECT_LEADER, ANALYST, QUALITY, READER"; "source manual ou network_group"; "índice único parcial (user, profile) WHERE revoked_at IS NULL"; motivo obrigatório) com migração
+- [X] T014 [P] Escrever testes que falham da serialização canônica e do hash em `tests/audit/test_chain.py` (FR-020: chaves ordenadas, UTC com microssegundos, genesis com 64 zeros, valores sem ponto flutuante, hash estável após ida e volta pelo banco)
+- [X] T015 Implementar `sgp/audit/chain.py` (`to_jsonable`, `canonical_payload`, `compute_hash`, `GENESIS_HASH`)
+- [X] T016 Implementar `AuditEvent` e `ChainVerification` em `sgp/audit/models.py` conforme data-model.md ("seq bigint PK 1, 2, 3… sem lacunas"; "hash char(64), único"; índices de consulta) e migração com o trigger `audit_event_immutable` (BEFORE UPDATE OR DELETE, também em `audit_chainverification`)
+- [X] T017 [P] Implementar o catálogo de eventos em `sgp/audit/event_types.py` (códigos e rótulos de `contracts/eventos-auditoria.md`, registro extensível pelas outras apps)
+- [X] T018 Escrever testes que falham de `record_event` em `tests/audit/test_record_event.py` (FR-018, FR-020: sequência sem lacunas, encadeamento, autor "sistema", rollback desfaz evento e mudança, gravação concorrente em duas threads sem bifurcação)
+- [X] T019 Implementar `record_event` com `pg_advisory_xact_lock` e captura da origem da requisição em `sgp/audit/services.py` e `sgp/core/request_context.py` (middleware que guarda IP e usuário da requisição)
+- [X] T020 [P] Escrever testes que falham dos privilégios de banco em `tests/core/test_db_privileges.py` (FR-019, FR-026: com `SET ROLE sgp_app`, UPDATE/DELETE em `audit_auditevent` e DELETE em tabelas de negócio falham; INSERT funciona)
+- [X] T021 Implementar `sgp/core/db_privileges.py` e o comando `sgp/core/management/commands/apply_db_privileges.py` (lista de tabelas append-only vinda dos modelos `AppendOnlyModel`; DELETE só em `django_session`)
+- [X] T022 [P] Escrever testes que falham de perfis e permissões em `tests/accounts/test_profiles.py` (FR-009: soma de perfis; FR-015: decorator recusa com 403 e grava `auth.permission_denied`) e da regra de projeto em `tests/core/test_access.py` (FR-014)
+- [X] T023 Implementar `sgp/accounts/profiles.py` (enum `Profile`, rótulos, `GLOBAL_PROJECT_ACCESS`, `active_profiles(user)`, `has_profile`, decorator `profile_required`) e `sgp/core/access.py` (`can_access_project(user, project)`)
+- [X] T024 Criar o layout em `sgp/core/templates/base.html`, `403.html`, `404.html`, `500.html`, `sgp/core/static/core/css/sgp.css`, a página inicial `sgp/core/views.py` (`/`) com atalhos por perfil, o context processor `sgp/core/context_processors.py` e a verificação de saúde `/saude/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,17 +79,17 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T025 [P] [US1] Testes do login em `tests/accounts/test_login.py` (FR-001 senha não guardada; FR-002 criação e alteração do cadastro com valor anterior e novo; FR-004 mensagem genérica para senha errada, usuário inexistente e conta desativada; serviço indisponível; FR-027 senha ausente de eventos; FR-008 logout)
-- [ ] T026 [P] [US1] Testes da pessoa sem perfil e da solicitação em `tests/accounts/test_access_request.py` (FR-003: só "Solicitar acesso" e logout; justificativa obrigatória; evento `accounts.access_requested`; redirecionamento com `auth.permission_denied`; pessoa que perde o último perfil com a sessão aberta passa a ser recusada na requisição seguinte)
-- [ ] T027 [P] [US1] Testes de integração LDAP em `tests/accounts/test_ldap_integration.py` (marcador `ldap`: bind real, atributos mapeados, senha errada e conta desativada recusadas)
+- [X] T025 [P] [US1] Testes do login em `tests/accounts/test_login.py` (FR-001 senha não guardada; FR-002 criação e alteração do cadastro com valor anterior e novo; FR-004 mensagem genérica para senha errada, usuário inexistente e conta desativada; serviço indisponível; FR-027 senha ausente de eventos; FR-008 logout)
+- [X] T026 [P] [US1] Testes da pessoa sem perfil e da solicitação em `tests/accounts/test_access_request.py` (FR-003: só "Solicitar acesso" e logout; justificativa obrigatória; evento `accounts.access_requested`; redirecionamento com `auth.permission_denied`; pessoa que perde o último perfil com a sessão aberta passa a ser recusada na requisição seguinte)
+- [X] T027 [P] [US1] Testes de integração LDAP em `tests/accounts/test_ldap_integration.py` (marcador `ldap`: bind real, atributos mapeados, senha errada e conta desativada recusadas)
 
 ### Implementation for User Story 1
 
-- [ ] T028 [US1] Implementar `LoginAttempt` (*append-only*; "result success, failure, blocked, unavailable") e `AccessRequest` ("status pending → granted ou rejected") em `sgp/accounts/models.py` com migração
-- [ ] T029 [US1] Implementar `sgp/accounts/ldap.py` (montagem das settings `AUTH_LDAP_*` a partir do ambiente, receptor do sinal `ldap_error` para indisponibilidade, leitura dos grupos de rede do usuário autenticado) e a verificação de sistema `sgp/accounts/checks.py` que recusa LDAP sem `ldaps://` nem StartTLS quando `DEBUG` é falso (FR-027), com teste em `tests/accounts/test_checks.py`
-- [ ] T030 [US1] Implementar o fluxo de login em `sgp/accounts/services.py` (`login_flow`: instantâneo do cadastro, `authenticate`, `LoginAttempt`, eventos de criação/alteração, encaminhamento conforme perfis)
-- [ ] T031 [US1] Implementar as views, formulários e rotas de `/entrar/`, `/sair/` e `/solicitar-acesso/` em `sgp/accounts/views.py`, `sgp/accounts/forms.py`, `sgp/accounts/urls.py` e templates `sgp/accounts/templates/accounts/`
-- [ ] T032 [US1] Implementar `ProfileRequiredMiddleware` em `sgp/accounts/middleware.py` e ativá-lo junto do `LoginRequiredMiddleware` em `config/settings.py`
+- [X] T028 [US1] Implementar `LoginAttempt` (*append-only*; "result success, failure, blocked, unavailable") e `AccessRequest` ("status pending → granted ou rejected") em `sgp/accounts/models.py` com migração
+- [X] T029 [US1] Implementar `sgp/accounts/ldap.py` (montagem das settings `AUTH_LDAP_*` a partir do ambiente, receptor do sinal `ldap_error` para indisponibilidade, leitura dos grupos de rede do usuário autenticado) e a verificação de sistema `sgp/accounts/checks.py` que recusa LDAP sem `ldaps://` nem StartTLS quando `DEBUG` é falso (FR-027), com teste em `tests/accounts/test_checks.py`
+- [X] T030 [US1] Implementar o fluxo de login em `sgp/accounts/services.py` (`login_flow`: instantâneo do cadastro, `authenticate`, `LoginAttempt`, eventos de criação/alteração, encaminhamento conforme perfis)
+- [X] T031 [US1] Implementar as views, formulários e rotas de `/entrar/`, `/sair/` e `/solicitar-acesso/` em `sgp/accounts/views.py`, `sgp/accounts/forms.py`, `sgp/accounts/urls.py` e templates `sgp/accounts/templates/accounts/`
+- [X] T032 [US1] Implementar `ProfileRequiredMiddleware` em `sgp/accounts/middleware.py` e ativá-lo junto do `LoginRequiredMiddleware` em `config/settings.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,16 +103,16 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T033 [P] [US2] Testes de concessão e revogação em `tests/accounts/test_profile_admin.py` (FR-010 motivo e aprovação obrigatórios; FR-011 histórico preservado; FR-012 último ADMIN; duplicado recusado; não ADMIN recebe 403; SC-004)
-- [ ] T034 [P] [US2] Testes da sincronização com grupos em `tests/accounts/test_group_sync.py` (FR-013: concede e revoga só concessões `network_group`; manual intocada; eventos com o grupo como origem)
-- [ ] T035 [P] [US2] Testes da decisão de solicitações e do comando inicial em `tests/accounts/test_access_request_admin.py` e `tests/accounts/test_grant_initial_admin.py` (FR-016; comando só sem ADMIN ativo)
+- [X] T033 [P] [US2] Testes de concessão e revogação em `tests/accounts/test_profile_admin.py` (FR-010 motivo e aprovação obrigatórios; FR-011 histórico preservado; FR-012 último ADMIN; duplicado recusado; não ADMIN recebe 403; SC-004)
+- [X] T034 [P] [US2] Testes da sincronização com grupos em `tests/accounts/test_group_sync.py` (FR-013: concede e revoga só concessões `network_group`; manual intocada; eventos com o grupo como origem)
+- [X] T035 [P] [US2] Testes da decisão de solicitações e do comando inicial em `tests/accounts/test_access_request_admin.py` e `tests/accounts/test_grant_initial_admin.py` (FR-016; comando só sem ADMIN ativo)
 
 ### Implementation for User Story 2
 
-- [ ] T036 [US2] Implementar `grant_profile`, `revoke_profile`, `sync_network_profiles` e `decide_access_request` em `sgp/accounts/services.py`, todos com `record_event` na mesma transação
-- [ ] T037 [US2] Implementar as telas de Administração › Pessoas (lista com busca, detalhe com histórico, conceder, revogar) e › Solicitações em `sgp/accounts/views_admin.py`, `sgp/accounts/forms.py`, `sgp/accounts/urls.py` e templates
-- [ ] T038 [US2] Integrar `sync_network_profiles` ao fluxo de login em `sgp/accounts/services.py`
-- [ ] T039 [US2] Implementar o comando `sgp/accounts/management/commands/grant_initial_admin.py`
+- [X] T036 [US2] Implementar `grant_profile`, `revoke_profile`, `sync_network_profiles` e `decide_access_request` em `sgp/accounts/services.py`, todos com `record_event` na mesma transação
+- [X] T037 [US2] Implementar as telas de Administração › Pessoas (lista com busca, detalhe com histórico, conceder, revogar) e › Solicitações em `sgp/accounts/views_admin.py`, `sgp/accounts/forms.py`, `sgp/accounts/urls.py` e templates
+- [X] T038 [US2] Integrar `sync_network_profiles` ao fluxo de login em `sgp/accounts/services.py`
+- [X] T039 [US2] Implementar o comando `sgp/accounts/management/commands/grant_initial_admin.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,14 +126,14 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T040 [P] [US3] Testes da verificação em `tests/audit/test_verification.py` (FR-020/FR-021 e SC-003: íntegra; conteúdo alterado; exclusão no meio; inserção forjada; lacuna; exclusão do trecho final via ponto de controle; resultado gravado e evento `audit.chain_verified`; trigger impede UPDATE pela aplicação)
-- [ ] T041 [P] [US3] Testes das telas e da rotina em `tests/audit/test_verification_views.py` e `tests/audit/test_tasks.py` (perfis QUALITY/ADMIN; alerta FR-022; agendamento diário configurado; comando com código de saída 1 na quebra)
+- [X] T040 [P] [US3] Testes da verificação em `tests/audit/test_verification.py` (FR-020/FR-021 e SC-003: íntegra; conteúdo alterado; exclusão no meio; inserção forjada; lacuna; exclusão do trecho final via ponto de controle; resultado gravado e evento `audit.chain_verified`; trigger impede UPDATE pela aplicação)
+- [X] T041 [P] [US3] Testes das telas e da rotina em `tests/audit/test_verification_views.py` e `tests/audit/test_tasks.py` (perfis QUALITY/ADMIN; alerta FR-022; agendamento diário configurado; comando com código de saída 1 na quebra)
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Implementar `verify_chain` em `sgp/audit/services.py` (leitura em blocos, tipos de quebra `content_altered`, `chain_broken`, `sequence_gap`, `checkpoint_missing`, `checkpoint_mismatch`)
-- [ ] T043 [US3] Implementar a tarefa `sgp/audit/tasks.py`, o agendamento `CELERY_BEAT_SCHEDULE` em `config/settings.py` e o comando `sgp/audit/management/commands/verify_audit_chain.py`
-- [ ] T044 [US3] Implementar a tela `/auditoria/integridade/` e o POST de verificação em `sgp/audit/views.py`, `sgp/audit/urls.py` e templates; alerta global no context processor
+- [X] T042 [US3] Implementar `verify_chain` em `sgp/audit/services.py` (leitura em blocos, tipos de quebra `content_altered`, `chain_broken`, `sequence_gap`, `checkpoint_missing`, `checkpoint_mismatch`)
+- [X] T043 [US3] Implementar a tarefa `sgp/audit/tasks.py`, o agendamento `CELERY_BEAT_SCHEDULE` em `config/settings.py` e o comando `sgp/audit/management/commands/verify_audit_chain.py`
+- [X] T044 [US3] Implementar a tela `/auditoria/integridade/` e o POST de verificação em `sgp/audit/views.py`, `sgp/audit/urls.py` e templates; alerta global no context processor
 
 **Checkpoint**: All P1 user stories should now be independently functional
 
@@ -147,13 +147,13 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T045 [P] [US4] Testes da consulta em `tests/audit/test_trail_views.py` (FR-023 filtros combinados, ordem cronológica, paginação de 50, fragmento HTMX, permissões; FR-025 horário de Brasília com segundos)
-- [ ] T046 [P] [US4] Testes da exportação em `tests/audit/test_exports.py` (FR-024 conteúdo igual ao da tela, bloco de identificação, CSV com BOM e `;`, XLSX, zero eventos, evento `audit.exported`)
+- [X] T045 [P] [US4] Testes da consulta em `tests/audit/test_trail_views.py` (FR-023 filtros combinados, ordem cronológica, paginação de 50, fragmento HTMX, permissões; FR-025 horário de Brasília com segundos)
+- [X] T046 [P] [US4] Testes da exportação em `tests/audit/test_exports.py` (FR-024 conteúdo igual ao da tela, bloco de identificação, CSV com BOM e `;`, XLSX, zero eventos, evento `audit.exported`)
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Implementar o formulário de filtros `sgp/audit/forms.py` e a consulta em `sgp/audit/views.py` com templates `sgp/audit/templates/audit/trilha.html` e `_tabela.html` (HTMX)
-- [ ] T048 [US4] Implementar `sgp/audit/exports.py` (CSV em streaming e XLSX `write_only`) e a rota `/auditoria/exportar/`
+- [X] T047 [US4] Implementar o formulário de filtros `sgp/audit/forms.py` e a consulta em `sgp/audit/views.py` com templates `sgp/audit/templates/audit/trilha.html` e `_tabela.html` (HTMX)
+- [X] T048 [US4] Implementar `sgp/audit/exports.py` (CSV em streaming e XLSX `write_only`) e a rota `/auditoria/exportar/`
 
 **Checkpoint**: User Story 4 functional
 
@@ -167,15 +167,15 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T049 [P] [US5] Testes de inatividade em `tests/accounts/test_session_timeout.py` (FR-005, SC-006: encerra após o limite, mensagem, evento `auth.session_expired`; atividade renova)
-- [ ] T050 [P] [US5] Testes de bloqueio em `tests/accounts/test_lockout.py` (FR-006, FR-007, SC-006: bloqueio na N-ésima falha, tentativa bloqueada não chama o backend, fim do bloqueio, desbloqueio manual com motivo, login aceito zera a contagem, indisponibilidade não conta, usuário inexistente é bloqueado do mesmo modo e com a mesma mensagem)
+- [X] T049 [P] [US5] Testes de inatividade em `tests/accounts/test_session_timeout.py` (FR-005, SC-006: encerra após o limite, mensagem, evento `auth.session_expired`; atividade renova)
+- [X] T050 [P] [US5] Testes de bloqueio em `tests/accounts/test_lockout.py` (FR-006, FR-007, SC-006: bloqueio na N-ésima falha, tentativa bloqueada não chama o backend, fim do bloqueio, desbloqueio manual com motivo, login aceito zera a contagem, indisponibilidade não conta, usuário inexistente é bloqueado do mesmo modo e com a mesma mensagem)
 
 ### Implementation for User Story 5
 
-- [ ] T051 [US5] Implementar `LoginLockout` em `sgp/accounts/models.py` ("bloqueio ativo = released_at IS NULL AND expires_at > agora") com migração e as regras de contagem em `sgp/accounts/services.py`
-- [ ] T052 [US5] Integrar a checagem e a criação de bloqueio ao `login_flow` em `sgp/accounts/services.py`
-- [ ] T053 [US5] Implementar `InactivityTimeoutMiddleware` em `sgp/core/middleware.py` e ativá-lo em `config/settings.py`
-- [ ] T054 [US5] Implementar a tela Administração › Bloqueios (lista e desbloqueio com motivo) em `sgp/accounts/views_admin.py` e templates
+- [X] T051 [US5] Implementar `LoginLockout` em `sgp/accounts/models.py` ("bloqueio ativo = released_at IS NULL AND expires_at > agora") com migração e as regras de contagem em `sgp/accounts/services.py`
+- [X] T052 [US5] Integrar a checagem e a criação de bloqueio ao `login_flow` em `sgp/accounts/services.py`
+- [X] T053 [US5] Implementar `InactivityTimeoutMiddleware` em `sgp/core/middleware.py` e ativá-lo em `config/settings.py`
+- [X] T054 [US5] Implementar a tela Administração › Bloqueios (lista e desbloqueio com motivo) em `sgp/accounts/views_admin.py` e templates
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -185,12 +185,12 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T055 Escrever a varredura de rotas em `tests/core/test_route_scan.py` (SC-002: toda rota recusa anônimo, pessoa sem perfil e perfil sem permissão, exceto as rotas anônimas do contrato) e o teste do catálogo `tests/audit/test_event_catalog.py` (FR-017: todos os eventos mínimos estão registrados com rótulo em português)
-- [ ] T056 [P] Implementar `scripts/rastreabilidade.py` (lê FR/SC dos `specs/*/spec.md` e o JSON do `--req-report`) e gerar `docs/validacao/matriz-rastreabilidade.md`
-- [ ] T057 [P] Medir desempenho em `tests/audit/test_performance.py` (marcador `slow`: verificação de 200 mil eventos e consulta filtrada; extrapolar para SC-005 e SC-007)
-- [ ] T058 Rodar a suíte completa, a cobertura (≥ 90% em `sgp.core` e `sgp.audit`) e o `ruff check`
-- [ ] T059 [P] Atualizar `README.md` e `CLAUDE.md` com os comandos de execução e de teste
-- [ ] T060 Executar o roteiro de `quickstart.md` no ambiente Docker (navegador e terminal) e registrar o resultado; registrar a medição do SC-001 (login ≤ 5 s) como passo manual da homologação com o AD real
+- [X] T055 Escrever a varredura de rotas em `tests/core/test_route_scan.py` (SC-002: toda rota recusa anônimo, pessoa sem perfil e perfil sem permissão, exceto as rotas anônimas do contrato) e o teste do catálogo `tests/audit/test_event_catalog.py` (FR-017: todos os eventos mínimos estão registrados com rótulo em português)
+- [X] T056 [P] Implementar `scripts/rastreabilidade.py` (lê FR/SC dos `specs/*/spec.md` e o JSON do `--req-report`) e gerar `docs/validacao/matriz-rastreabilidade.md`
+- [X] T057 [P] Medir desempenho em `tests/audit/test_performance.py` (marcador `slow`: verificação de 200 mil eventos e consulta filtrada; extrapolar para SC-005 e SC-007)
+- [X] T058 Rodar a suíte completa, a cobertura (≥ 90% em `sgp.core` e `sgp.audit`) e o `ruff check`
+- [X] T059 [P] Atualizar `README.md` e `CLAUDE.md` com os comandos de execução e de teste
+- [X] T060 Executar o roteiro de `quickstart.md` no ambiente Docker (navegador e terminal) e registrar o resultado; registrar a medição do SC-001 (login ≤ 5 s) como passo manual da homologação com o AD real
 
 ---
 

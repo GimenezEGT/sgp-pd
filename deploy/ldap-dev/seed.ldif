@@ -1,0 +1,118 @@
+# Diretório FICTÍCIO, somente para desenvolvimento e testes (nunca em homologação ou produção).
+# Base criada pelo contêiner: dc=sgp,dc=dev,dc=local. Senha de teste: Senha#Dev01.
+# ex.colaborador não tem senha: simula conta desativada na rede (o bind é recusado).
+
+dn: ou=people,dc=sgp,dc=dev,dc=local
+objectClass: organizationalUnit
+ou: people
+
+dn: ou=groups,dc=sgp,dc=dev,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+dn: uid=admin.ti,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: admin.ti
+cn: Administrador TI
+givenName: Administrador
+sn: TI
+displayName: Administrador da TI (fictício)
+mail: admin.ti@sgp.dev.local
+title: Analista de Sistemas
+userPassword: Senha#Dev01
+
+dn: uid=gestor.pd,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: gestor.pd
+cn: Gestor PD
+givenName: Gestor
+sn: PD
+displayName: Gestor de P&D (fictício)
+mail: gestor.pd@sgp.dev.local
+title: Gerente de Pesquisa e Desenvolvimento
+userPassword: Senha#Dev01
+
+dn: uid=lider.projeto,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: lider.projeto
+cn: Lider Projeto
+givenName: Líder
+sn: Projeto
+displayName: Líder de Projeto (fictício)
+mail: lider.projeto@sgp.dev.local
+title: Pesquisadora Sênior
+userPassword: Senha#Dev01
+
+dn: uid=ana.analista,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: ana.analista
+cn: Ana Analista
+givenName: Ana
+sn: Analista
+displayName: Ana Analista (fictícia)
+mail: ana.analista@sgp.dev.local
+title: Analista de P&D
+userPassword: Senha#Dev01
+
+dn: uid=qualidade.ar,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: qualidade.ar
+cn: Qualidade AR
+givenName: Qualidade
+sn: AR
+displayName: Qualidade e Assuntos Regulatórios (fictício)
+mail: qualidade.ar@sgp.dev.local
+title: Especialista em Assuntos Regulatórios
+userPassword: Senha#Dev01
+
+dn: uid=leitor.consulta,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: leitor.consulta
+cn: Leitor Consulta
+givenName: Leitor
+sn: Consulta
+displayName: Leitor de Consulta (fictício)
+mail: leitor.consulta@sgp.dev.local
+title: Assistente Administrativo
+userPassword: Senha#Dev01
+
+dn: uid=sem.perfil,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: sem.perfil
+cn: Sem Perfil
+givenName: Sem
+sn: Perfil
+displayName: Pessoa Sem Perfil (fictícia)
+mail: sem.perfil@sgp.dev.local
+title: Técnica de Laboratório
+userPassword: Senha#Dev01
+
+dn: uid=ex.colaborador,ou=people,dc=sgp,dc=dev,dc=local
+objectClass: inetOrgPerson
+uid: ex.colaborador
+cn: Ex Colaborador
+givenName: Ex
+sn: Colaborador
+displayName: Ex-colaborador (fictício)
+mail: ex.colaborador@sgp.dev.local
+title: Analista de P&D
+
+dn: cn=sgp-administradores,ou=groups,dc=sgp,dc=dev,dc=local
+objectClass: groupOfNames
+cn: sgp-administradores
+member: uid=admin.ti,ou=people,dc=sgp,dc=dev,dc=local
+
+dn: cn=sgp-gestores,ou=groups,dc=sgp,dc=dev,dc=local
+objectClass: groupOfNames
+cn: sgp-gestores
+member: uid=gestor.pd,ou=people,dc=sgp,dc=dev,dc=local
+
+dn: cn=sgp-analistas,ou=groups,dc=sgp,dc=dev,dc=local
+objectClass: groupOfNames
+cn: sgp-analistas
+member: uid=ana.analista,ou=people,dc=sgp,dc=dev,dc=local
+
+dn: cn=sgp-qualidade,ou=groups,dc=sgp,dc=dev,dc=local
+objectClass: groupOfNames
+cn: sgp-qualidade
+member: uid=qualidade.ar,ou=people,dc=sgp,dc=dev,dc=local

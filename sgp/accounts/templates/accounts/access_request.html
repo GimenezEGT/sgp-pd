@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Solicitar acesso{% endblock %}
+{% block content %}
+<h1>Solicitar acesso</h1>
+<div class="painel">
+  <p>{{ instructions }}</p>
+  {% if has_profile %}<p class="descricao">Você já tem perfil ativo; use esta página só para pedir um perfil adicional.</p>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Enviar solicitação</button>
+  </form>
+</div>
+{% if own_requests %}
+<h2>Suas solicitações</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Data e hora</th><th>Justificativa</th><th>Situação</th><th>Motivo da decisão</th></tr></thead>
+  <tbody>
+  {% for item in own_requests %}
+    <tr>
+      <td>{{ item.created_at|datahora }}</td>
+      <td>{{ item.justification }}</td>
+      <td>{{ item.get_status_display }}</td>
+      <td>{{ item.decision_reason }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
+{% endblock %}

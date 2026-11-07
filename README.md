@@ -1,46 +1,58 @@
-# Kit inicial do SGP-P&D (spec-kit + Claude Code)
+# SGP-P&D — Sistema de Gestão de Projetos de P&D (IVD)
 
-Este kit acompanha o plano "Sistema de Gestão de Projetos de P&D (IVD) — Plano de Implementação com Spec-Driven Development". Ele dá ao Claude Code o contexto da empresa (documentos, campos, padrões visuais, normas e casos de teste) antes da primeira especificação.
+Aplicação web da intranet que guarda cada projeto de P&D de diagnóstico in vitro, do Termo de
+Abertura à Saída de Projeto, com trilha de auditoria encadeada e assinatura eletrônica. A construção
+segue o Spec-Driven Development do spec-kit; o plano completo está em
+[docs/plano-implementacao.md](docs/plano-implementacao.md) e os artefatos de cada feature em
+[specs/](specs/).
 
-## Como usar
+## Ambiente de desenvolvimento
 
-1. Crie o repositório e inicialize o spec-kit:
+Pré-requisito: Docker com Compose v2.
 
-   ```bash
-   uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z   # tag mais recente
-   specify init sgp-pd --integration claude --script sh   # no Windows: --script ps
-   cd sgp-pd
-   specify extension add git   # opcional: um branch por feature
-   ```
+```bash
+cp .env.example .env            # troque os valores fictícios (senhas e chave)
+docker compose up -d --build    # db, redis, web, worker, nginx e LDAP fictício
+docker compose exec web python manage.py grant_initial_admin admin.ti --motivo "Implantação" --aprovacao "Gestão da TI"
+```
 
-2. Copie o conteúdo deste kit para a raiz do repositório, mantendo as pastas.
-3. Coloque os arquivos originais em `docs/modelos/` (veja o LEIA-ME da pasta).
-4. Junte este `CLAUDE.md` com o que o `specify init` tiver criado.
-5. Abra o Claude Code (`claude`) e rode `/speckit-constitution` com o bloco de `prompts/00-constituicao.md`.
-6. Para cada feature, na ordem dos arquivos de `prompts/`:
-   - `/speckit-specify` com o primeiro bloco do arquivo;
-   - `/speckit-clarify`, respondendo os pontos listados;
-   - `/speckit-plan` com o segundo bloco;
-   - `/speckit-checklist` com os temas sugeridos;
-   - `/speckit-tasks`, `/speckit-analyze` e `/speckit-implement`;
-   - `/speckit-converge` até o relatório dizer Converged.
-7. Faça commit ao fim de cada etapa.
+Acesse `https://localhost:8443/` (certificado autoassinado de desenvolvimento). Usuários do
+diretório fictício: veja `deploy/ldap-dev/seed.ldif` (senha `Senha#Dev01`).
+
+## Testes e portão de qualidade
+
+```bash
+docker compose run --rm web sh scripts/verificar.sh        # ruff, pytest, cobertura mínima e matriz
+docker compose run --rm web pytest -m slow -s               # medições de desempenho
+```
+
+A matriz requisito → teste fica em
+[docs/validacao/matriz-rastreabilidade.md](docs/validacao/matriz-rastreabilidade.md).
+
+## Homologação e produção
+
+```bash
+docker compose -f docker-compose.yml up -d --build
+```
+
+Sem o arquivo de override: sem LDAP fictício, imagem `runtime` com gunicorn. Configure no `.env` o
+AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
+`DJANGO_DEBUG=false`. As variáveis estão em
+[specs/001-fundacao-acesso-auditoria/contracts/configuracao.md](specs/001-fundacao-acesso-auditoria/contracts/configuracao.md).
 
 ## Estrutura
 
 ```text
-CLAUDE.md                          regras permanentes para o Claude Code
-docs/plano-implementacao.md        o plano completo, em Markdown
-docs/contexto/
-  01-visao-geral.md                objetivo, perfis, fluxo e siglas
-  02-dicionario-documentos.md      documentos, tópicos, campos e regras
-  03-padroes-formatacao.md         capa, corpo, documento completo e dossiê
-  04-requisitos-regulatorios.md    RDC 665/2022, RDC 830/2023, Lei 14.063/2020
-  05-vocabularios.md               listas controladas
-  06-casos-de-teste.md             regras de validação e vetores de referência
-  07-integracao-sankhya.md         API Gateway e pendências com a consultoria
-docs/modelos/                      arquivos originais da empresa
-prompts/                           um arquivo por etapa: 00 constituição, 01 a 12 features
+config/        settings, urls, celery
+sgp/           apps (core, accounts, audit, ...)
+tests/         pytest, espelhando as apps
+deploy/        Dockerfile, Nginx, PostgreSQL, LDAP de desenvolvimento
+docs/          contexto do kit, plano, validação
+specs/         artefatos do spec-kit por feature
+prompts/       textos das etapas do plano
 ```
 
-Os nomes das skills seguem o spec-kit 1.x (`/speckit-specify`); nas versões 0.x o separador é ponto (`/speckit.specify`).
+## Kit de contexto
+
+O kit original (contexto da empresa, padrões e prompts) está em `docs/contexto/`, `docs/modelos/`
+e `prompts/`. Os arquivos de `docs/modelos/` servem só como referência de estrutura e layout.
