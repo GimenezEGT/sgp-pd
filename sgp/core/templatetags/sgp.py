@@ -1,8 +1,30 @@
 from django import template
 
-from sgp.core.formatting import compact_json, local_date, local_datetime
+from sgp.core.formatting import (
+    compact_json,
+    format_brl,
+    format_int_br,
+    local_date,
+    local_datetime,
+)
 
 register = template.Library()
+
+
+@register.filter
+def brl(value):
+    return format_brl(value)
+
+
+@register.filter
+def inteiro_br(value):
+    return format_int_br(value)
+
+
+@register.filter
+def linhas(value):
+    """Lista de textos para exibição, uma por linha."""
+    return value or []
 
 
 @register.filter

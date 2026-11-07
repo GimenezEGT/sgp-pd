@@ -84,9 +84,10 @@ def test_xlsx_tem_o_mesmo_conteudo(client, login_as, sample):
     assert [row[0] for row in rows[7:]] == [1, 2, 3]
 
 
-def test_exportacao_sem_eventos(client, login_as, sample):
+def test_exportacao_sem_eventos(client, login_as, sample, bare_project):
     login_as(Profile.QUALITY)
-    rows = read_csv(client.get(reverse("audit:export"), {"formato": "csv", "projeto": 999}))
+    empty = bare_project("Sem eventos")
+    rows = read_csv(client.get(reverse("audit:export"), {"formato": "csv", "projeto": empty.pk}))
     assert rows[4] == ["Eventos", "0"]
     assert rows[6] == HEADER and rows[7:] == []
 

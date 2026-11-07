@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{% if project %}Editar produto{% else %}Novo projeto{% endif %}{% endblock %}
+{% block content %}
+{% if project %}<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>{% endif %}
+<h1>{% if project %}Dados do produto{% else %}Novo projeto{% endif %}</h1>
+<div class="painel">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Salvar</button>
+  </form>
+</div>
+{% endblock %}

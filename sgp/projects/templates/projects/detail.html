@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ project }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:list' %}">← Projetos</a></p>
+<h1>{{ project.title }}</h1>
+<div class="painel">
+  <p><strong>Código:</strong> {{ project.code|default:"(gerado na aprovação)" }} · <strong>Versão:</strong> {{ project.version_display }} · <strong>Situação:</strong> {{ project.get_status_display }} · <strong>Líder:</strong> {{ project.leader.get_full_name }}</p>
+  <p><strong>Produto:</strong> {{ project.product_name }}{% if project.product_family %} · <strong>Família:</strong> {{ project.product_family }}{% endif %} · <strong>Tecnologia:</strong> {{ project.technology.label }}</p>
+  <p><strong>Órgão regulador:</strong> {{ project.regulatory_body }}{% if project.regulatory_body == "ANVISA" %} · <strong>Classe de risco prevista:</strong> {{ project.risk_class|default:"—" }} · <strong>Regra:</strong> {{ project.classification_rule|default:"—" }} · <strong>Regime:</strong> {{ project.regime|default:"—" }}{% else %} · classificação da RDC 830/2023 não se aplica{% endif %}</p>
+  {% if can_edit %}<p class="acoes"><a class="botao botao-secundario" href="{% url 'projects:edit' project.pk %}">Editar produto</a> <a class="botao botao-secundario" href="{% url 'projects:charter' project.pk %}">Editar TAP</a> <a class="botao botao-secundario" href="{% url 'projects:business_plan' project.pk %}">Editar Plano de Negócios</a></p>{% endif %}
+</div>
+
+{% if is_leader and project.is_editable %}
+<div class="painel">
+  <h2>Submeter para aprovação</h2>
+  {% if pending %}
+  <p>Pendências para submeter:</p>
+  <ul>{% for item in pending %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% else %}
+  <p>Nenhuma pendência. O projeto pode ser submetido ao Gestor de P&amp;D.</p>
+  {% endif %}
+  <form method="post" action="{% url 'projects:submit' project.pk %}">{% csrf_token %}<button type="submit" class="botao">Submeter</button></form>
+</div>
+{% endif %}
+
+{% if can_decide %}
+<div class="painel">
+  <h2>Decisão do Gestor de P&amp;D</h2>
+  <form method="post" action="{% url 'projects:approve' project.pk %}">{% csrf_token %}<button type="submit" class="botao">Aprovar e abrir o projeto</button></form>
+  <form method="post" action="{% url 'projects:return' project.pk %}">
+    {% csrf_token %}
+    {{ return_form.as_p }}
+    <button type="submit" class="botao botao-perigo">Devolver ao líder</button>
+  </form>
+</div>
+{% endif %}
+
+<h2>Termo de Abertura de Projeto (TAP)</h2>
+<div class="painel">
+  <p><strong>Justificativa:</strong><br>{{ charter.justification|linebreaksbr|default:"—" }}</p>
+  <p><strong>Objetivo:</strong><br>{{ charter.objective|linebreaksbr|default:"—" }}</p>
+  <p><strong>Escopo incluído:</strong></p><ul>{% for i in charter.scope_included %}<li>{{ i }}</li>{% empty %}<li>—</li>{% endfor %}</ul>
+  <p><strong>Escopo excluído:</strong></p><ul>{% for i in charter.scope_excluded %}<li>{{ i }}</li>{% empty %}<li>—</li>{% endfor %}</ul>
+  <p><strong>Entregas:</strong></p><ul>{% for i in charter.deliverables %}<li>{{ i }}</li>{% empty %}<li>—</li>{% endfor %}</ul>
+  <p><strong>Premissas:</strong></p><ul>{% for i in charter.assumptions %}<li>{{ i }}</li>{% empty %}<li>—</li>{% endfor %}</ul>
+  <p><strong>Restrições:</strong></p><ul>{% for i in charter.constraints %}<li>{{ i }}</li>{% empty %}<li>—</li>{% endfor %}</ul>
+  <p><strong>Riscos iniciais</strong></p>
+  <table><thead><tr><th>Risco</th><th>Impacto</th><th>Resposta</th></tr></thead><tbody>
+  {% for r in charter.risks %}<tr><td>{{ r.risco }}</td><td>{{ r.impacto }}</td><td>{{ r.resposta }}</td></tr>{% empty %}<tr><td colspan="3">—</td></tr>{% endfor %}
+  </tbody></table>
+  <p><strong>Partes interessadas</strong></p>
+  <table><thead><tr><th>Nome/área</th><th>Interesse</th></tr></thead><tbody>
+  {% for s in charter.stakeholders %}<tr><td>{{ s.nome_area }}</td><td>{{ s.interesse }}</td></tr>{% empty %}<tr><td colspan="2">—</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+
+<h2>Equipe</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Pessoa</th><th>Papel</th><th>Início</th><th>Fim</th><th>Motivo do encerramento</th>{% if can_manage_team %}<th>Encerrar</th>{% endif %}</tr></thead>
+  <tbody>
+  {% for m in members %}
+    <tr>
+      <td>{{ m.user.get_full_name }}</td><td>{{ m.role }}</td><td>{{ m.start_date|data }}</td><td>{{ m.end_date|data|default:"—" }}</td><td>{{ m.end_reason|default:"—" }}</td>
+      {% if can_manage_team %}<td>{% if not m.end_date and m.user_id != project.leader_id %}
+        <form method="post" action="{% url 'projects:member_end' project.pk m.pk %}">{% csrf_token %}{{ end_member_form.as_p }}<button type="submit" class="botao botao-perigo">Encerrar</button></form>
+      {% endif %}</td>{% endif %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if can_manage_team %}
+<form method="post" action="{% url 'projects:member_add' project.pk %}" class="painel">
+  {% csrf_token %}
+  <div class="filtros">{{ member_form.as_p }}<p><button type="submit" class="botao">Incluir na equipe</button></p></div>
+  <p class="helptext">Membros só passam a acessar o projeto depois da aprovação.</p>
+</form>
+{% endif %}
+
+<h2>Marcos planejados</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Subdocumento</th><th>Descrição</th><th>Data planejada</th><th>Data realizada</th><th>Situação</th>{% if is_leader %}<th>Ações</th>{% endif %}</tr></thead>
+  <tbody>
+  {% for ms in milestones %}
+    <tr>
+      <td>{{ ms.subdocument_type.label }}</td><td>{{ ms.description }}</td><td>{{ ms.planned_date|data }}</td><td>{{ ms.actual_date|data|default:"—" }}</td>
+      <td>{% if ms.canceled_at %}Cancelado: {{ ms.cancel_reason }}{% else %}Ativo{% endif %}</td>
+      {% if is_leader %}<td>{% if not ms.canceled_at %}
+        <form method="post" action="{% url 'projects:milestone_update' project.pk ms.pk %}">{% csrf_token %}
+          {% if project.is_editable %}<label>Data planejada <input type="date" name="planned_date" value="{{ ms.planned_date|date:'Y-m-d' }}"></label>{% endif %}
+          {% if project.status == "open" %}<label>Data realizada <input type="date" name="actual_date" value="{{ ms.actual_date|date:'Y-m-d' }}"></label>{% endif %}
+          <button type="submit" class="botao botao-secundario">Atualizar</button>
+        </form>
+        {% if project.is_editable %}<form method="post" action="{% url 'projects:milestone_cancel' project.pk ms.pk %}">{% csrf_token %}{{ reason_form.as_p }}<button type="submit" class="botao botao-perigo">Cancelar marco</button></form>{% endif %}
+      {% endif %}</td>{% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">Nenhum marco.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if can_edit %}
+<form method="post" action="{% url 'projects:milestone_add' project.pk %}" class="painel">
+  {% csrf_token %}
+  <div class="filtros">{{ milestone_form.as_p }}<p><button type="submit" class="botao">Incluir marco</button></p></div>
+</form>
+{% endif %}
+
+<h2>Plano de Negócios</h2>
+<div class="painel">
+  <p><strong>Data:</strong> {{ plan.plan_date|data|default:"—" }} · <strong>Prazo de execução:</strong> {% if plan.execution_months %}{{ plan.execution_months }} meses{% endif %}{% if plan.execution_end_date %} · término {{ plan.execution_end_date|data }}{% endif %}</p>
+  <p><strong>Objetivo:</strong><br>{{ plan.objective|linebreaksbr|default:"—" }}</p>
+  <p><strong>Descrição geral:</strong><br>{{ plan.description|linebreaksbr|default:"—" }}</p>
+  <p><strong>Mercado-alvo:</strong><br>{{ plan.target_market|linebreaksbr|default:"—" }}</p>
+  {% if can_view_financials %}
+  <p><strong>Custo total do projeto:</strong> {{ plan.total_cost|brl|default:"—" }}</p>
+  <table><thead><tr><th>Ano</th><th>Retorno esperado</th></tr></thead><tbody>
+  {% for f in forecasts %}<tr><td>Ano {{ f.year_index }}</td><td class="numero">{{ f.amount|brl|default:"—" }}</td></tr>{% endfor %}
+  <tr><th>Total em 5 anos</th><th class="numero">{{ forecast_total|brl|default:"—" }}</th></tr>
+  </tbody></table>
+  {% else %}
+  <p><strong>Custo total e retorno esperado:</strong> Restrito</p>
+  {% endif %}
+  <h3>Análise de Viabilidade Financeira</h3>
+  <p><strong>Principais concorrentes:</strong> {{ plan.competitors|join:"; "|default:"—" }}</p>
+  <p><strong>Principais apresentações dos concorrentes:</strong> {{ plan.competitor_presentations|join:"; "|default:"—" }}</p>
+  {% if can_view_financials %}
+  <p><strong>Preço por teste dos concorrentes:</strong> {{ plan.competitor_price_min|brl|default:"—" }} a {{ plan.competitor_price_max|brl|default:"—" }}</p>
+  <p><strong>Custo máximo de produção:</strong> {{ plan.max_production_cost|brl|default:"—" }}</p>
+  <p><strong>Previsão de preço de venda:</strong> {{ plan.sale_price_min|brl|default:"—" }} a {{ plan.sale_price_max|brl|default:"—" }}</p>
+  <p><strong>Previsão de venda anual:</strong> {{ plan.annual_sales_tests|inteiro_br|default:"—" }} testes/ano</p>
+  {% else %}
+  <p><strong>Preços, custo de produção e venda prevista:</strong> Restrito</p>
+  {% endif %}
+  <h3>Análise de Viabilidade Produtiva</h3>
+  <p><strong>Estrutura fabril:</strong><br>{{ plan.factory_structure|linebreaksbr|default:"—" }}</p>
+  <p><strong>Equipe de Produção:</strong><br>{{ plan.production_team|linebreaksbr|default:"—" }}</p>
+  <p><strong>Controle de Qualidade:</strong><br>{{ plan.quality_control|linebreaksbr|default:"—" }}</p>
+</div>
+
+<h2>Histórico de decisões</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Data e hora</th><th>Decisão</th><th>Por</th><th>Comentário</th></tr></thead>
+  <tbody>
+  {% for d in decisions %}
+    <tr><td>{{ d.occurred_at|datahora }}</td><td>{{ d.get_action_display }}</td><td>{{ d.actor.get_full_name }}</td><td>{{ d.comment|default:"—" }}</td></tr>
+  {% empty %}
+    <tr><td colspan="4">Nenhuma decisão registrada.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

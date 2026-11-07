@@ -17,13 +17,13 @@
       <td>{{ event.actor_username }}</td>
       <td>{{ event.event_type|rotulo_evento }}</td>
       <td>{{ event.object_repr|default:event.object_type }}</td>
-      <td>{{ event.project_id|default_if_none:"" }}</td>
+      <td>{{ event.project_label }}</td>
       <td>
-        {% if event.old_value is not None or event.new_value is not None %}
+        {% if event.display_old is not None or event.display_new is not None %}
         <details>
           <summary>ver</summary>
-          {% if event.old_value is not None %}<pre class="json">Anterior: {{ event.old_value|json_compacto }}</pre>{% endif %}
-          {% if event.new_value is not None %}<pre class="json">Novo: {{ event.new_value|json_compacto }}</pre>{% endif %}
+          {% if event.display_old is not None %}<pre class="json">Anterior: {{ event.display_old|json_compacto }}</pre>{% endif %}
+          {% if event.display_new is not None %}<pre class="json">Novo: {{ event.display_new|json_compacto }}</pre>{% endif %}
         </details>
         {% endif %}
       </td>

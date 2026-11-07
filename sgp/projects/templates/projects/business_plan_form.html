@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Plano de Negócios{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
+<h1>Plano de Negócios</h1>
+<p class="descricao">Projeto: {{ project.title }} · Líder: {{ project.leader.get_full_name }} (vindos do projeto). Valores no formato 1.234.567,89.</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+  <h2>Dados gerais</h2>
+  {{ form.plan_date.as_field_group }}
+  {{ form.objective.as_field_group }}
+  {{ form.description.as_field_group }}
+  {{ form.total_cost.as_field_group }}
+  {{ form.execution_months.as_field_group }}
+  {{ form.execution_end_date.as_field_group }}
+  {{ form.target_market.as_field_group }}
+  <h2>Retorno esperado (receita líquida prevista)</h2>
+  {{ form.forecast_1.as_field_group }}
+  {{ form.forecast_2.as_field_group }}
+  {{ form.forecast_3.as_field_group }}
+  {{ form.forecast_4.as_field_group }}
+  {{ form.forecast_5.as_field_group }}
+  <p class="helptext">O retorno total em 5 anos é calculado pelo sistema.</p>
+  <h2>Análise de Viabilidade Financeira</h2>
+  {{ form.competitors.as_field_group }}
+  {{ form.competitor_price_min.as_field_group }}
+  {{ form.competitor_price_max.as_field_group }}
+  {{ form.competitor_presentations.as_field_group }}
+  {{ form.max_production_cost.as_field_group }}
+  {{ form.sale_price_min.as_field_group }}
+  {{ form.sale_price_max.as_field_group }}
+  {{ form.annual_sales_tests.as_field_group }}
+  <h2>Análise de Viabilidade Produtiva</h2>
+  {{ form.factory_structure.as_field_group }}
+  {{ form.production_team.as_field_group }}
+  {{ form.quality_control.as_field_group }}
+  {{ form.row_version }}
+  <button type="submit" class="botao">Salvar Plano de Negócios</button>
+</form>
+{% endblock %}

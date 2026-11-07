@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 
 from django import forms
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -11,7 +12,9 @@ class AuditFilterForm(forms.Form):
     usuario = forms.ModelChoiceField(
         label="Usuário", queryset=None, required=False, empty_label="Todos"
     )
-    projeto = forms.IntegerField(label="Projeto (código interno)", required=False, min_value=1)
+    projeto = forms.ModelChoiceField(
+        label="Projeto", queryset=None, required=False, empty_label="Todos"
+    )
     de = forms.DateField(
         label="De",
         required=False,
@@ -31,6 +34,8 @@ class AuditFilterForm(forms.Form):
             f"{user.username} — {user.get_full_name()}"
         )
         self.fields["tipo"].choices = [("", "Todos"), *event_choices()]
+        project_model = apps.get_model("projects", "Project")
+        self.fields["projeto"].queryset = project_model.objects.order_by("code", "title")
 
     def clean(self):
         cleaned = super().clean()
@@ -44,7 +49,7 @@ class AuditFilterForm(forms.Form):
         if data.get("usuario"):
             queryset = queryset.filter(actor=data["usuario"])
         if data.get("projeto"):
-            queryset = queryset.filter(project_id=data["projeto"])
+            queryset = queryset.filter(project_id=data["projeto"].pk)
         tz = timezone.get_current_timezone()
         if data.get("de"):
             queryset = queryset.filter(
@@ -62,7 +67,7 @@ class AuditFilterForm(forms.Form):
         user = data.get("usuario")
         parts = [
             f"Usuário: {user.username if user else 'todos'}",
-            f"Projeto: {data.get('projeto') or 'todos'}",
+            f"Projeto: {data['projeto'] if data.get('projeto') else 'todos'}",
             f"De: {data['de'].strftime('%d/%m/%Y') if data.get('de') else 'todos'}",
             f"Até: {data['ate'].strftime('%d/%m/%Y') if data.get('ate') else 'todos'}",
             f"Tipo: {data.get('tipo') or 'todos'}",
@@ -73,7 +78,7 @@ class AuditFilterForm(forms.Form):
         data = self.cleaned_data
         return {
             "usuario": data["usuario"].username if data.get("usuario") else None,
-            "projeto": data.get("projeto"),
+            "projeto": data["projeto"].pk if data.get("projeto") else None,
             "de": data.get("de"),
             "ate": data.get("ate"),
             "tipo": data.get("tipo") or None,

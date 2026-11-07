@@ -22,6 +22,13 @@ class NavItem:
 
 NAV_ITEMS: list[NavItem] = [
     NavItem(
+        "Projetos",
+        "projects:list",
+        frozenset(Profile),
+        "Projetos",
+        "Abrir projetos, preencher TAP e Plano de Negócios, acompanhar aprovações.",
+    ),
+    NavItem(
         "Pessoas e perfis",
         "accounts:people",
         frozenset({Profile.ADMIN}),

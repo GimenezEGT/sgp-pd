@@ -14,14 +14,15 @@ pytestmark = [pytest.mark.django_db, pytest.mark.req("001:FR-023")]
 
 
 @pytest.fixture
-def sample(make_user):
+def sample(make_user, bare_project):
     ana = make_user("ana")
     bruno = make_user("bruno")
+    p10, p11 = bare_project("P10"), bare_project("P11")
     record_event("audit.exported", actor=ana, new_value={"n": 1})
-    record_event("accounts.user_updated", actor=bruno, obj=bruno, project_id=10)
-    record_event("audit.exported", actor=bruno, project_id=11)
-    record_event("accounts.user_updated", actor=ana, obj=ana, project_id=10)
-    return {"ana": ana, "bruno": bruno}
+    record_event("accounts.user_updated", actor=bruno, obj=bruno, project_id=p10.pk)
+    record_event("audit.exported", actor=bruno, project_id=p11.pk)
+    record_event("accounts.user_updated", actor=ana, obj=ana, project_id=p10.pk)
+    return {"ana": ana, "bruno": bruno, "p10": p10, "p11": p11}
 
 
 def seqs(response):
@@ -58,7 +59,7 @@ def test_filtro_por_tipo(client, login_as, sample):
 
 def test_filtro_por_projeto(client, login_as, sample):
     login_as(Profile.QUALITY)
-    response = client.get(reverse("audit:trail"), {"projeto": 10})
+    response = client.get(reverse("audit:trail"), {"projeto": sample["p10"].pk})
     assert seqs(response) == [2, 4]
 
 
@@ -66,7 +67,7 @@ def test_filtros_combinados(client, login_as, sample):
     login_as(Profile.QUALITY)
     response = client.get(
         reverse("audit:trail"),
-        {"usuario": sample["bruno"].pk, "tipo": "audit.exported", "projeto": 11},
+        {"usuario": sample["bruno"].pk, "tipo": "audit.exported", "projeto": sample["p11"].pk},
     )
     assert seqs(response) == [3]
 
