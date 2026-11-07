@@ -20,6 +20,8 @@ Respostas provisórias: a recomendação de cada pergunta foi adotada para não 
 - Q: O "Realizado" da Verificação Final é pré-preenchido? → A: Não nesta versão: o analista preenche cada linha e a tela mostra, ao lado, o acesso à Validação e à Saída do projeto; a regra de correspondência para o pré-preenchimento fica pendente de definição pela Qualidade (pendência a esclarecer).
 - Q: Como tratar a edição simultânea do mesmo documento por dois analistas? → A: Controle otimista: os dois podem abrir; a segunda gravação feita sobre a versão desatualizada é recusada com aviso para recarregar, sem bloqueio exclusivo (ratificar com o Gestor de P&D).
 
+Ajuste da análise de consistência: a autorização do Gestor de P&D dispensa a ordem entre os subdocumentos, mas não a Entrada aprovada, que é pré-requisito de todos (docs/contexto/04-requisitos-regulatorios.md, art. 46).
+
 Decisão de estrutura: a capa atual da Saída numera dois itens como "11"; com a numeração automática, a Saída versão 05 do sistema tem os itens 1 a 12.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -180,7 +182,7 @@ A Alteração de Projeto registra a versão alterada e a nova versão do projeto
 
 **Fluxo**
 
-- **FR-016**: A criação fora da ordem recomendada (Entrada → Formulação → Lote Piloto → RAPD → Análise Crítica → Validação → Verificação Final → Saída, com o antecessor aprovado) DEVE mostrar aviso e só seguir com autorização registrada do Gestor de P&D, com motivo; a Alteração de Projeto pode ser criada a qualquer momento com a Entrada aprovada.
+- **FR-016**: A Entrada aprovada DEVE ser pré-requisito de todos os outros subdocumentos, sem autorização que dispense (RDC 665/2022, art. 46: dados de entrada aprovados antes da Formulação). Nos demais passos, a criação fora da ordem recomendada (Formulação → Lote Piloto → RAPD → Análise Crítica → Validação → Verificação Final → Saída, com o antecessor aprovado) DEVE mostrar aviso e só seguir com autorização registrada do Gestor de P&D, com motivo; a Alteração de Projeto pode ser criada a qualquer momento depois da Entrada aprovada.
 
 **Entrada, Validação e Verificação Final**
 
