@@ -1,0 +1,1 @@
+- Validação 1 (2026-11-07): três marcações [NEEDS CLARIFICATION] (tópico 9 da Entrada, tópicos da Análise Crítica, pré-preenchimento do "Realizado") ficam para o `/speckit-clarify`; os demais itens passam.
