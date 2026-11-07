@@ -171,7 +171,8 @@ A sessão de quem deixa o sistema aberto e sem uso expira após o tempo de inati
 - **Perfil**: um dos seis papéis fixos do sistema (Administrador, Gestor de P&D, Líder de projeto, Analista/Pesquisador, Qualidade/AR, Leitor).
 - **Concessão de perfil**: ligação pessoa × perfil com início, concedido por, motivo, referência da aprovação e origem (manual ou grupo da rede); quando revogada, data, revogado por e motivo da revogação. Nunca é apagada.
 - **Solicitação de acesso**: pedido de uma pessoa sem perfil, com justificativa, data e hora, situação (pendente, atendida, recusada), quem decidiu e motivo.
-- **Tentativa de login**: usuário informado, data e hora, resultado (aceita, recusada, bloqueada) e endereço de origem; base do bloqueio por tentativas.
+- **Tentativa de login**: usuário informado, data e hora, resultado (aceita, recusada, bloqueada, serviço indisponível) e endereço de origem; base do bloqueio por tentativas.
+- **Bloqueio de login**: usuário bloqueado, início, fim previsto, quantidade de falhas e, quando houver, desbloqueio manual (quem, quando e motivo).
 - **Evento de auditoria**: posição na sequência, data e hora do servidor, autor, tipo, objeto, projeto, valor anterior, valor novo, motivo, endereço de origem, resumo do evento anterior e resumo próprio.
 - **Verificação de integridade**: data e hora, origem (rotina diária ou sob demanda, e por quem), quantidade de eventos verificados, resultado, quebras encontradas e ponto de controle (último evento e seu resumo).
 

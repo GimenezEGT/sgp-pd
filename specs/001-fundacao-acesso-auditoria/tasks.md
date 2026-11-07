@@ -80,13 +80,13 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T025 [P] [US1] Testes do login em `tests/accounts/test_login.py` (FR-001 senha não guardada; FR-002 criação e alteração do cadastro com valor anterior e novo; FR-004 mensagem genérica para senha errada, usuário inexistente e conta desativada; serviço indisponível; FR-027 senha ausente de eventos; FR-008 logout)
-- [ ] T026 [P] [US1] Testes da pessoa sem perfil e da solicitação em `tests/accounts/test_access_request.py` (FR-003: só "Solicitar acesso" e logout; justificativa obrigatória; evento `accounts.access_requested`; redirecionamento com `auth.permission_denied`)
+- [ ] T026 [P] [US1] Testes da pessoa sem perfil e da solicitação em `tests/accounts/test_access_request.py` (FR-003: só "Solicitar acesso" e logout; justificativa obrigatória; evento `accounts.access_requested`; redirecionamento com `auth.permission_denied`; pessoa que perde o último perfil com a sessão aberta passa a ser recusada na requisição seguinte)
 - [ ] T027 [P] [US1] Testes de integração LDAP em `tests/accounts/test_ldap_integration.py` (marcador `ldap`: bind real, atributos mapeados, senha errada e conta desativada recusadas)
 
 ### Implementation for User Story 1
 
 - [ ] T028 [US1] Implementar `LoginAttempt` (*append-only*; "result success, failure, blocked, unavailable") e `AccessRequest` ("status pending → granted ou rejected") em `sgp/accounts/models.py` com migração
-- [ ] T029 [US1] Implementar `sgp/accounts/ldap.py` (montagem das settings `AUTH_LDAP_*` a partir do ambiente, receptor do sinal `ldap_error` para indisponibilidade, leitura dos grupos de rede do usuário autenticado)
+- [ ] T029 [US1] Implementar `sgp/accounts/ldap.py` (montagem das settings `AUTH_LDAP_*` a partir do ambiente, receptor do sinal `ldap_error` para indisponibilidade, leitura dos grupos de rede do usuário autenticado) e a verificação de sistema `sgp/accounts/checks.py` que recusa LDAP sem `ldaps://` nem StartTLS quando `DEBUG` é falso (FR-027), com teste em `tests/accounts/test_checks.py`
 - [ ] T030 [US1] Implementar o fluxo de login em `sgp/accounts/services.py` (`login_flow`: instantâneo do cadastro, `authenticate`, `LoginAttempt`, eventos de criação/alteração, encaminhamento conforme perfis)
 - [ ] T031 [US1] Implementar as views, formulários e rotas de `/entrar/`, `/sair/` e `/solicitar-acesso/` em `sgp/accounts/views.py`, `sgp/accounts/forms.py`, `sgp/accounts/urls.py` e templates `sgp/accounts/templates/accounts/`
 - [ ] T032 [US1] Implementar `ProfileRequiredMiddleware` em `sgp/accounts/middleware.py` e ativá-lo junto do `LoginRequiredMiddleware` em `config/settings.py`
@@ -168,7 +168,7 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 ### Tests for User Story 5 ⚠️
 
 - [ ] T049 [P] [US5] Testes de inatividade em `tests/accounts/test_session_timeout.py` (FR-005, SC-006: encerra após o limite, mensagem, evento `auth.session_expired`; atividade renova)
-- [ ] T050 [P] [US5] Testes de bloqueio em `tests/accounts/test_lockout.py` (FR-006, FR-007, SC-006: bloqueio na N-ésima falha, tentativa bloqueada não chama o backend, fim do bloqueio, desbloqueio manual com motivo, login aceito zera a contagem, indisponibilidade não conta)
+- [ ] T050 [P] [US5] Testes de bloqueio em `tests/accounts/test_lockout.py` (FR-006, FR-007, SC-006: bloqueio na N-ésima falha, tentativa bloqueada não chama o backend, fim do bloqueio, desbloqueio manual com motivo, login aceito zera a contagem, indisponibilidade não conta, usuário inexistente é bloqueado do mesmo modo e com a mesma mensagem)
 
 ### Implementation for User Story 5
 
@@ -185,12 +185,12 @@ Monólito Django: código em `config/` e `sgp/<app>/`, testes em `tests/<app>/`,
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T055 Escrever a varredura de rotas em `tests/core/test_route_scan.py` (SC-002: toda rota recusa anônimo, pessoa sem perfil e perfil sem permissão, exceto as rotas anônimas do contrato)
+- [ ] T055 Escrever a varredura de rotas em `tests/core/test_route_scan.py` (SC-002: toda rota recusa anônimo, pessoa sem perfil e perfil sem permissão, exceto as rotas anônimas do contrato) e o teste do catálogo `tests/audit/test_event_catalog.py` (FR-017: todos os eventos mínimos estão registrados com rótulo em português)
 - [ ] T056 [P] Implementar `scripts/rastreabilidade.py` (lê FR/SC dos `specs/*/spec.md` e o JSON do `--req-report`) e gerar `docs/validacao/matriz-rastreabilidade.md`
 - [ ] T057 [P] Medir desempenho em `tests/audit/test_performance.py` (marcador `slow`: verificação de 200 mil eventos e consulta filtrada; extrapolar para SC-005 e SC-007)
 - [ ] T058 Rodar a suíte completa, a cobertura (≥ 90% em `sgp.core` e `sgp.audit`) e o `ruff check`
 - [ ] T059 [P] Atualizar `README.md` e `CLAUDE.md` com os comandos de execução e de teste
-- [ ] T060 Executar o roteiro de `quickstart.md` no ambiente Docker (navegador e terminal) e registrar o resultado
+- [ ] T060 Executar o roteiro de `quickstart.md` no ambiente Docker (navegador e terminal) e registrar o resultado; registrar a medição do SC-001 (login ≤ 5 s) como passo manual da homologação com o AD real
 
 ---
 
