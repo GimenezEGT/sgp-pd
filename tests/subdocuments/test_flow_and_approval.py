@@ -61,16 +61,8 @@ def test_autorizacao_so_quando_falta_algo_e_so_pelo_gestor(
     assert flow.requirement(project, "formulacao") is None
 
 
-@pytest.mark.req("004:FR-015")
-def test_aprovacao_provisoria(
-    project, approved_entry, make_subdocument, analyst, manager, make_material, events
-):
-    formulation = make_subdocument(project, "formulacao")
-    with pytest.raises(ValidationError) as missing:
-        services.approve(formulation, by=manager)
-    assert any("obrigatório" in message for message in missing.value.messages)
-    material = make_material(analyst, code="MP-APR")
-    services.save_subdocument(
+def fill_formulation(formulation, analyst, material):
+    return services.save_subdocument(
         formulation,
         by=analyst,
         data={
@@ -85,7 +77,7 @@ def test_aprovacao_provisoria(
                     "justification": "",
                     "values": {
                         "itens": [
-                            {"reagente": "R1", "insumo": {"id": material.pk, "code": "MP-APR"}}
+                            {"reagente": "R1", "insumo": {"id": material.pk, "code": material.code}}
                         ]
                     },
                 },
@@ -98,21 +90,41 @@ def test_aprovacao_provisoria(
             }
         },
     )
+
+
+@pytest.mark.req("004:FR-015")
+@pytest.mark.req("005:FR-004")
+def test_aprovacao_com_assinatura_bloqueia_documento_e_cadastros(
+    project, approved_entry, make_subdocument, analyst, manager, make_material, events, signing
+):
+    formulation = make_subdocument(project, "formulacao")
+    with pytest.raises(ValidationError) as missing:
+        signing.submit("subdocument", formulation, analyst)
+    assert any("obrigatório" in message for message in missing.value.messages)
+    material = make_material(analyst, code="MP-APR")
+    fill_formulation(formulation, analyst, material)
+    signing.submit("subdocument", formulation, analyst)
     with pytest.raises(ValidationError, match="Só o Gestor"):
-        services.approve(formulation, by=analyst)
-    approved = services.approve(formulation, by=manager)
+        signing.approve("subdocument", formulation, analyst)
+    signing.approve("subdocument", formulation, manager)
+    approved = Subdocument.objects.get(pk=formulation.pk)
     assert approved.is_approved and approved.approved_by == manager
     assert Material.objects.get(pk=material.pk).is_locked
     assert events("subdocuments.approved")[-1].new_value["cadastros_bloqueados"] == 1
-    with pytest.raises(ValidationError, match="aprovado e não pode ser editado"):
+    with pytest.raises(ValidationError, match="em revisão ou aprovado"):
         services.save_subdocument(approved, by=analyst, data={"topics": {}})
 
 
 @pytest.mark.req("004:FR-015")
-def test_quem_criou_nao_aprova(project, approved_entry, make_subdocument, manager):
+@pytest.mark.req("005:SC-002")
+def test_quem_elaborou_nao_aprova(
+    project, approved_entry, make_subdocument, manager, make_material, signing
+):
     own = make_subdocument(project, "formulacao", by=manager)
-    with pytest.raises(ValidationError, match="Quem criou"):
-        services.approve(own, by=manager)
+    fill_formulation(own, manager, make_material(manager, code="MP-OWN"))
+    signing.submit("subdocument", own, manager)
+    with pytest.raises(ValidationError, match="Quem elaborou não pode aprovar"):
+        signing.approve("subdocument", own, manager)
 
 
 @pytest.mark.req("004:FR-016")

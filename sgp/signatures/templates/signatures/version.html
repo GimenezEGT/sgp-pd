@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Versão {{ approved.version_display }} – {{ title }}{% endblock %}
+{% block content %}
+<p><a href="{{ back_url }}">← {{ title }}</a></p>
+<h1>{{ adapter.label }} – versão {{ approved.version_display }}{% if superseded %} (Substituída){% else %} (Vigente){% endif %}</h1>
+<p class="descricao">Aprovada em {{ approved.approved_at|datahora }} por {{ approved.approved_by.get_full_name }} · resumo {{ approved.content_hash }}</p>
+<h2>Assinaturas</h2>
+<ul>{% for signature in version_signatures %}<li>{{ signature.get_meaning_display }} – {{ signature.signer_name }}{% if signature.signer_title %} / {{ signature.signer_title }}{% endif %} em {{ signature.signed_at|datahora }}{% if signature.delegation %} (em delegação de {{ signature.delegation.delegator.get_full_name }}){% endif %}</li>{% endfor %}</ul>
+<h2>Conteúdo congelado</h2>
+<pre class="json">{{ content|json_compacto }}</pre>
+{% endblock %}

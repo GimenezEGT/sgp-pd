@@ -28,11 +28,10 @@ from .models import (
     FlowAuthorization,
     FlowAuthorizationUse,
     Subdocument,
-    SubdocumentStatus,
 )
 
 NOT_EDITOR = "Só membros da equipe (Analista ou Líder) e o Gestor de P&D editam subdocumentos de projeto aberto."
-NOT_DRAFT = "O subdocumento está aprovado e não pode ser editado."
+NOT_DRAFT = "O subdocumento está em revisão ou aprovado e não pode ser editado."
 STALE = "Outra pessoa gravou este subdocumento depois que você o abriu; recarregue a página."
 
 
@@ -70,8 +69,9 @@ def entry_topics(project) -> tuple[list[str], dict]:
     entry = flow.approved(project, ENTRY)
     if entry is None:
         return [], {}
-    keys = [topic["key"] for topic in entry.template.topics]
-    labels = {topic["key"]: topic["label"] for topic in entry.template.topics}
+    template, _ = flow.approved_content(entry)
+    keys = [topic["key"] for topic in template.topics]
+    labels = {topic["key"]: topic["label"] for topic in template.topics}
     return keys, labels
 
 
@@ -120,7 +120,10 @@ def initial_data(template, project) -> dict:
         if inherit:
             source = flow.approved(project, inherit["subdocument"])
             if source is not None:
-                values = copy.deepcopy(source.topic_data(inherit["topic"])["values"])
+                _, source_topics = flow.approved_content(source)
+                values = copy.deepcopy(
+                    (source_topics.get(inherit["topic"]) or {}).get("values", {})
+                )
         for field_def in topic.get("fields", []):
             if field_def["type"] == "derived_table":
                 values[field_def["key"]] = derived.merge(
@@ -471,41 +474,28 @@ def _lock_references(subdocument: Subdocument, by) -> int:
     return count
 
 
-def approve(subdocument: Subdocument, *, by) -> Subdocument:
-    """Aprovação provisória (FR-015): Gestor de P&D ≠ criador; documento e cadastros bloqueados."""
+def finalize_approval(subdocument: Subdocument, *, by) -> Subdocument:
+    """Efeitos da aprovação com assinatura (feature 005): registra quem aprovou, bloqueia os
+    cadastros referenciados e aplica a Alteração de Projeto. A situação já foi mudada pelo serviço
+    de assinatura, que conferiu permissões, completude e assinaturas."""
     from sgp.projects.services import bump_version
 
-    with transaction.atomic():
-        subdocument = (
-            Subdocument.objects.select_for_update()
-            .select_related("project", "template", "subdocument_type")
-            .get(pk=subdocument.pk)
-        )
-        if not permissions.is_manager(by):
-            raise ValidationError("Só o Gestor de P&D aprova subdocumentos.")
-        if subdocument.created_by_id == by.pk:
-            raise ValidationError("Quem criou o subdocumento não pode aprová-lo.")
-        _require_draft(subdocument)
-        missing = completeness(subdocument)
-        if missing:
-            raise ValidationError(missing)
-        subdocument.status = SubdocumentStatus.APPROVED
-        subdocument.approved_by = by
-        subdocument.approved_at = timezone.now()
-        subdocument.save(update_fields=["status", "approved_by", "approved_at"])
-        locked = _lock_references(subdocument, by)
-        _event(
-            "subdocuments.approved",
-            subdocument,
-            by,
-            new_value={
-                "versao": subdocument.version_display,
-                "modelo": subdocument.template.version_display,
-                "cadastros_bloqueados": locked,
-            },
-        )
-        if subdocument.subdocument_type.code == CHANGE:
-            _apply_change(subdocument, by, bump_version)
+    subdocument.approved_by = by
+    subdocument.approved_at = timezone.now()
+    subdocument.save(update_fields=["approved_by", "approved_at"])
+    locked = _lock_references(subdocument, by)
+    _event(
+        "subdocuments.approved",
+        subdocument,
+        by,
+        new_value={
+            "versao": subdocument.version_display,
+            "modelo": subdocument.template.version_display,
+            "cadastros_bloqueados": locked,
+        },
+    )
+    if subdocument.subdocument_type.code == CHANGE:
+        _apply_change(subdocument, by, bump_version)
     return subdocument
 
 

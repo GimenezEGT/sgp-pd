@@ -82,7 +82,17 @@ ROUTE_CONTRACT = {
     "subdocuments:row": ("GET", PROJECT_ACCESS),
     "subdocuments:refresh": ("POST", PROJECT_ACCESS),
     "subdocuments:migrate": ("POST", {Profile.RD_MANAGER}),
-    "subdocuments:approve": ("POST", {Profile.RD_MANAGER}),
+    # Feature 005: o documento decide (acesso ao projeto, editor, Gestor ou delegado).
+    "signatures:queue": ("GET", ANY_PROFILE),
+    "signatures:delegations": ("GET", {Profile.RD_MANAGER}),
+    "signatures:delegation_end": ("POST", {Profile.RD_MANAGER}),
+    "signatures:submit": ("GET", PROJECT_ACCESS),
+    "signatures:approve": ("GET", PROJECT_ACCESS),
+    "signatures:return": ("POST", PROJECT_ACCESS),
+    "signatures:review": ("POST", PROJECT_ACCESS),
+    "signatures:new_version": ("POST", PROJECT_ACCESS),
+    "signatures:verify": ("POST", PROJECT_ACCESS),
+    "signatures:version": ("GET", PROJECT_ACCESS),
 }
 
 

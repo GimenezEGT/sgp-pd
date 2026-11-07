@@ -38,10 +38,20 @@ def topic_summary(topic_def: dict, topic_data: dict) -> str:
     return " | ".join(parts)
 
 
+def _topic(topics: dict, key: str) -> dict:
+    topic = topics.get(key) or {}
+    return {
+        "na": bool(topic.get("na")),
+        "justification": topic.get("justification", ""),
+        "values": topic.get("values", {}) or {},
+    }
+
+
 def _entry_rows(field_def: dict, entry) -> list[dict]:
     rows = []
+    template, topics = flow.approved_content(entry) if entry else (None, {})
     for key in field_def.get("rows", []):
-        topic_def = entry.template.topic(key) if entry else None
+        topic_def = template.topic(key) if template else None
         if topic_def is None:
             rows.append(
                 {
@@ -57,7 +67,7 @@ def _entry_rows(field_def: dict, entry) -> list[dict]:
             {
                 "ref": key,
                 "label": topic_def.get("body_label") or topic_def["label"],
-                "fixed": {"previsto": topic_summary(topic_def, entry.topic_data(key))},
+                "fixed": {"previsto": topic_summary(topic_def, _topic(topics, key))},
                 "values": {},
                 "editable": True,
             }
@@ -66,10 +76,11 @@ def _entry_rows(field_def: dict, entry) -> list[dict]:
 
 
 def _applicability(entry):
-    for topic_def in entry.template.topics:
+    template, topics = flow.approved_content(entry)
+    for topic_def in template.topics:
         for field_def in topic_def.get("fields", []):
             if field_def["type"] == "applicability":
-                values = entry.topic_data(topic_def["key"]).get("values", {})
+                values = _topic(topics, topic_def["key"]).get("values", {})
                 return field_def, values.get(field_def["key"]) or []
     return None, []
 

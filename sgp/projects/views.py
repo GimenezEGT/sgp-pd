@@ -13,7 +13,7 @@ from sgp.accounts.profiles import (
     profile_required,
 )
 
-from . import services, workflow
+from . import services
 from .completeness import pending_items
 from .forms import (
     BusinessPlanForm,
@@ -121,12 +121,23 @@ def project_detail(request, project_id):
         "reason_form": ReasonForm(),
         "return_form": ReturnForm(),
     }
+    from sgp.signatures.services import block_context
+
+    context["charter_sig"] = block_context(user, "charter", project.charter)
+    context["plan_sig"] = block_context(user, "business_plan", plan)
     return render(request, "projects/detail.html", context)
 
 
-def _leader_only(request, project, *, documents: bool):
+def _leader_only(request, project, *, documents: bool, document=None):
     if not is_leader(request.user, project):
         return deny_access(request, "só o líder do projeto")
+    if document is not None and project.status == ProjectStatus.OPEN:
+        if document.doc_status in ("draft", "returned"):
+            return None
+        messages.error(
+            request, "Documento aprovado: crie uma nova versão com motivo para corrigir."
+        )
+        return redirect("projects:detail", project_id=project.pk)
     if documents and not project.is_editable:
         messages.error(
             request, "O projeto não está em rascunho nem devolvido; a edição está bloqueada."
@@ -175,7 +186,7 @@ def charter_edit(request, project_id):
     project, denied = get_project_or_deny(request, project_id)
     if denied:
         return denied
-    blocked = _leader_only(request, project, documents=True)
+    blocked = _leader_only(request, project, documents=True, document=project.charter)
     if blocked:
         return blocked
     charter = project.charter
@@ -218,7 +229,7 @@ def business_plan_edit(request, project_id):
     project, denied = get_project_or_deny(request, project_id)
     if denied:
         return denied
-    blocked = _leader_only(request, project, documents=True)
+    blocked = _leader_only(request, project, documents=True, document=project.business_plan)
     if blocked:
         return blocked
     plan = project.business_plan
@@ -346,8 +357,12 @@ def milestone_cancel(request, project_id, milestone_id):
 @require_POST
 def project_submit(request, project_id):
     def handler(project):
-        workflow.submit(project, by=request.user)
-        return "Projeto submetido para aprovação do Gestor de P&D."
+        from sgp.signatures.services import submit_project
+
+        submit_project(
+            project, by=request.user, password=request.POST.get("senha", ""), request=request
+        )
+        return "Projeto submetido e assinado (Elaborado) no TAP e no Plano de Negócios."
 
     return _post_action(request, project_id, handler)
 
@@ -357,15 +372,19 @@ def _decision(request, project_id, action):
     if denied:
         return denied
     try:
+        from sgp.signatures.services import approve_project, return_project
+
         if action == "approve":
-            project = workflow.approve(project, by=request.user)
+            project = approve_project(
+                project, by=request.user, password=request.POST.get("senha", ""), request=request
+            )
             messages.success(
                 request, f"Projeto aprovado: {project.code}, versão {project.version_display}."
             )
         else:
             form = ReturnForm(request.POST)
             comment = form.cleaned_data["comment"] if form.is_valid() else ""
-            workflow.return_project(project, by=request.user, comment=comment)
+            return_project(project, by=request.user, comment=comment)
             messages.success(request, "Projeto devolvido ao líder.")
     except ValidationError as exc:
         _errors(request, exc)

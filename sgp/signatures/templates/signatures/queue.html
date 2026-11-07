@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Fila de revisão{% endblock %}
+{% block content %}
+<h1>Fila de revisão</h1>
+<p class="descricao">Documentos em revisão que você pode aprovar. Acima do prazo configurado aparecem como atrasados. <a href="{% url 'signatures:delegations' %}">Delegações de aprovação</a></p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Documento</th><th>Projeto</th><th>Enviado em</th><th>Dias em revisão</th><th>Situação</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td><a href="{% url 'signatures:approve' row.kind row.obj.pk %}">{{ row.title }}</a></td>
+      <td>{{ row.project.code|default:row.project.title }}</td>
+      <td>{{ row.since|datahora }}</td>
+      <td class="numero">{{ row.days }}</td>
+      <td>{% if row.overdue %}<span class="situacao situacao-quebra">Atrasado</span>{% else %}No prazo{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Nenhum documento aguardando aprovação.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -68,7 +68,9 @@ def can_manage_team(user, project: Project) -> bool:
 
 
 def can_decide(user, project: Project) -> bool:
-    return Profile.RD_MANAGER in active_profiles(user) and project.leader_id != user.pk
+    from sgp.signatures.services import is_approver
+
+    return is_approver(user) and project.leader_id != user.pk
 
 
 def get_project_or_deny(request, project_id):

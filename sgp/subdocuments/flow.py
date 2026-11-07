@@ -27,13 +27,37 @@ class Requirement:
 
 
 def approved(project, code: str) -> Subdocument | None:
-    return (
-        Subdocument.objects.filter(
-            project=project, subdocument_type__code=code, status=SubdocumentStatus.APPROVED
-        )
-        .order_by("-sequence")
+    """Subdocumento do tipo com versão aprovada (aprovado agora ou com versão anterior aprovada)."""
+    from sgp.signatures.models import ApprovedVersion
+
+    candidates = Subdocument.objects.filter(project=project, subdocument_type__code=code).order_by(
+        "-sequence"
+    )
+    for candidate in candidates:
+        if (
+            candidate.status == SubdocumentStatus.APPROVED
+            or ApprovedVersion.objects.filter(kind="subdocument", object_id=candidate.pk).exists()
+        ):
+            return candidate
+    return None
+
+
+def approved_content(subdocument):
+    """(modelo, tópicos) da última versão aprovada; o rascunho de versão nova não conta."""
+    from sgp.formtemplates.models import FormTemplate
+    from sgp.signatures.models import ApprovedVersion
+
+    if subdocument.status == SubdocumentStatus.APPROVED:
+        return subdocument.template, (subdocument.data or {}).get("topics", {})
+    latest = (
+        ApprovedVersion.objects.filter(kind="subdocument", object_id=subdocument.pk)
+        .order_by("-version")
         .first()
     )
+    if latest is None:
+        return subdocument.template, (subdocument.data or {}).get("topics", {})
+    template = FormTemplate.objects.get(pk=latest.content["modelo"]["id"])
+    return template, latest.content.get("topicos", {})
 
 
 def _label(code: str) -> str:

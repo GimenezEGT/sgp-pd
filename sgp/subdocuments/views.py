@@ -111,6 +111,12 @@ def flow_authorize(request, project_id):
     return redirect("subdocuments:project_list", project_id=project.pk)
 
 
+def _signature_actions(user, subdocument) -> dict:
+    from sgp.signatures.services import block_context
+
+    return block_context(user, "subdocument", subdocument)
+
+
 def _page_context(request, subdocument, *, editing, data=None):
     return {
         "subdocument": subdocument,
@@ -118,7 +124,7 @@ def _page_context(request, subdocument, *, editing, data=None):
         "topics": rendering.topics_view(subdocument, data=data, editing=editing),
         "can_edit": subdocument.is_draft
         and permissions.can_edit(request.user, subdocument.project),
-        "can_approve": subdocument.is_draft and permissions.can_approve(request.user, subdocument),
+        "signature_actions": _signature_actions(request.user, subdocument),
         "is_manager": permissions.is_manager(request.user),
         "current_template": current_template(subdocument.subdocument_type),
         "has_derived": any(
@@ -236,19 +242,4 @@ def migrate(request, pk):
         _errors(request, exc)
     else:
         messages.success(request, "Documento migrado para a versão vigente do modelo.")
-    return redirect("subdocuments:detail", pk=subdocument.pk)
-
-
-@require_POST
-@profile_required(Profile.RD_MANAGER)
-def approve(request, pk):
-    subdocument, denied = _get(request, pk)
-    if denied:
-        return denied
-    try:
-        services.approve(subdocument, by=request.user)
-    except ValidationError as exc:
-        _errors(request, exc)
-    else:
-        messages.success(request, "Subdocumento aprovado (confirmação registrada).")
     return redirect("subdocuments:detail", pk=subdocument.pk)

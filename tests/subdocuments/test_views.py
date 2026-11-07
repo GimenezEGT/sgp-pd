@@ -58,7 +58,9 @@ def test_aprovar_e_migrar_pela_tela(
     client.force_login(manager)
     detail_url = reverse("subdocuments:detail", args=[formulation.pk])
     page = client.post(
-        reverse("subdocuments:approve", args=[formulation.pk]), follow=True
+        reverse("signatures:submit", args=["subdocument", formulation.pk]),
+        {"senha": "qualquer"},
+        follow=True,
     ).content.decode()
     assert "obrigatório" in page
     quality = make_user(None, Profile.QUALITY)

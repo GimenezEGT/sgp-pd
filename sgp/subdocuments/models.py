@@ -13,7 +13,12 @@ FINAL_CHECK = "verificacao-final"
 
 class SubdocumentStatus(models.TextChoices):
     DRAFT = "draft", "Rascunho"
+    IN_REVIEW = "in_review", "Em revisão"
+    RETURNED = "returned", "Devolvido"
     APPROVED = "approved", "Aprovado"
+
+
+EDITABLE_STATUSES = (SubdocumentStatus.DRAFT, SubdocumentStatus.RETURNED)
 
 
 class Subdocument(ProtectedModel):
@@ -84,7 +89,8 @@ class Subdocument(ProtectedModel):
 
     @property
     def is_draft(self) -> bool:
-        return self.status == SubdocumentStatus.DRAFT
+        """Editável: rascunho ou devolvido na revisão (feature 005)."""
+        return self.status in EDITABLE_STATUSES
 
     @property
     def is_approved(self) -> bool:

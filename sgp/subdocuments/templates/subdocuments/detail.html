@@ -17,15 +17,7 @@
   {% else %}{% for field in topic.fields %}{% include "subdocuments/_field_show.html" %}{% endfor %}{% endif %}
 </section>
 {% endfor %}
-{% if can_approve %}
-<div class="painel painel-estreito">
-  <form method="post" action="{% url 'subdocuments:approve' subdocument.pk %}">
-    {% csrf_token %}
-    <p>Aprovação provisória: confirmação registrada do Gestor de P&amp;D (a assinatura eletrônica chega na feature 005). O documento e os cadastros referenciados ficam bloqueados.</p>
-    <button type="submit" class="botao">Aprovar</button>
-  </form>
-</div>
-{% endif %}
+{% include "signatures/_block.html" with sig=signature_actions %}
 {% if is_manager and subdocument.is_draft and current_template and current_template.pk != subdocument.template_id %}
 <div class="painel painel-estreito">
   <form method="post" action="{% url 'subdocuments:migrate' subdocument.pk %}">

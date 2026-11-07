@@ -83,6 +83,17 @@ def _require_leader(project: Project, by) -> None:
         raise ValidationError("Só o líder do projeto pode alterar este conteúdo.")
 
 
+def _require_document_editable(project: Project, document) -> None:
+    """TAP e Plano: editáveis em rascunho/devolvido do projeto ou em nova versão já aberto."""
+    if project.status == ProjectStatus.OPEN:
+        if document.doc_status not in ("draft", "returned"):
+            raise ValidationError(
+                "Documento aprovado não muda; crie uma nova versão com motivo para corrigir."
+            )
+        return
+    _require_editable(project)
+
+
 def _require_editable(project: Project) -> None:
     if project.status not in EDITABLE_STATUSES:
         raise ValidationError(
@@ -167,8 +178,8 @@ def update_charter(project: Project, *, by, data: dict, row_version=None) -> Pro
     with transaction.atomic():
         project = Project.objects.select_for_update().get(pk=project.pk)
         _require_leader(project, by)
-        _require_editable(project)
         charter = ProjectCharter.objects.select_for_update().get(project=project)
+        _require_document_editable(project, charter)
         _check_version(charter.row_version, row_version)
         before = _charter_snapshot(charter)
         for field in CHARTER_FIELDS:
@@ -220,8 +231,8 @@ def update_business_plan(
     with transaction.atomic():
         project = Project.objects.select_for_update().get(pk=project.pk)
         _require_leader(project, by)
-        _require_editable(project)
         plan = BusinessPlan.objects.select_for_update().get(project=project)
+        _require_document_editable(project, plan)
         _check_version(plan.row_version, row_version)
         before = _plan_snapshot(plan)
         for field in PLAN_FIELDS:
