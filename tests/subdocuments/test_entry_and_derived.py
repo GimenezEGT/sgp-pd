@@ -132,3 +132,45 @@ def test_analise_critica_traz_marcos(project, approved_entry, make_subdocument, 
     milestones = critical.topic_data("evolucao")["values"]["marcos"]["rows"]
     assert milestones and milestones[0]["label"].startswith("Entrada de Projeto")
     assert milestones[0]["fixed"]["planejado"] == "15/12/2026"
+
+
+@pytest.mark.req("004:FR-018")
+def test_pendencia_da_validacao_mostra_a_situacao(
+    project, approved_entry, make_subdocument, approve_quick, analyst
+):
+    from sgp.subdocuments import rendering
+
+    for code in ("formulacao", "lote-piloto", "rapd", "analise-critica"):
+        approve_quick(make_subdocument(project, code))
+    validation = make_subdocument(project, "validacao")
+    value = validation.topic_data("dados_desenvolvimento")["values"]["pendencias"]
+    by_ref = {row["ref"]: index for index, row in enumerate(value["rows"])}
+    value["rows"][by_ref["exatidao"]]["values"] = {"evidencia": "Estudo de exatidão EX-01"}
+    validation = services.save_subdocument(
+        validation,
+        by=analyst,
+        data={
+            "topics": {
+                "dados_desenvolvimento": {
+                    "na": False,
+                    "justification": "",
+                    "values": {"pendencias": value, "texto": ""},
+                }
+            }
+        },
+    )
+    topics = rendering.topics_view(validation)
+    rows = topics[0]["fields"][0]["derived"]["rows"]
+    assert rows[by_ref["exatidao"]]["fixed"][2] == "Aplica – cumprida"
+    assert rows[by_ref["precisao"]]["fixed"][2] == "Aplica – pendente"
+    assert rows[by_ref["metodologia"]]["fixed"][2].startswith("Não se aplica")
+
+
+@pytest.mark.req("004:FR-017")
+def test_formulario_opcional_mostra_nome_do_projeto_e_versao(
+    client, project, analyst, make_subdocument
+):
+    entry = make_subdocument(project, "entrada")
+    client.force_login(analyst)
+    page = client.get(reverse("subdocuments:detail", args=[entry.pk])).content.decode()
+    assert f"Nome do Projeto: {project.title}" in page and "Versão: 01" in page

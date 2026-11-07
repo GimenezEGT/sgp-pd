@@ -12,6 +12,7 @@
 {% for topic in topics %}
 <section class="topico" id="topico-{{ topic.key }}">
   <h2>{% if topic.number %}{{ topic.number }}. {% endif %}{{ topic.label }}</h2>
+    {% for line in topic.context_lines %}<p><strong>{{ line }}</strong></p>{% endfor %}
   {% if topic.na %}<p><strong>Não aplicável.</strong> {{ topic.justification }}</p>
   {% else %}{% for field in topic.fields %}{% include "subdocuments/_field_show.html" %}{% endfor %}{% endif %}
 </section>

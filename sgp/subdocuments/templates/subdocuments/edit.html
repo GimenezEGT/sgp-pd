@@ -14,6 +14,7 @@
   {% for topic in topics %}
   <fieldset class="topico" id="topico-{{ topic.key }}">
     <legend><h2>{% if topic.number %}{{ topic.number }}. {% endif %}{{ topic.label }}</h2></legend>
+    {% for line in topic.context_lines %}<p><strong>{{ line }}</strong></p>{% endfor %}
     {% if topic.help %}<p class="helptext">{{ topic.help }}</p>{% endif %}
     {% if topic.inherited %}<p class="helptext">Conteúdo herdado do subdocumento anterior aprovado; as alterações ficam na trilha.</p>{% endif %}
     {% if topic.allow_na %}

@@ -14,6 +14,7 @@ from . import derived, numbering, parsing
 from .models import Subdocument
 
 BLANK_ROWS = 2
+OPTIONAL_FORM = "formulario_opcional"
 
 
 def rich_text(text: str):
@@ -153,10 +154,14 @@ def _derived(field_def, value):
             item["choices"] = _options(column["vocabulary"], None)
         columns.append(item)
     rows = []
+    required = [column["key"] for column in columns if column.get("required")]
     for row in (value or {}).get("rows", []):
-        fixed_cells = [row.get("label", "")] + [
-            row.get("fixed", {}).get(key, "") for key, _ in fixed[1:]
-        ]
+        fixed_values = dict(row.get("fixed", {}))
+        if field_def["source"] == "entry_requirements" and row.get("editable", True) and required:
+            # Pendência da Validação (FR-018): cumprida quando a evidência está registrada.
+            done = all(row.get("values", {}).get(key) for key in required)
+            fixed_values["situacao"] = "Aplica – cumprida" if done else "Aplica – pendente"
+        fixed_cells = [row.get("label", "")] + [fixed_values.get(key, "") for key, _ in fixed[1:]]
         cells = []
         for column in columns:
             raw = row.get("values", {}).get(column["key"], "")
@@ -280,8 +285,16 @@ def topics_view(
             )
             item["table_number"] = tables.get((key, field_def["key"]))
             fields.append(item)
+        context_lines = []
+        if key == OPTIONAL_FORM:
+            # Formulário opcional (FR-017): nome do projeto e versão vêm do projeto e do documento.
+            context_lines = [
+                f"Nome do Projeto: {subdocument.project.title}",
+                f"Versão: {subdocument.version_display}",
+            ]
         result.append(
             {
+                "context_lines": context_lines,
                 "number": number,
                 "key": key,
                 "prefix": parsing.topic_prefix(key),

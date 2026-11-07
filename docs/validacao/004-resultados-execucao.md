@@ -6,7 +6,7 @@ Ambiente de desenvolvimento, 2026-11-07, dados fictícios.
 
 | Item | Resultado |
 | --- | --- |
-| Testes (`pytest`) | 687 aprovados (todas as features até a 004), 0 falhas |
+| Testes (`pytest`) | 689 aprovados (todas as features até a 004, com a convergência), 0 falhas |
 | Cobertura `sgp/core` / `sgp/audit` | 93,5% / 97,1% |
 | Matriz de rastreabilidade | 110 requisitos (001 a 004), 0 sem cobertura |
 | SC-001 modelos versão 05 | nove tipos publicados e válidos no JSON Schema |

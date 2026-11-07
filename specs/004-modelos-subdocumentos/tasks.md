@@ -151,3 +151,10 @@ US7 completam as derivações e a Alteração.
 - [P] tasks = different files, no dependencies
 - Verify tests fail before implementing
 - Commit after each logical group
+
+---
+
+## Phase 11: Convergence
+
+- [X] T036 Mostrar a situação de cada pendência da Validação ("Pendente" sem evidência, "Cumprida" com evidência) nas linhas derivadas de requisitos em `sgp/subdocuments/rendering.py`, com teste em `tests/subdocuments/test_entry_and_derived.py` per FR-018 (partial)
+- [X] T037 Exibir "Nome do Projeto" e "Versão" (do projeto e do documento, sem redigitar) no formulário opcional da Entrada em `sgp/subdocuments/rendering.py` e nos templates, com teste em `tests/subdocuments/test_entry_and_derived.py` per FR-017 (partial)
