@@ -8,6 +8,7 @@
   <p><strong>Código:</strong> {{ project.code|default:"(gerado na aprovação)" }} · <strong>Versão:</strong> {{ project.version_display }} · <strong>Situação:</strong> {{ project.get_status_display }} · <strong>Líder:</strong> {{ project.leader.get_full_name }}</p>
   <p><strong>Produto:</strong> {{ project.product_name }}{% if project.product_family %} · <strong>Família:</strong> {{ project.product_family }}{% endif %} · <strong>Tecnologia:</strong> {{ project.technology.label }}</p>
   <p><strong>Órgão regulador:</strong> {{ project.regulatory_body }}{% if project.regulatory_body == "ANVISA" %} · <strong>Classe de risco prevista:</strong> {{ project.risk_class|default:"—" }} · <strong>Regra:</strong> {{ project.classification_rule|default:"—" }} · <strong>Regime:</strong> {{ project.regime|default:"—" }}{% else %} · classificação da RDC 830/2023 não se aplica{% endif %}</p>
+  {% if project.status == "open" %}<p class="acoes"><a class="botao" href="{% url 'subdocuments:project_list' project.pk %}">Subdocumentos do projeto</a> <a class="botao botao-secundario" href="{% url 'catalog:list' 'lotes' %}?projeto={{ project.pk }}">Lotes do projeto</a></p>{% endif %}
   {% if can_edit %}<p class="acoes"><a class="botao botao-secundario" href="{% url 'projects:edit' project.pk %}">Editar produto</a> <a class="botao botao-secundario" href="{% url 'projects:charter' project.pk %}">Editar TAP</a> <a class="botao botao-secundario" href="{% url 'projects:business_plan' project.pk %}">Editar Plano de Negócios</a></p>{% endif %}
 </div>
 

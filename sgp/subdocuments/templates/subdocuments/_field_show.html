@@ -1,0 +1,20 @@
+{% load sgp %}
+<div class="campo">
+  <strong>{{ field.label }}{% if field.table_number %} – {{ field.table_number }}{% endif %}</strong>
+  {% if field.type == "rich_text" %}{% if field.empty %}<p>—</p>{% else %}{{ field.html }}{% endif %}
+  {% elif field.type == "text" %}<p>{{ field.value|default:"—" }}</p>
+  {% elif field.type == "list" %}{% if field.value %}<ul>{% for item in field.value %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>—</p>{% endif %}
+  {% elif field.type == "vocabulary" or field.type == "entry_topics" or field.type == "subdocuments" %}<p>{{ field.text|default:"—" }}</p>
+  {% elif field.type == "date" or field.type == "number" %}<p>{{ field.text|default:"—" }}</p>
+  {% elif field.type == "reference" %}{% if field.selected %}<ul>{% for record in field.selected %}<li><a href="{% url 'catalog:detail' field.kind.slug record.pk %}">{{ record }}</a> <small>(versão {{ record.version_display }})</small></li>{% endfor %}</ul>{% else %}<p>—</p>{% endif %}
+  {% elif field.type == "attachment" %}{% if field.files %}<ul>{% for file in field.files %}<li><a href="{% url 'files:download' file.pk %}">{{ file.original_name }}</a> <small>({{ file.size_display }}, SHA-256 {{ file.sha256|slice:":16" }}…)</small></li>{% endfor %}</ul>{% else %}<p>—</p>{% endif %}
+  {% elif field.type == "table" %}
+    {% if field.table.rows %}<div class="tabela-rolagem"><table><thead><tr>{% for column in field.table.columns %}<th>{{ column.label }}</th>{% endfor %}</tr></thead><tbody>{% for row in field.table.rows %}<tr>{% for cell in row %}<td>{{ cell.text }}</td>{% endfor %}</tr>{% endfor %}</tbody>{% if field.table.totals %}<tfoot><tr>{% for total in field.table.totals %}<td class="numero">{% if total %}<strong>Total: {{ total }}</strong>{% endif %}</td>{% endfor %}</tr></tfoot>{% endif %}</table></div>{% else %}<p>—</p>{% endif %}
+  {% elif field.type == "applicability" %}
+    <div class="tabela-rolagem"><table><thead><tr><th>Requisito</th><th>Aplica</th><th>Critério de aceitação</th><th>Justificativa</th></tr></thead><tbody>{% for row in field.requirements %}<tr><td>{{ row.label }}</td><td>{% if row.aplica == "sim" %}Aplica{% elif row.aplica == "nao" %}Não se aplica{% else %}—{% endif %}</td><td>{{ row.criterio }}</td><td>{{ row.justificativa }}</td></tr>{% endfor %}</tbody></table></div>
+  {% elif field.type == "derived_table" %}
+    {% if field.derived.rows %}<div class="tabela-rolagem"><table><thead><tr>{% for header in field.derived.fixed_headers %}<th>{{ header }}</th>{% endfor %}{% for column in field.derived.columns %}<th>{{ column.label }}</th>{% endfor %}</tr></thead><tbody>{% for row in field.derived.rows %}<tr>{% for cell in row.fixed %}<td>{{ cell }}</td>{% endfor %}{% for cell in row.cells %}<td>{% if row.editable %}{{ cell.text }}{% else %}—{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% else %}<p>Sem linhas (a Entrada aprovada ainda não tem dados para esta tabela).</p>{% endif %}
+  {% elif field.type == "lots_production" %}{% if field.lines %}<ul>{% for line in field.lines %}<li>{{ line }}</li>{% endfor %}</ul>{% else %}<p>Escolha os lotes no tópico de lotes.</p>{% endif %}
+  {% elif field.type == "note" %}<p class="descricao">{{ field.text }}</p>
+  {% endif %}
+</div>

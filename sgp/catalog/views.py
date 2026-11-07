@@ -145,8 +145,22 @@ def search(request, kind):
         project_id = request.GET.get("projeto", "")
         if kind.project_scoped and project_id.isdigit():
             queryset = queryset.filter(project_id=int(project_id))
+        if kind is MATERIALS:
+            # Filtros dos campos de referência dos subdocumentos (feature 004).
+            if request.GET.get("tipo_insumo") in ("raw", "packaging"):
+                queryset = queryset.filter(material_type=request.GET["tipo_insumo"])
+            if request.GET.get("novo") in ("0", "1"):
+                queryset = queryset.filter(new_to_company=request.GET["novo"] == "1")
         results = list(
             _search(kind, queryset, term).order_by(*kind.search_fields[:1])[:SEARCH_LIMIT]
+        )
+    field_name = request.GET.get("campo", "")
+    if field_name:
+        # Modo de seleção: opções marcáveis que entram no formulário do subdocumento.
+        return render(
+            request,
+            "catalog/_search_select.html",
+            {"kind": kind, "results": results, "q": term, "field_name": field_name},
         )
     return render(
         request,

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ subdocument }}{% endblock %}
+{% block content %}
+{% include "subdocuments/_header.html" %}
+<div class="acoes">
+  {% if can_edit %}<a class="botao" href="{% url 'subdocuments:edit' subdocument.pk %}">Editar</a>{% endif %}
+</div>
+{% if subdocument.is_draft and missing %}
+<div class="mensagem mensagem-warning" role="status"><p>Falta para aprovar:</p><ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul></div>
+{% endif %}
+{% for topic in topics %}
+<section class="topico" id="topico-{{ topic.key }}">
+  <h2>{% if topic.number %}{{ topic.number }}. {% endif %}{{ topic.label }}</h2>
+  {% if topic.na %}<p><strong>Não aplicável.</strong> {{ topic.justification }}</p>
+  {% else %}{% for field in topic.fields %}{% include "subdocuments/_field_show.html" %}{% endfor %}{% endif %}
+</section>
+{% endfor %}
+{% if can_approve %}
+<div class="painel painel-estreito">
+  <form method="post" action="{% url 'subdocuments:approve' subdocument.pk %}">
+    {% csrf_token %}
+    <p>Aprovação provisória: confirmação registrada do Gestor de P&amp;D (a assinatura eletrônica chega na feature 005). O documento e os cadastros referenciados ficam bloqueados.</p>
+    <button type="submit" class="botao">Aprovar</button>
+  </form>
+</div>
+{% endif %}
+{% if is_manager and subdocument.is_draft and current_template and current_template.pk != subdocument.template_id %}
+<div class="painel painel-estreito">
+  <form method="post" action="{% url 'subdocuments:migrate' subdocument.pk %}">
+    {% csrf_token %}
+    <p><label>Motivo da migração para o modelo {{ current_template.version_display }} <textarea name="motivo" rows="2" required></textarea></label></p>
+    <button type="submit" class="botao botao-secundario">Migrar para a versão vigente</button>
+  </form>
+</div>
+{% endif %}
+<h2>Histórico na trilha</h2>
+<div class="tabela-rolagem"><table><thead><tr><th>Seq.</th><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Motivo</th></tr></thead><tbody>
+{% for event in events %}<tr><td class="numero">{{ event.seq }}</td><td>{{ event.occurred_at|datahora }}</td><td>{{ event.actor_username }}</td><td>{{ event.event_type|rotulo_evento }}</td><td>{{ event.reason }}</td></tr>{% empty %}<tr><td colspan="5">Nenhum evento.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

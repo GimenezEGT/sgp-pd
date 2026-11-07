@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ template }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'formtemplates:list' %}">← Modelos de formulário</a></p>
+<h1>{{ template.subdocument_type.label }} – Formulário Versão {{ template.version_display }}</h1>
+<p class="descricao">{{ template.get_status_display }} · vigência a partir de {{ template.valid_from|data }}{% if template.published_at %} · publicado em {{ template.published_at|datahora }}{% if template.published_by %} por {{ template.published_by.get_full_name }}{% else %} ({{ template.published_note }}){% endif %}{% endif %}{% if current and current.pk == template.pk %} · <strong>versão vigente</strong>{% endif %}</p>
+{% if is_quality and template.is_published %}
+<form method="post" action="{% url 'formtemplates:new_version' template.pk %}" class="acoes">
+  {% csrf_token %}
+  <button type="submit" class="botao">Criar nova versão a partir desta</button>
+</form>
+{% endif %}
+{% include "formtemplates/_cover.html" %}
+{% include "formtemplates/_topics.html" %}
+{% endblock %}

@@ -1,0 +1,1 @@
+{% if q %}{% for record in results %}<label><input type="checkbox" name="{{ field_name }}" value="{{ record.pk }}"> {{ record }} <small>(v{{ record.version_display }})</small></label>{% empty %}<span class="descricao">Nenhum cadastro ativo encontrado para "{{ q }}".</span>{% endfor %}{% endif %}

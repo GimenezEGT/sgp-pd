@@ -1,0 +1,37 @@
+<div class="campo">
+  <label><strong>{{ field.label }}</strong>{% if field.required %} <small>(obrigatório para aprovar)</small>{% endif %}{% if field.table_number %} – {{ field.table_number }}{% endif %}</label>
+  {% if field.help %}<p class="helptext">{{ field.help }}</p>{% endif %}
+  {% if field.type == "rich_text" %}<textarea name="{{ field.name }}" rows="5">{{ field.value|default:"" }}</textarea><p class="helptext">Linha em branco separa parágrafos; comece a linha com "- " para listas.</p>
+  {% elif field.type == "text" %}<input type="text" name="{{ field.name }}" value="{{ field.value|default:"" }}" maxlength="500">
+  {% elif field.type == "list" %}<textarea name="{{ field.name }}" rows="4">{{ field.text }}</textarea><p class="helptext">Um item por linha.</p>
+  {% elif field.type == "date" %}<input type="date" name="{{ field.name }}" value="{{ field.value|default:"" }}">
+  {% elif field.type == "number" %}<input type="text" name="{{ field.name }}" value="{{ field.text }}" inputmode="decimal">
+  {% elif field.type == "vocabulary" %}
+    {% if field.def.multiple %}<div class="chips">{% for choice in field.choices %}<label><input type="checkbox" name="{{ field.name }}" value="{{ choice.value }}"{% if choice.selected %} checked{% endif %}> {{ choice.label }}</label>{% endfor %}</div>
+    {% else %}<select name="{{ field.name }}"><option value="">—</option>{% for choice in field.choices %}<option value="{{ choice.value }}"{% if choice.selected %} selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>{% endif %}
+  {% elif field.type == "entry_topics" or field.type == "subdocuments" %}
+    <div class="chips">{% for choice in field.choices %}<label><input type="checkbox" name="{{ field.name }}" value="{{ choice.value }}"{% if choice.selected %} checked{% endif %}> {{ choice.label }}</label>{% empty %}<span class="descricao">Nenhuma opção disponível.</span>{% endfor %}</div>
+  {% elif field.type == "reference" %}
+    <div class="chips" id="sel-{{ field.name }}">{% for record in field.selected %}<label><input type="checkbox" name="{{ field.name }}" value="{{ record.pk }}" checked> {{ record }} <small>(v{{ record.version_display }})</small></label>{% endfor %}</div>
+    <input type="search" name="q" placeholder="Buscar {{ field.kind.label_plural|lower }} por código ou descrição" autocomplete="off" hx-get="{{ field.search_url }}" hx-trigger="keyup changed delay:300ms, search" hx-target="#busca-{{ field.name }}" hx-include="this">
+    <div id="busca-{{ field.name }}" class="chips" aria-live="polite"></div>
+    <p class="helptext">Marque para incluir; desmarque para retirar.</p>
+  {% elif field.type == "attachment" %}
+    <div class="chips">{% for file in field.files %}<label><input type="checkbox" name="{{ field.name }}__manter" value="{{ file.pk }}" checked> {{ file.original_name }}</label>{% endfor %}</div>
+    <input type="file" name="{{ field.name }}__novo" multiple>
+  {% elif field.type == "table" %}
+    <div class="tabela-rolagem"><table class="tabela-editavel"><thead><tr>{% for column in field.table.columns %}<th>{{ column.label }}{% if column.required %}*{% endif %}</th>{% endfor %}</tr></thead>
+      <tbody id="linhas-{{ field.name }}">{% for row in field.table.rows %}<tr>{% for cell in row %}<td>{% include "subdocuments/_cell_input.html" %}</td>{% endfor %}</tr>{% endfor %}{% for row in field.table.blanks %}<tr>{% for cell in row %}<td>{% include "subdocuments/_cell_input.html" %}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+    <button type="button" class="botao botao-discreto" hx-get="{% url 'subdocuments:row' subdocument.pk %}?topico={{ topic.key }}&amp;campo={{ field.def.key }}" hx-target="#linhas-{{ field.name }}" hx-swap="beforeend">Adicionar linha</button>
+  {% elif field.type == "applicability" %}
+    <div class="tabela-rolagem"><table class="tabela-editavel"><thead><tr><th>Requisito</th><th>Aplica</th><th>Não se aplica</th><th>Critério de aceitação</th><th>Justificativa (se não se aplica)</th></tr></thead><tbody>
+    {% for row in field.requirements %}<tr><td>{{ row.label }}</td><td><input type="radio" name="{{ field.name }}__{{ row.code }}__aplica" value="sim"{% if row.aplica == "sim" %} checked{% endif %} aria-label="{{ row.label }}: aplica"></td><td><input type="radio" name="{{ field.name }}__{{ row.code }}__aplica" value="nao"{% if row.aplica == "nao" %} checked{% endif %} aria-label="{{ row.label }}: não se aplica"></td><td><input type="text" name="{{ field.name }}__{{ row.code }}__criterio" value="{{ row.criterio }}"></td><td><input type="text" name="{{ field.name }}__{{ row.code }}__justificativa" value="{{ row.justificativa }}"></td></tr>{% endfor %}
+    </tbody></table></div>
+  {% elif field.type == "derived_table" %}
+    {% if field.derived.rows %}<div class="tabela-rolagem"><table class="tabela-editavel"><thead><tr>{% for header in field.derived.fixed_headers %}<th>{{ header }}</th>{% endfor %}{% for column in field.derived.columns %}<th>{{ column.label }}{% if column.required %}*{% endif %}</th>{% endfor %}</tr></thead><tbody>
+    {% for row in field.derived.rows %}<tr>{% for cell in row.fixed %}<td>{{ cell }}</td>{% endfor %}{% for cell in row.cells %}<td>{% if row.editable %}{% if cell.column.type == "vocabulary" %}<select name="{{ field.name }}__{{ forloop.parentloop.counter0 }}__{{ cell.column.key }}"><option value="">—</option>{% for choice in cell.column.choices %}<option value="{{ choice.value }}"{% if choice.value == cell.input %} selected{% endif %}>{{ choice.label }}</option>{% endfor %}</select>{% else %}<input type="text" name="{{ field.name }}__{{ forloop.parentloop.counter0 }}__{{ cell.column.key }}" value="{{ cell.input }}">{% endif %}{% else %}—{% endif %}</td>{% endfor %}</tr>{% endfor %}
+    </tbody></table></div>{% else %}<p>Sem linhas: aprove a Entrada e use "Atualizar a partir da Entrada aprovada".</p>{% endif %}
+  {% elif field.type == "lots_production" %}{% if field.lines %}<ul>{% for line in field.lines %}<li>{{ line }}</li>{% endfor %}</ul>{% else %}<p class="descricao">Vem do cadastro dos lotes escolhidos (salve depois de escolher os lotes).</p>{% endif %}
+  {% elif field.type == "note" %}<p class="descricao">{{ field.text }}</p>
+  {% endif %}
+</div>

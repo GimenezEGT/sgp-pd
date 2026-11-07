@@ -45,7 +45,11 @@ Unicidade: (project, subdocument_type, sequence).
 | reason | texto |
 | authorized_by / authorized_at | Gestor de P&D, data/hora |
 | missing_requirement | texto (ex.: "Elaboração de Formulação aprovada") |
-| used_by | FK `Subdocument`, nulo até o uso |
+
+## subdocuments.FlowAuthorizationUse (*append-only*)
+
+Uso único da autorização (sem UPDATE na autorização): `authorization` (1:1), `subdocument`
+(1:1), `used_at`.
 
 ## Listas controladas novas (carga inicial, 05-vocabularios)
 

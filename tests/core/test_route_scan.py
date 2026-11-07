@@ -68,6 +68,21 @@ ROUTE_CONTRACT = {
     "vocab:lists": ("GET", {Profile.QUALITY}),
     "vocab:detail": ("GET", {Profile.QUALITY}),
     "vocab:term": ("POST", {Profile.QUALITY}),
+    # Feature 004
+    "formtemplates:list": ("GET", ANY_PROFILE),
+    "formtemplates:detail": ("GET", ANY_PROFILE),
+    "formtemplates:new_version": ("POST", {Profile.QUALITY}),
+    "formtemplates:edit": ("GET", {Profile.QUALITY}),
+    "formtemplates:publish": ("POST", {Profile.QUALITY}),
+    "subdocuments:project_list": ("GET", PROJECT_ACCESS),
+    "subdocuments:new": ("POST", PROJECT_ACCESS),
+    "subdocuments:authorize": ("POST", {Profile.RD_MANAGER}),
+    "subdocuments:detail": ("GET", PROJECT_ACCESS),
+    "subdocuments:edit": ("GET", PROJECT_ACCESS),
+    "subdocuments:row": ("GET", PROJECT_ACCESS),
+    "subdocuments:refresh": ("POST", PROJECT_ACCESS),
+    "subdocuments:migrate": ("POST", {Profile.RD_MANAGER}),
+    "subdocuments:approve": ("POST", {Profile.RD_MANAGER}),
 }
 
 

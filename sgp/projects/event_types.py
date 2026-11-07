@@ -19,6 +19,7 @@ register_many(
         "projects.submitted": "Projeto submetido",
         "projects.returned": "Projeto devolvido",
         "projects.approved": "Projeto aprovado e aberto",
+        "projects.version_changed": "Versão do projeto alterada",
     }
 )
 

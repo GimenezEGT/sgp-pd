@@ -46,6 +46,7 @@ AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
 | --- | --- |
 | 001 | Login pela rede (AD/LDAP), perfis com motivo e aprovação, sessão com expiração, trilha de auditoria encadeada por SHA-256 e verificação de integridade |
 | 002 | Abertura de projeto: TAP, Plano de Negócios (dados financeiros restritos), submissão, devolução e aprovação com código `PD-AAAA-NNN` |
+| 004 | Modelos de formulário versionados (versão 05 dos nove subdocumentos carregada) e subdocumentos preenchidos a partir do modelo: Entrada com "aplica / não se aplica", Validação com pendências, Verificação Final derivada, Saída e Alteração de Projeto; ordem do fluxo com autorização do Gestor e aprovação provisória até a 005 |
 | 003 | Cadastros de apoio versionados (lotes, insumos, kits, amostras, painéis, normas, referências), anexos com SHA-256 conferido, importação de insumos e listas controladas mantidas pela Qualidade |
 
 Cadastros (feature 003): em **Cadastros**, cada registro é corrigido no próprio lugar até ser
@@ -59,7 +60,7 @@ Amostras guardam só o código interno e dados analíticos (LGPD). As listas con
 
 ```text
 config/        settings, urls, celery
-sgp/           apps (core, accounts, audit, vocab, projects, files, catalog)
+sgp/           apps (core, accounts, audit, vocab, projects, files, catalog, formtemplates, subdocuments)
 tests/         pytest, espelhando as apps
 deploy/        Dockerfile, Nginx, PostgreSQL, LDAP de desenvolvimento
 docs/          contexto do kit, plano, validação

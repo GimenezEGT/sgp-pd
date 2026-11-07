@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     "sgp.projects",
     "sgp.files",
     "sgp.catalog",
+    "sgp.formtemplates",
+    "sgp.subdocuments",
 ]
 
 MIDDLEWARE = [
