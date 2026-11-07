@@ -8,6 +8,17 @@
 
 **Input**: User description: "Cadastros de apoio usados por todos os subdocumentos: lotes, insumos (matérias-primas e materiais de embalagem), kits de referência, amostras e painéis, normas e referências bibliográficas. Leia docs/contexto/02-dicionario-documentos.md e 05-vocabularios.md. Problema: hoje o mesmo lote, código ou concentração é redigitado em vários documentos, o que abre espaço para divergências. Cada dado deve existir uma vez e ser referenciado. Histórias: 1. Como analista, cadastro os lotes do projeto (piloto ou validação) com código, data de fabricação, validade, local de fabricação e responsável pela produção. 2. Cadastro insumos com código, descrição, fabricante, lote do fabricante e certificado de análise anexado; marco se é novo para a empresa, para entrar na Saída de Projeto. 3. Cadastro kits de referência e comparativos com nome, fabricante, lote, validade e número de registro quando houver. 4. Cadastro amostras e painéis com identificador, tipo de amostra (vocabulário controlado), origem, caracterização e condição de armazenamento; uma amostra pode estar em vários estudos. 5. Mantenho bibliotecas de normas (ex.: NBR ISO 13485:2016, NBR ISO 14971:2020, CLSI EP25) e de referências bibliográficas reutilizáveis entre projetos. 6. Importo uma lista de insumos de uma planilha exportada do ERP enquanto a integração com o Sankhya não existe. Regras: código de insumo é único; o código de um lote não muda depois de usado em documento assinado; cadastro usado em documento assinado só é corrigido por nova versão com motivo, e o documento antigo continua mostrando o valor assinado; buscas rápidas por código e descrição; amostras não guardam dados pessoais de pacientes. Fora do escopo: integração automática com o Sankhya (feature 012)."
 
+## Clarifications
+
+### Session 2026-11-07
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Qual é o padrão de código dos lotes piloto e de validação? → A: Não há padrão imposto nesta versão: código alfanumérico que pode ter hífen, barra ou ponto, sem espaços, único entre os lotes vigentes do projeto; quando a Qualidade definir o padrão, ele entra como expressão configurável (ratificar com a Garantia da Qualidade).
+- Q: Quem pode cadastrar e corrigir insumos? → A: Analista/Pesquisador, Líder de projeto, Gestor de P&D e Qualidade/AR; Leitor e Administrador só consultam; correção de insumo bloqueado exige motivo e gera nova versão (ratificar com o Gestor de P&D e a Garantia da Qualidade).
+- Q: Que atributos clínicos das amostras precisam ser guardados, considerando a LGPD? → A: Só identificador interno, tipo de amostra, origem (instituição ou banco, sem identificador do paciente), caracterização analítica (resultado de referência, concentração, status), condição de armazenamento e data de coleta; nenhum dado demográfico ou de identificação do paciente (ratificar com a Garantia da Qualidade e o encarregado de dados).
+- Q: Certificados de análise vencidos bloqueiam o uso do insumo? → A: Não; o sistema registra a validade do certificado e mostra alerta de certificado vencido onde o insumo aparece, sem bloquear (ratificar com a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Lotes do projeto (Priority: P1)
