@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Pessoas e perfis{% endblock %}
+{% block content %}
+<h1>Pessoas e perfis</h1>
+<p class="descricao">Pessoas aparecem aqui depois do primeiro login com a conta de rede.</p>
+<form method="get" class="filtros">
+  {{ form.as_p }}
+  <p><button type="submit" class="botao">Buscar</button></p>
+</form>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Login</th><th>Nome</th><th>Função</th><th>Situação</th><th>Perfis ativos</th><th>Último login</th></tr></thead>
+  <tbody>
+  {% for person in people %}
+    <tr>
+      <td><a href="{% url 'accounts:person_detail' person.pk %}">{{ person.username }}</a></td>
+      <td>{{ person.get_full_name }}</td>
+      <td>{{ person.job_title }}</td>
+      <td>{% if person.is_active %}Ativa{% else %}Desativada{% endif %}</td>
+      <td>{% for a in person.active_assignments %}{{ a.get_profile_display }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}</td>
+      <td>{{ person.last_login|datahora }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">Nenhuma pessoa encontrada.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

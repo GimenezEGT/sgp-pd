@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ person.username }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'accounts:people' %}">← Pessoas e perfis</a></p>
+<h1>{{ person.get_full_name }}</h1>
+<div class="painel">
+  <p><strong>Login de rede:</strong> {{ person.username }} · <strong>E-mail:</strong> {{ person.email|default:"—" }} · <strong>Função:</strong> {{ person.job_title|default:"—" }}</p>
+  <p><strong>Situação:</strong> {% if person.is_active %}Ativa{% else %}Desativada{% endif %} · <strong>Cadastrada em:</strong> {{ person.created_at|datahora }} · <strong>Último login:</strong> {{ person.last_login|datahora|default:"—" }}</p>
+</div>
+
+<h2>Perfis ativos</h2>
+{% if active %}
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Perfil</th><th>Origem</th><th>Concedido em</th><th>Concedido por</th><th>Revogar</th></tr></thead>
+  <tbody>
+  {% for a in active %}
+    <tr>
+      <td>{{ a.get_profile_display }}</td>
+      <td>{{ a.get_source_display }}{% if a.source_group %}<br><small>{{ a.source_group }}</small>{% endif %}</td>
+      <td>{{ a.granted_at|datahora }}</td>
+      <td>{{ a.granted_by.username|default:"sistema" }}</td>
+      <td>
+        <form method="post" action="{% url 'accounts:revoke_profile' person.pk a.pk %}">
+          {% csrf_token %}
+          <label for="motivo-revogacao-{{ a.pk }}">Motivo da revogação</label>
+          <textarea id="motivo-revogacao-{{ a.pk }}" name="reason" rows="2" required></textarea>
+          <label for="aprovacao-revogacao-{{ a.pk }}">Referência da aprovação</label>
+          <input type="text" id="aprovacao-revogacao-{{ a.pk }}" name="approval_reference" maxlength="500" required>
+          <button type="submit" class="botao botao-perigo">Revogar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>Nenhum perfil ativo.</p>
+{% endif %}
+
+{% if person.is_active %}
+<h2>Conceder perfil</h2>
+<div class="painel">
+  <form method="post" action="{% url 'accounts:grant_profile' person.pk %}">
+    {% csrf_token %}
+    {{ grant_form.as_p }}
+    <p class="helptext">Aprovador esperado: {% for label, who in approvers.items %}{{ label }} — {{ who }}{% if not forloop.last %}; {% endif %}{% endfor %}.</p>
+    <button type="submit" class="botao">Conceder</button>
+  </form>
+</div>
+{% endif %}
+
+<h2>{% if person.is_active %}Desativar pessoa{% else %}Reativar pessoa{% endif %}</h2>
+<div class="painel">
+  <form method="post" action="{% if person.is_active %}{% url 'accounts:deactivate_person' person.pk %}{% else %}{% url 'accounts:reactivate_person' person.pk %}{% endif %}">
+    {% csrf_token %}
+    <label for="motivo-situacao">Motivo</label>
+    <textarea id="motivo-situacao" name="reason" rows="2" required></textarea>
+    <p class="helptext">O cadastro nunca é apagado; a pessoa desativada não entra no sistema e não recebe perfis.</p>
+    <button type="submit" class="botao {% if person.is_active %}botao-perigo{% endif %}">{% if person.is_active %}Desativar{% else %}Reativar{% endif %}</button>
+  </form>
+</div>
+
+<h2>Histórico de concessões</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Perfil</th><th>Origem</th><th>Concedido</th><th>Motivo e aprovação</th><th>Revogado</th><th>Motivo da revogação</th></tr></thead>
+  <tbody>
+  {% for a in assignments %}
+    <tr>
+      <td>{{ a.get_profile_display }}</td>
+      <td>{{ a.get_source_display }}</td>
+      <td>{{ a.granted_at|datahora }} por {{ a.granted_by.username|default:"sistema" }}</td>
+      <td>{{ a.grant_reason }}{% if a.approval_reference %}<br><small>Aprovação: {{ a.approval_reference }}</small>{% endif %}</td>
+      <td>{% if a.revoked_at %}{{ a.revoked_at|datahora }} por {{ a.revoked_by.username|default:"sistema" }}{% else %}—{% endif %}</td>
+      <td>{{ a.revoke_reason|default:"—" }}{% if a.revoke_approval_reference %}<br><small>Aprovação: {{ a.revoke_approval_reference }}</small>{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">Sem concessões.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

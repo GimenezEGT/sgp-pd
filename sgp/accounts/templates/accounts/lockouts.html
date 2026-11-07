@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Bloqueios de login{% endblock %}
+{% block content %}
+<h1>Bloqueios de login</h1>
+<h2>Ativos</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Login</th><th>Início</th><th>Fim previsto</th><th>Tentativas</th><th>Desbloquear</th></tr></thead>
+  <tbody>
+  {% for item in active %}
+    <tr>
+      <td>{{ item.username }}</td>
+      <td>{{ item.started_at|datahora }}</td>
+      <td>{{ item.expires_at|datahora }}</td>
+      <td class="numero">{{ item.failure_count }}</td>
+      <td>
+        <form method="post" action="{% url 'accounts:release_lockout' item.pk %}">
+          {% csrf_token %}
+          <label for="motivo-desbloqueio-{{ item.pk }}">Motivo</label>
+          <textarea id="motivo-desbloqueio-{{ item.pk }}" name="reason" rows="2" required></textarea>
+          <button type="submit" class="botao">Desbloquear</button>
+        </form>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Nenhum login bloqueado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<h2>Histórico recente</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Login</th><th>Início</th><th>Fim previsto</th><th>Desbloqueio manual</th></tr></thead>
+  <tbody>
+  {% for item in recent %}
+    <tr>
+      <td>{{ item.username }}</td>
+      <td>{{ item.started_at|datahora }}</td>
+      <td>{{ item.expires_at|datahora }}</td>
+      <td>{% if item.released_at %}{{ item.released_at|datahora }} por {{ item.released_by.username }} — {{ item.release_reason }}{% else %}—{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4">Sem bloqueios registrados.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

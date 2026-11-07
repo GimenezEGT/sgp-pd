@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Início{% endblock %}
+{% block content %}
+<h1>Olá, {{ user.get_full_name }}</h1>
+<p class="descricao">Perfis ativos: {{ sgp_profile_labels|join:", " }}.</p>
+{% for section, items in sections.items %}
+<section class="secao">
+  <h2>{{ section }}</h2>
+  <div class="cartoes">
+    {% for item in items %}
+    <a class="cartao" href="{{ item.url }}">
+      <strong>{{ item.label }}</strong>
+      <span>{{ item.description }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% empty %}
+<p>As funções do seu perfil serão disponibilizadas nas próximas etapas do sistema.</p>
+{% endfor %}
+{% endblock %}

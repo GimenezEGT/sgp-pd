@@ -1,0 +1,51 @@
+{% load sgp %}
+<div class="acoes">
+  <span>{{ page.paginator.count }} evento{{ page.paginator.count|pluralize }}</span>
+  <a class="botao botao-secundario" href="{% url 'audit:export' %}?{{ query }}{% if query %}&amp;{% endif %}formato=csv">Exportar CSV</a>
+  <a class="botao botao-secundario" href="{% url 'audit:export' %}?{{ query }}{% if query %}&amp;{% endif %}formato=xlsx">Exportar XLSX</a>
+</div>
+<div class="tabela-rolagem">
+<table>
+  <thead>
+    <tr><th>Seq.</th><th>Data e hora</th><th>Usuário</th><th>Tipo de evento</th><th>Objeto</th><th>Projeto</th><th>Valores</th><th>Motivo</th><th>Origem</th></tr>
+  </thead>
+  <tbody>
+  {% for event in page.object_list %}
+    <tr>
+      <td class="numero">{{ event.seq }}</td>
+      <td>{{ event.occurred_at|datahora }}</td>
+      <td>{{ event.actor_username }}</td>
+      <td>{{ event.event_type|rotulo_evento }}</td>
+      <td>{{ event.object_repr|default:event.object_type }}</td>
+      <td>{{ event.project_id|default_if_none:"" }}</td>
+      <td>
+        {% if event.old_value is not None or event.new_value is not None %}
+        <details>
+          <summary>ver</summary>
+          {% if event.old_value is not None %}<pre class="json">Anterior: {{ event.old_value|json_compacto }}</pre>{% endif %}
+          {% if event.new_value is not None %}<pre class="json">Novo: {{ event.new_value|json_compacto }}</pre>{% endif %}
+        </details>
+        {% endif %}
+      </td>
+      <td>{{ event.reason }}</td>
+      <td>{{ event.ip_address }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9">Nenhum evento encontrado para os filtros.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if page.paginator.num_pages > 1 %}
+<nav class="paginacao" aria-label="Paginação">
+  {% if page.has_previous %}
+    <a href="?{{ query }}{% if query %}&amp;{% endif %}pagina=1" hx-get="?{{ query }}{% if query %}&amp;{% endif %}pagina=1" hx-target="#tabela-trilha" hx-push-url="true">« Primeira</a>
+    <a href="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.previous_page_number }}" hx-get="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.previous_page_number }}" hx-target="#tabela-trilha" hx-push-url="true">‹ Anterior</a>
+  {% endif %}
+  <span>Página {{ page.number }} de {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}
+    <a href="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.next_page_number }}" hx-get="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.next_page_number }}" hx-target="#tabela-trilha" hx-push-url="true">Próxima ›</a>
+    <a href="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.paginator.num_pages }}" hx-get="?{{ query }}{% if query %}&amp;{% endif %}pagina={{ page.paginator.num_pages }}" hx-target="#tabela-trilha" hx-push-url="true">Última »</a>
+  {% endif %}
+</nav>
+{% endif %}

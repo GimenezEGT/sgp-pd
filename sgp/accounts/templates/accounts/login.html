@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block content %}
+<div class="painel painel-estreito">
+  <h1>Entrar no SGP-P&amp;D</h1>
+  <p class="descricao">Use o mesmo usuário e senha da rede da empresa.</p>
+  {% if error %}<p class="mensagem mensagem-error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{% url 'accounts:login' %}" novalidate>
+    {% csrf_token %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    {{ form.as_p }}
+    <button type="submit" class="botao">Entrar</button>
+  </form>
+</div>
+{% endblock %}

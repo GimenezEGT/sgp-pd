@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Trilha de auditoria{% endblock %}
+{% block content %}
+<h1>Trilha de auditoria</h1>
+<p class="descricao">Eventos em ordem cronológica. Somente inclusão: nenhum evento é alterado ou apagado.</p>
+<form method="get" action="{% url 'audit:trail' %}" class="painel"
+      hx-get="{% url 'audit:trail' %}" hx-target="#tabela-trilha" hx-push-url="true" hx-indicator="#carregando">
+  <div class="filtros">
+    {{ form.as_p }}
+    <p>
+      <button type="submit" class="botao">Filtrar</button>
+      <span id="carregando" class="htmx-indicator">Carregando…</span>
+    </p>
+  </div>
+  {% if form.non_field_errors %}<div class="errorlist">{{ form.non_field_errors }}</div>{% endif %}
+</form>
+<div id="tabela-trilha">
+  {% include "audit/_trail_table.html" %}
+</div>
+{% endblock %}

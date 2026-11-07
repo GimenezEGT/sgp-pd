@@ -1,0 +1,48 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false}'>
+  <title>{% block title %}Início{% endblock %} · SGP-P&amp;D</title>
+  <link rel="stylesheet" href="{% static 'core/css/sgp.css' %}">
+  <script src="{% static 'core/vendor/htmx.min.js' %}" defer></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <header class="topo">
+    <div class="topo-linha">
+      <a class="marca" href="{% url 'core:home' %}">SGP-P&amp;D <span class="marca-sub">Gestão de Projetos de P&amp;D</span></a>
+      {% if user.is_authenticated %}
+      <div class="usuario">
+        <span class="usuario-nome">{{ user.get_full_name }}</span>
+        {% if sgp_profile_labels %}<span class="usuario-perfis">{{ sgp_profile_labels|join:" · " }}</span>{% endif %}
+        <form method="post" action="{% url 'accounts:logout' %}" class="form-sair">
+          {% csrf_token %}
+          <button type="submit" class="botao botao-discreto">Sair</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    {% if sgp_nav %}
+    <nav class="menu" aria-label="Navegação principal">
+      <a href="{% url 'core:home' %}"{% if request.resolver_match.view_name == 'core:home' %} aria-current="page"{% endif %}>Início</a>
+      {% for item in sgp_nav %}<a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.label }}</a>{% endfor %}
+    </nav>
+    {% endif %}
+  </header>
+  {% if sgp_integrity_alert %}
+  <div class="faixa-alerta" role="alert">
+    Quebra de integridade na trilha de auditoria. <a href="{% url 'audit:integrity' %}">Ver a verificação</a>
+  </div>
+  {% endif %}
+  <main class="conteudo">
+    {% if messages %}
+    <ul class="mensagens">
+      {% for message in messages %}<li class="mensagem mensagem-{{ message.tags|default:'info' }}">{{ message }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="rodape">SGP-P&amp;D · datas e horas no horário de Brasília</footer>
+</body>
+</html>

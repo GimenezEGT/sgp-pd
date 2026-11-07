@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Solicitações de acesso{% endblock %}
+{% block content %}
+<h1>Solicitações de acesso</h1>
+<h2>Pendentes</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Data e hora</th><th>Pessoa</th><th>Justificativa</th><th>Decisão</th></tr></thead>
+  <tbody>
+  {% for item in pending %}
+    <tr>
+      <td>{{ item.created_at|datahora }}</td>
+      <td><a href="{% url 'accounts:person_detail' item.user.pk %}">{{ item.user }}</a></td>
+      <td>{{ item.justification }}</td>
+      <td>
+        <form method="post" action="{% url 'accounts:decide_access_request' item.pk %}">
+          {% csrf_token %}
+          {{ decision_form.as_p }}
+          <button type="submit" class="botao">Registrar decisão</button>
+        </form>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4">Nenhuma solicitação pendente.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="helptext">Para atender, conceda o perfil na página da pessoa e registre aqui a decisão.</p>
+<h2>Decididas recentemente</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Solicitada</th><th>Pessoa</th><th>Situação</th><th>Decidida</th><th>Motivo</th></tr></thead>
+  <tbody>
+  {% for item in decided %}
+    <tr>
+      <td>{{ item.created_at|datahora }}</td>
+      <td>{{ item.user }}</td>
+      <td>{{ item.get_status_display }}</td>
+      <td>{{ item.decided_at|datahora }} por {{ item.decided_by.username }}</td>
+      <td>{{ item.decision_reason }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="5">Nenhuma solicitação decidida.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

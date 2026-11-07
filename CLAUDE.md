@@ -26,6 +26,15 @@ Sistema de gestão de projetos de P&D de produtos para diagnóstico in vitro (IV
 - Extensão `git`: o hook antes do `/speckit-specify` cria um branch por feature (`NNN-slug`); a feature volta para `main` quando o `/speckit-converge` indicar Converged.
 - Artefatos de cada feature em `specs/NNN-slug/` (spec, plan, research, data-model, contracts, quickstart, checklists, tasks).
 
+## Ambiente e comandos
+
+- Tudo roda no Docker (o host é Windows; python-ldap só compila na imagem). Testes: `docker compose run --rm web sh scripts/verificar.sh`.
+- Testes usam `config.settings_test` (papel dono do banco e backend de rede falso); marque cada teste com `@pytest.mark.req("NNN:FR-xxx")` para a matriz de rastreabilidade.
+- Nada de admin do Django; toda alteração passa por serviço que chama `sgp.audit.services.record_event` na mesma transação.
+- Modelos herdam de `sgp.core.models.ProtectedModel` (sem exclusão) ou `AppendOnlyModel` (sem alteração); rode `apply_db_privileges` depois de migrar.
+- Rotas novas entram no contrato de `tests/core/test_route_scan.py` com o método e os perfis exigidos.
+- Ao gerar código por ferramenta, evite escapes `\u`/`\x` em parâmetros; use `chr()` para caracteres especiais.
+
 ## Fluxo de trabalho
 
 - Uma feature por vez, na ordem dos arquivos de `prompts/`.
