@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     "sgp.core",
     "sgp.accounts",
     "sgp.audit",
+    "sgp.vocab",
+    "sgp.projects",
 ]
 
 MIDDLEWARE = [
@@ -154,6 +156,10 @@ ACCESS_REQUEST_INSTRUCTIONS = env_str(
     "O Administrador do sistema registra o perfil depois da aprovação do Gestor de P&D "
     "ou, para o perfil Qualidade/Assuntos Regulatórios, da Garantia da Qualidade.",
 )
+
+# Projetos (feature 002): prefixo do código e perfis com acesso aos dados financeiros.
+PROJECT_CODE_PREFIX = env_str("PROJECT_CODE_PREFIX", "PD")
+FINANCIAL_DATA_PROFILES = env_list("FINANCIAL_DATA_PROFILES", "")
 
 # Internacionalização: interface em português; datas gravadas em UTC, exibidas em Brasília.
 LANGUAGE_CODE = "pt-br"

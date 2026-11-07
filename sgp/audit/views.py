@@ -13,6 +13,7 @@ from sgp.accounts.profiles import AUDIT_TRAIL_PROFILES, INTEGRITY_PROFILES, prof
 from . import exports
 from .forms import AuditFilterForm
 from .models import AuditEvent, ChainVerification
+from .presentation import EventPresenter
 from .services import latest_verification, record_event
 from .tasks import verify_chain_manual
 
@@ -35,6 +36,7 @@ def _filtered(request):
 def trail(request):
     form, queryset = _filtered(request)
     page = Paginator(queryset, settings.AUDIT_PAGE_SIZE).get_page(request.GET.get("pagina"))
+    EventPresenter(request.user).decorate(page.object_list)
     query = request.GET.copy()
     query.pop("pagina", None)
     context = {"form": form, "page": page, "query": query.urlencode()}

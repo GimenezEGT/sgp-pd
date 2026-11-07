@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from sgp.core.formatting import compact_json, local_datetime
 
 from .event_types import label_for
+from .presentation import EventPresenter
 
 TITLE = "Trilha de auditoria — SGP-P&D"
 HEADER = [
@@ -42,7 +43,8 @@ def identification_rows(exported_by, filters: str, count: int, exported_at) -> l
     ]
 
 
-def event_row(event) -> list:
+def event_row(event, presenter) -> list:
+    old_value, new_value = presenter.values(event)
     return [
         event.seq,
         local_datetime(event.occurred_at),
@@ -51,9 +53,9 @@ def event_row(event) -> list:
         event.event_type,
         event.object_repr or event.object_type,
         event.object_id,
-        event.project_id if event.project_id is not None else "",
-        compact_json(event.old_value),
-        compact_json(event.new_value),
+        presenter.project_label(event.project_id),
+        compact_json(old_value),
+        compact_json(new_value),
         event.reason,
         event.ip_address,
         event.hash,
@@ -73,6 +75,7 @@ class _Echo:
 def csv_response(
     queryset, *, exported_by, filters: str, count: int, exported_at
 ) -> StreamingHttpResponse:
+    presenter = EventPresenter(exported_by)
     writer = csv.writer(_Echo(), delimiter=";", lineterminator="\r\n")
 
     def rows():
@@ -81,7 +84,7 @@ def csv_response(
             yield writer.writerow(row)
         yield writer.writerow(HEADER)
         for event in queryset.iterator(chunk_size=2000):
-            yield writer.writerow(event_row(event))
+            yield writer.writerow(event_row(event, presenter))
 
     response = StreamingHttpResponse(rows(), content_type="text/csv; charset=utf-8")
     response["Content-Disposition"] = f'attachment; filename="{filename("csv", exported_at)}"'
@@ -89,13 +92,14 @@ def csv_response(
 
 
 def xlsx_response(queryset, *, exported_by, filters: str, count: int, exported_at) -> HttpResponse:
+    presenter = EventPresenter(exported_by)
     workbook = Workbook(write_only=True)
     sheet = workbook.create_sheet("Trilha")
     for row in identification_rows(exported_by, filters, count, exported_at):
         sheet.append(row)
     sheet.append(HEADER)
     for event in queryset.iterator(chunk_size=2000):
-        sheet.append(event_row(event))
+        sheet.append(event_row(event, presenter))
     buffer = io.BytesIO()
     workbook.save(buffer)
     response = HttpResponse(buffer.getvalue(), content_type=XLSX_CONTENT_TYPE)

@@ -12,6 +12,8 @@ from sgp.accounts.profiles import AUDIT_TRAIL_PROFILES, INTEGRITY_PROFILES, Prof
 ANONYMOUS = "anonymous"
 AUTHENTICATED = "authenticated"
 ANY_PROFILE = "any_profile"
+# Acesso decidido pelo projeto (membro/líder/perfil global); coberto em tests/projects.
+PROJECT_ACCESS = "project_access"
 
 ROUTE_CONTRACT = {
     "accounts:login": ("GET", ANONYMOUS),
@@ -33,6 +35,20 @@ ROUTE_CONTRACT = {
     "audit:export": ("GET", AUDIT_TRAIL_PROFILES),
     "audit:integrity": ("GET", INTEGRITY_PROFILES),
     "audit:verify_now": ("POST", INTEGRITY_PROFILES),
+    "projects:list": ("GET", ANY_PROFILE),
+    "projects:new": ("GET", {Profile.PROJECT_LEADER, Profile.RD_MANAGER}),
+    "projects:detail": ("GET", PROJECT_ACCESS),
+    "projects:edit": ("GET", PROJECT_ACCESS),
+    "projects:charter": ("GET", PROJECT_ACCESS),
+    "projects:business_plan": ("GET", PROJECT_ACCESS),
+    "projects:member_add": ("POST", PROJECT_ACCESS),
+    "projects:member_end": ("POST", PROJECT_ACCESS),
+    "projects:milestone_add": ("POST", PROJECT_ACCESS),
+    "projects:milestone_update": ("POST", PROJECT_ACCESS),
+    "projects:milestone_cancel": ("POST", PROJECT_ACCESS),
+    "projects:submit": ("POST", PROJECT_ACCESS),
+    "projects:approve": ("POST", {Profile.RD_MANAGER}),
+    "projects:return": ("POST", {Profile.RD_MANAGER}),
 }
 
 

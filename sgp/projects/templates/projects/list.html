@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Projetos{% endblock %}
+{% block content %}
+<h1>Projetos</h1>
+{% if can_create %}<p><a class="botao" href="{% url 'projects:new' %}">Novo projeto</a></p>{% endif %}
+<form method="get" class="painel">
+  <div class="filtros">
+    {{ form.as_p }}
+    <p><button type="submit" class="botao">Filtrar</button></p>
+  </div>
+</form>
+<div class="tabela-rolagem">
+<table>
+  <thead>
+    <tr><th>Código</th><th>Projeto</th><th>Produto</th><th>Líder</th><th>Situação</th><th>Versão</th>{% if show_cost %}<th>Custo total</th>{% endif %}</tr>
+  </thead>
+  <tbody>
+  {% for project, can_fin in rows %}
+    <tr>
+      <td>{{ project.code|default:"—" }}</td>
+      <td><a href="{% url 'projects:detail' project.pk %}">{{ project.title }}</a></td>
+      <td>{{ project.product_name }}{% if project.product_family %}<br><small>Família: {{ project.product_family }}</small>{% endif %}</td>
+      <td>{{ project.leader.get_full_name }}</td>
+      <td>{{ project.get_status_display }}</td>
+      <td>{{ project.version_display }}</td>
+      {% if show_cost %}<td class="numero">{% if can_fin %}{{ project.business_plan.total_cost|brl|default:"—" }}{% else %}Restrito{% endif %}</td>{% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="7">Nenhum projeto encontrado.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
