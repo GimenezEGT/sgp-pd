@@ -25,7 +25,7 @@ description: "Task list for feature 006 — Geração de documentos no padrão d
 - [ ] T003 [P] Escrever testes e implementar `sgp/documents/layout_schema.py` (padrões válidos; limites de margem, fonte, logotipo e cor; marcadores de cabeçalho e rodapé; códigos de tipo e variantes de capa) em `tests/documents/test_layout_schema.py` (FR-019, FR-022)
 - [ ] T004 [P] Escrever testes e implementar o vínculo de layout em `sgp/documents/layouts.py` (vigente por alvo e data; vínculo gravado no começo da versão; documento sem vínculo cai na primeira versão publicada; vínculo não muda com layout novo) em `tests/documents/test_layout_binding.py` (FR-021)
 - [ ] T005 Escrever testes e implementar o conteúdo de renderização de subdocumentos em `sgp/documents/content.py` conforme `contracts/conteudo-renderizacao.md` (capa, numeração de tópicos e tabelas da 004, não aplicável, valores formatados, referências na versão do cadastro, anexos com resumo, formulário opcional, variantes `checklist` e `sectors`, campos vazios) em `tests/documents/test_content.py` (FR-001, FR-004 a FR-010)
-- [ ] T006 [P] Registrar os eventos de `contracts/eventos-auditoria.md` em `sgp/documents/event_types.py`
+- [ ] T006 [P] Registrar os eventos de `contracts/eventos-auditoria.md` em `sgp/documents/event_types.py` (FR-025; cada teste de fluxo confere o evento correspondente)
 
 ## Phase 3: User Stories 1, 2 e 3 - Gerar PDF e DOCX com capa e corpo no padrão (P1) 🎯 MVP
 
@@ -33,7 +33,7 @@ description: "Task list for feature 006 — Geração de documentos no padrão d
 - [ ] T008 [US2] [US3] Implementar `sgp/documents/render_pdf.py` e `templates/documents/pdf/` (HTML e CSS a partir do layout; capa calibrada pela prova; identificador e datas fixos; imagens sem interpolação)
 - [ ] T009 [P] [US1] Testes em `tests/documents/test_render_docx.py` (A4 e margens do layout; cabeçalho e rodapé com PAGE e NUMPAGES; linha de cabeçalho repetida; marca d'água no não aprovado; "Cópia para conferência – o documento oficial é o PDF" no aprovado; DOCX normalizado igual em duas gerações) (FR-011, FR-015)
 - [ ] T010 [US1] Implementar `sgp/documents/render_docx.py`
-- [ ] T011 [P] [US1] Testes em `tests/documents/test_generation.py` (pedido na fila, gerando e concluído com arquivo arquivado e resumos; pedido em andamento reaproveitado; falha registrada sem arquivo; quem não vê o documento não gera nem baixa, inclusive pela URL; download confere integridade e registra; histórico de gerações) (FR-001 a FR-003, FR-016, FR-018)
+- [ ] T011 [P] [US1] Testes em `tests/documents/test_generation.py` (pedido na fila, gerando e concluído com arquivo arquivado e resumos; pedido em andamento reaproveitado; falha registrada sem arquivo; quem não vê o documento não gera nem baixa, inclusive pela URL; download confere integridade e registra; histórico de gerações; projeto cancelado continua gerando; o documento gerado registra a versão dos dados usada) (FR-001 a FR-003, FR-016, FR-018, FR-025)
 - [ ] T012 [US1] Implementar `sgp/documents/services.py`, `tasks.py`, as telas de documentos gerados, pedido (HTMX a cada 2 s) e download em `views.py`, `urls.py` e templates, e o link "Documentos gerados" no detalhe do subdocumento
 
 ## Phase 4: User Story 4 - PDF oficial com assinaturas, selo e código (P1)
@@ -48,7 +48,7 @@ description: "Task list for feature 006 — Geração de documentos no padrão d
 
 ## Phase 6: User Story 5 - Modelos de layout mantidos pela Qualidade (P2)
 
-- [ ] T017 [P] [US5] Testes em `tests/documents/test_layouts.py` (só Qualidade/AR cria, altera, pré-visualiza e publica; publicado não muda pelo serviço nem no banco; nova versão nasce do vigente; publicação recusada sem definição válida ou com vigência anterior à vigente; pré-visualização não arquiva; documento iniciado mantém o layout e o novo nasce no publicado) (FR-019 a FR-022)
+- [ ] T017 [P] [US5] Testes em `tests/documents/test_layouts.py` (só Qualidade/AR cria, altera, pré-visualiza e publica; publicado não muda pelo serviço nem no banco; nova versão nasce do vigente; publicação recusada sem definição válida ou com vigência anterior à vigente; pré-visualização não arquiva; documento iniciado mantém o layout e o novo nasce no publicado; logotipo enviado com arquivo corrompido faz a geração falhar com a falha de integridade registrada) (FR-019 a FR-022, FR-025)
 - [ ] T018 [US5] Implementar os serviços de layout em `sgp/documents/layouts.py` e as telas de lista, detalhe, edição (formulário e logotipo), pré-visualização e publicação
 - [ ] T019 [US5] Vincular o layout no começo da versão: `sgp/subdocuments/services.py` (`create_subdocument`), `sgp/signatures/services.py` (`new_version`) e `sgp/projects/services.py` (criação do projeto)
 
@@ -63,7 +63,7 @@ description: "Task list for feature 006 — Geração de documentos no padrão d
 - [ ] T023 Incluir as rotas no contrato de `tests/core/test_route_scan.py` e conferir as permissões de cada uma
 - [ ] T024 [P] Atualizar `README.md` (feature 006)
 - [ ] T025 Rodar `scripts/verificar.sh` e corrigir o que faltar
-- [ ] T026 Executar o quickstart na pilha real (incluindo veraPDF e `pdfsig`) e registrar em `docs/validacao/006-resultados-execucao.md`
+- [ ] T026 Executar o quickstart na pilha real (incluindo veraPDF e `pdfsig`), comparar a capa gerada com a da planilha e registrar em `docs/validacao/006-resultados-execucao.md`, com a comparação da Qualidade como pendência de ratificação (SC-001, SC-003, SC-006)
 
 ## Dependencies & Execution Order
 
