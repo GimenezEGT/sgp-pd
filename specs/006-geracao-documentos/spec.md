@@ -8,6 +8,18 @@
 
 **Input**: User description: "Geração dos documentos no padrão visual da empresa a partir dos dados do sistema. Leia docs/contexto/03-padroes-formatacao.md e veja os arquivos de docs/modelos/. Objetivo: economizar o tempo de montagem e eliminar erros de cópia; o documento sai pronto, com capa, numeração e rodapé corretos. Histórias: 1. Como analista, gero o documento de qualquer subdocumento em DOCX (editável, para conferência) e em PDF (oficial). 2. A capa reproduz o padrão da planilha Capas Projeto: logotipo, título do subdocumento, nome do produto, versão, lista 'ESTE RELATÓRIO DEVE CONTER', bloco de assinaturas e rodapé 'Formulário Versão: NN. Referência: <referência>' com os valores do modelo usado. 3. No corpo, os tópicos aparecem como títulos numerados, as tabelas são numeradas em sequência ('Tabela 01 – ...') e repetem o cabeçalho quando quebram de página; as páginas são numeradas 'Página N de M'. 4. No PDF oficial, as assinaturas eletrônicas aparecem no bloco de assinaturas com nome, função, data e hora e significado; o arquivo é selado digitalmente e o rodapé mostra um código de verificação. 5. Como Garantia da Qualidade, mantenho os modelos de layout (capa, cabeçalho, rodapé, estilos) sem programador, e cada modelo é versionado. 6. Todo documento gerado fica arquivado com versão, data, autor da geração e hash; gerar de novo uma versão aprovada produz o mesmo conteúdo. Regras: documento de versão não aprovada sai com marca d'água 'RASCUNHO – NÃO VÁLIDO'; o PDF oficial é PDF/A; todo dado vem do sistema, nada é digitado no gerador. Fora do escopo: documento completo do projeto (009) e dossiê (011), que reutilizam este gerador."
 
+## Clarifications
+
+### Session 2026-11-08
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: O DOCX também pode ser documento oficial ou só o PDF? → A: Só o PDF/A selado da versão aprovada é oficial; o DOCX é sempre cópia para conferência, sem selo nem código de verificação, com a indicação "Cópia para conferência – o documento oficial é o PDF" no rodapé quando a versão está aprovada (nas demais vale a marca d'água de rascunho) (ratificar com a Garantia da Qualidade).
+- Q: O logotipo é único ou por marca (Bioclin, Quibasa)? → A: Único: a faixa "Bioclin · Quibasa" da planilha Capas Projeto, guardada no modelo de layout; trocar o logotipo é publicar nova versão do modelo de layout; logotipo por marca exigiria a marca no cadastro do produto, que não existe (ratificar com a Garantia da Qualidade).
+- Q: A paginação é "Página N" ou "Página N de M"? → A: "Página N de M" em todas as páginas de todos os documentos gerados, também nos tipos em que a planilha usa "Página N" (Entrada, Formulação e Lote Piloto), porque o total revela página faltando (ratificar com a Garantia da Qualidade).
+- Q: Subdocumentos isolados levam sumário? → A: Não; a capa já lista os tópicos em "ESTE RELATÓRIO DEVE CONTER:", e o sumário fica só no documento completo do projeto (feature 009) (ratificar com a Garantia da Qualidade).
+- Q: O TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005), também geram documento? → A: Sim, em DOCX e PDF, com modelo de layout próprio de cada um no mesmo padrão visual (faixa do logotipo, título "Termo de Abertura de Projeto" ou "Plano de Negócios", nome do produto, versão, bloco de assinaturas com os significados Elaborado e Aprovado da feature 005) e rodapé com a paginação; sem "Formulário Versão" e "Referência" enquanto a Qualidade não definir formulário e referência para eles (o modelo de layout tem texto de rodapé configurável, vazio por padrão); o documento do Plano de Negócios só é gerado e baixado por quem vê dados financeiros (ratificar com o Gestor de P&D e a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Gerar o documento de um subdocumento em DOCX e PDF (Priority: P1)
@@ -80,7 +92,7 @@ O PDF da versão aprovada é o documento oficial: mostra as assinaturas eletrôn
 3. **Given** o PDF oficial, **When** aberto num leitor de PDF, **Then** o selo digital é apresentado como íntegro; **When** qualquer byte do arquivo é alterado, **Then** o leitor acusa a alteração.
 4. **Given** o código de verificação do rodapé, **When** uma pessoa autenticada o informa no sistema, **Then** vê o tipo de documento, a versão, a situação (vigente ou substituída), a data de aprovação, as assinaturas e o resumo do arquivo arquivado; quem tem acesso ao projeto também baixa o arquivo.
 5. **Given** uma versão não aprovada (rascunho, em revisão ou devolvida), **When** o documento é gerado, **Then** todas as páginas trazem a marca d'água "RASCUNHO – NÃO VÁLIDO", sem selo e sem código de verificação.
-6. **Given** o DOCX de qualquer versão, **When** é gerado, **Then** ele segue a regra de FR-015 sobre o valor oficial do DOCX.
+6. **Given** o DOCX de uma versão aprovada, **When** é gerado, **Then** sai sem selo e sem código de verificação, com a indicação "Cópia para conferência – o documento oficial é o PDF" no rodapé.
 
 ---
 
@@ -121,16 +133,17 @@ Todo documento gerado fica arquivado com versão, data, autor da geração, mode
 
 ### User Story 7 - Documentos do TAP e do Plano de Negócios (Priority: P3)
 
-[NEEDS CLARIFICATION: o TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005), também geram documento em DOCX e PDF? Com qual capa e rodapé, se não há formulário versionado do PSG 20 para eles?]
+O TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005), também geram documento em DOCX e PDF, com modelo de layout próprio de cada um no mesmo padrão visual dos subdocumentos.
 
 **Why this priority**: Completa o registro dos documentos assinados do projeto, mas não substitui nenhum formulário atual.
 
-**Independent Test**: Gerar o PDF oficial do TAP de um projeto aprovado e conferir assinaturas, selo e código de verificação.
+**Independent Test**: Gerar o PDF oficial do TAP de um projeto aprovado e conferir capa, assinaturas, selo e código de verificação; tentar gerar o Plano de Negócios sem permissão para dados financeiros.
 
 **Acceptance Scenarios**:
 
-1. **Given** um TAP aprovado, **When** a pessoa gera o PDF oficial, **Then** o documento sai no mesmo padrão visual, com as assinaturas, o selo e o código de verificação.
-2. **Given** uma pessoa sem permissão para dados financeiros, **When** tenta gerar ou baixar o documento do Plano de Negócios, **Then** o acesso é negado e registrado.
+1. **Given** um TAP aprovado, **When** a pessoa gera o PDF oficial, **Then** o documento sai com a faixa do logotipo, "Termo de Abertura de Projeto", o nome do produto, a versão, as assinaturas Elaborado e Aprovado, o selo e o código de verificação, e os campos do TAP como seções numeradas.
+2. **Given** o modelo de layout do TAP com o texto de rodapé vazio, **When** o documento é gerado, **Then** o rodapé traz só a paginação (e o código de verificação no PDF oficial), sem "Formulário Versão" nem "Referência".
+3. **Given** uma pessoa sem permissão para dados financeiros, **When** tenta gerar ou baixar o documento do Plano de Negócios (inclusive pela URL direta), **Then** o acesso é negado e registrado.
 
 ---
 
@@ -176,7 +189,7 @@ Todo documento gerado fica arquivado com versão, data, autor da geração, mode
 - **FR-012**: O PDF da versão aprovada DEVE ser o documento oficial: formato de arquivamento de longo prazo (PDF/A); bloco de assinaturas com nome, função, data e hora, significado e delegação quando houver; relação de todas as assinaturas da versão; selo digital com o certificado da empresa; código de verificação no rodapé.
 - **FR-013**: Sem certificado da empresa válido, o PDF oficial NÃO DEVE ser emitido: a geração falha com mensagem clara e alerta na trilha.
 - **FR-014**: O código de verificação DEVE identificar de forma única o documento, a versão e o conteúdo gerado; pessoa autenticada DEVE poder consultá-lo e ver tipo de documento, versão, situação (vigente ou substituída), data de aprovação, assinaturas e resumo do arquivo arquivado; só quem tem acesso ao projeto vê o projeto e baixa o arquivo; toda consulta DEVE ser registrada.
-- **FR-015**: [NEEDS CLARIFICATION: o DOCX pode ser documento oficial ou é sempre cópia para conferência, sem selo nem código de verificação?]
+- **FR-015**: O DOCX NUNCA DEVE ser documento oficial: sai sem selo e sem código de verificação e, quando a versão está aprovada, com a indicação "Cópia para conferência – o documento oficial é o PDF" no rodapé.
 
 **Arquivo e regeneração**
 
@@ -189,10 +202,16 @@ Todo documento gerado fica arquivado com versão, data, autor da geração, mode
 - **FR-019**: Os modelos de layout (logotipo, página e margens, fontes e tamanhos da capa e do corpo, cabeçalho, rodapé, estilos de títulos e de tabelas e texto da marca d'água) DEVEM ser dados mantidos na interface, sem programação, com versões: rascunho editável, pré-visualização com dados de exemplo e publicação com início de vigência; versão publicada NÃO DEVE ser alterada.
 - **FR-020**: Só o perfil Qualidade/AR DEVE criar, alterar, pré-visualizar e publicar modelos de layout; os demais perfis consultam; tentativa sem permissão DEVE ser negada e registrada.
 - **FR-021**: Cada versão de documento DEVE usar o modelo de layout vigente quando ela começou (criação do documento ou da nova versão) e guardá-lo; publicar nova versão de modelo de layout NÃO DEVE alterar documentos já iniciados nem versões aprovadas.
+- **FR-022**: DEVE haver um modelo de layout para os subdocumentos, com a faixa do logotipo "Bioclin · Quibasa" da planilha Capas Projeto, e um modelo de layout próprio para o TAP e outro para o Plano de Negócios.
+
+**TAP e Plano de Negócios**
+
+- **FR-023**: O TAP e o Plano de Negócios DEVEM gerar documento em DOCX e PDF com as mesmas regras de rascunho, documento oficial, arquivo e regeneração dos subdocumentos: capa com a faixa do logotipo, título ("Termo de Abertura de Projeto" ou "Plano de Negócios"), nome do produto, versão e bloco de assinaturas com os significados Elaborado e Aprovado; corpo com os campos do documento como seções numeradas; rodapé com o texto configurável do modelo de layout (vazio por padrão) e a paginação.
+- **FR-024**: O documento do Plano de Negócios DEVE ser gerado e baixado só por quem vê dados financeiros do projeto; tentativa sem permissão DEVE ser negada e registrada.
 
 **Trilha**
 
-- **FR-022**: Pedido, conclusão e falha de geração, download de documento gerado, consulta de código de verificação e criação, alteração e publicação de modelo de layout DEVEM gerar eventos na trilha de auditoria.
+- **FR-025**: Pedido, conclusão e falha de geração, download de documento gerado, consulta de código de verificação e criação, alteração e publicação de modelo de layout DEVEM gerar eventos na trilha de auditoria.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -218,7 +237,8 @@ Todo documento gerado fica arquivado com versão, data, autor da geração, mode
 
 - A faixa do logotipo, os textos fixos, as fontes e os tamanhos da capa vêm da planilha Capas Projeto e de docs/contexto/03-padroes-formatacao.md; os .docx originais listados em docs/modelos/LEIA-ME.md não estão no repositório, então cabeçalho e estilos do corpo seguem o padrão descrito em 03-padroes-formatacao.md até a Qualidade conferi-los contra os originais.
 - O certificado da empresa para o selo é fornecido pela TI e guardado fora do repositório; desenvolvimento e homologação usam certificado de teste.
-- O documento completo do projeto (009) e o dossiê (011) reutilizam este gerador e ficam fora do escopo; o sumário fica para o documento completo.
+- O documento completo do projeto (009) e o dossiê (011) reutilizam este gerador e ficam fora do escopo; subdocumentos isolados não levam sumário, que fica para o documento completo.
+- Valor oficial do DOCX, logotipo único, paginação "Página N de M", ausência de sumário e geração do TAP e do Plano de Negócios definidos nas respostas provisórias do esclarecimento (sessão 2026-11-08).
 - Os anexos não são incorporados ao documento gerado; ficam no sistema, identificados pelo resumo criptográfico.
 - Os estudos (007) e o caderno de laboratório (008) ainda não existem; quando existirem, seus dados entram no documento pelos tópicos do modelo de formulário.
 - A revisão controlada dos modelos de layout, com aprovação e assinatura, é da feature 013; aqui a Qualidade/AR publica direto, como nos modelos de formulário da feature 004.
