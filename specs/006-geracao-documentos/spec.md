@@ -173,7 +173,7 @@ O TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005),
 **Capa**
 
 - **FR-004**: A capa DEVE seguir a planilha Capas Projeto, na ordem: faixa do logotipo; título do subdocumento; nome do produto em caixa alta; "VERSÃO" e o número da versão do documento com dois dígitos; "ESTE RELATÓRIO DEVE CONTER:"; os tópicos numerados do modelo visíveis para o órgão regulador do projeto ("1 - Amostras"), em duas colunas quando o modelo pede; o bloco de assinaturas ("Analista Responsável (Nome/Função):", rótulo do aprovador do modelo e "Data:"); e o rodapé "Formulário Versão: NN. Referência: <referência>" com os valores do modelo de formulário usado pelo documento.
-- **FR-005**: A capa DEVE respeitar as particularidades: Alteração de Projeto com "Versão alterada:" e "Nova Versão:"; Verificação Final de Validação com a tabela "CHECK LIST" e os dados do documento abaixo da versão; Saída de Projeto com os setores de transferência em duas colunas depois dos tópicos, marcando os escolhidos; Validação do Produto com o rótulo "Gestor de P&D responsável pela Aprovação:".
+- **FR-005**: A capa DEVE respeitar as particularidades: Alteração de Projeto com "Versão alterada:" e "Nova Versão:"; Verificação Final de Validação com a tabela "CHECK LIST" e os dados do documento abaixo da versão, no lugar de "ESTE RELATÓRIO DEVE CONTER:", sem repetir a tabela no corpo; Saída de Projeto com todos os setores de transferência em duas colunas depois dos tópicos, cada um com uma caixa, marcada nos escolhidos; Validação do Produto com o rótulo "Gestor de P&D responsável pela Aprovação:".
 
 **Corpo e página**
 
@@ -186,7 +186,7 @@ O TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005),
 **Rascunho e documento oficial**
 
 - **FR-011**: O documento de versão não aprovada DEVE sair, em DOCX e em PDF, com a marca d'água "RASCUNHO – NÃO VÁLIDO" em todas as páginas, sem selo e sem código de verificação.
-- **FR-012**: O PDF da versão aprovada DEVE ser o documento oficial: formato de arquivamento de longo prazo (PDF/A); bloco de assinaturas com nome, função, data e hora, significado e delegação quando houver; relação de todas as assinaturas da versão; selo digital com o certificado da empresa; código de verificação no rodapé.
+- **FR-012**: O PDF da versão aprovada DEVE ser o documento oficial: formato de arquivamento de longo prazo (PDF/A); bloco de assinaturas da capa com a assinatura "Elaborado" no rótulo do analista e a "Aprovado" no rótulo do aprovador, cada uma com nome, função, data e hora, significado e delegação quando houver; relação de todas as assinaturas da versão ao fim do documento, inclusive as "Revisado"; selo digital com o certificado da empresa; código de verificação no rodapé.
 - **FR-013**: Sem certificado da empresa válido, o PDF oficial NÃO DEVE ser emitido: a geração falha com mensagem clara e alerta na trilha.
 - **FR-014**: O código de verificação DEVE identificar de forma única o documento, a versão e o conteúdo gerado; pessoa autenticada DEVE poder consultá-lo e ver tipo de documento, versão, situação (vigente ou substituída), data de aprovação, assinaturas e resumo do arquivo arquivado; só quem tem acesso ao projeto vê o projeto e baixa o arquivo; toda consulta DEVE ser registrada.
 - **FR-015**: O DOCX NUNCA DEVE ser documento oficial: sai sem selo e sem código de verificação e, quando a versão está aprovada, com a indicação "Cópia para conferência – o documento oficial é o PDF" no rodapé.
@@ -235,7 +235,8 @@ O TAP e o Plano de Negócios, que já têm versões e assinaturas (feature 005),
 
 ## Assumptions
 
-- A faixa do logotipo, os textos fixos, as fontes e os tamanhos da capa vêm da planilha Capas Projeto e de docs/contexto/03-padroes-formatacao.md; os .docx originais listados em docs/modelos/LEIA-ME.md não estão no repositório, então cabeçalho e estilos do corpo seguem o padrão descrito em 03-padroes-formatacao.md até a Qualidade conferi-los contra os originais.
+- A faixa do logotipo, os textos fixos, as fontes e os tamanhos da capa vêm da planilha Capas Projeto e de docs/contexto/03-padroes-formatacao.md; os .docx originais listados em docs/modelos/LEIA-ME.md não estão no repositório, então cabeçalho e estilos do corpo seguem o padrão descrito em 03-padroes-formatacao.md até a Qualidade conferi-los contra os originais; o cabeçalho das páginas identifica título, produto e versão do documento (texto do modelo de layout), para que folhas soltas fiquem identificadas.
+- As referências da regressão visual (SC-008) são geradas a partir de dados de teste fictícios e só são trocadas com aprovação registrada da Qualidade.
 - O certificado da empresa para o selo é fornecido pela TI e guardado fora do repositório; desenvolvimento e homologação usam certificado de teste.
 - O documento completo do projeto (009) e o dossiê (011) reutilizam este gerador e ficam fora do escopo; subdocumentos isolados não levam sumário, que fica para o documento completo.
 - Valor oficial do DOCX, logotipo único, paginação "Página N de M", ausência de sumário e geração do TAP e do Plano de Negócios definidos nas respostas provisórias do esclarecimento (sessão 2026-11-08).
