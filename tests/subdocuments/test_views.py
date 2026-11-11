@@ -86,7 +86,7 @@ def test_atualizar_derivados_pela_tela(
     edit_url = reverse("subdocuments:edit", args=[final.pk])
     page = client.get(edit_url).content.decode()
     assert (
-        "Requisito de entrada" in page and "Previsto" in page and "Tipos de amostra: Soro" in page
+        "Requisitos de entrada" in page and "Previsto" in page and "Tipos de amostra: Soro" in page
     )
     response = client.post(
         edit_url,

@@ -148,6 +148,8 @@
 - **Decision**: o CSS da capa usa as medidas da planilha (prova de layout): faixa de 12,84 × 1,80 cm,
   recuo de 2,44 cm além da margem, segunda coluna de tópicos a 5,09 cm da primeira, passo de 0,77 cm,
   rótulos de assinatura com a linha abaixo; os valores ficam no modelo de layout com esses padrões.
+  Abas que a planilha imprime com escala (Saída a 79%) não cabem numa página com os tamanhos
+  nominais; o layout guarda o tamanho dos tópicos por tipo, e a Saída usa 11 pt, o tamanho impresso.
   O rodapé do formulário sai no rodapé de todas as páginas (à esquerda) com "Página N de M" à
   direita, para que folhas soltas fiquem identificadas.
 

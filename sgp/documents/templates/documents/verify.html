@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Verificar documento{% endblock %}
+{% block content %}
+<h1>Verificar documento</h1>
+<p class="descricao">Informe o código de verificação impresso no rodapé do PDF oficial.</p>
+<form method="get" action="{% url 'documents:verify' %}" class="painel">
+  <p><label for="codigo">Código de verificação</label> <input id="codigo" name="codigo" value="{{ code }}" maxlength="30" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX"></p>
+  <p><button type="submit" class="botao">Verificar</button></p>
+</form>
+{% if result %}
+  {% if result.found %}
+  <div class="painel">
+    <p class="mensagem mensagem-success">Código válido: documento oficial gerado pelo SGP-P&amp;D.</p>
+    <dl>
+      <dt>Documento</dt><dd>{{ result.kind_label }}{% if result.title %} – {{ result.title }}{% endif %}</dd>
+      {% if result.project %}<dt>Projeto</dt><dd><a href="{% url 'projects:detail' result.project.pk %}">{{ result.project.code|default:result.project.title }}</a> – {{ result.project.product_name }}</dd>{% endif %}
+      <dt>Versão</dt><dd>{{ result.version }} · {{ result.situation }}</dd>
+      <dt>Aprovação</dt><dd>{{ result.approved_on }}</dd>
+    </dl>
+    {% if result.signatures %}
+    <h2>Assinaturas</h2>
+    <table><thead><tr><th>Significado</th><th>Nome</th><th>Função</th><th>Data e hora</th><th>Delegação</th></tr></thead>
+    <tbody>{% for s in result.signatures %}<tr><td>{{ s.meaning }}</td><td>{{ s.name }}</td><td>{{ s.title }}</td><td>{{ s.at }}</td><td>{{ s.delegation }}</td></tr>{% endfor %}</tbody></table>
+    {% endif %}
+    <h2>Arquivos arquivados</h2>
+    <table><thead><tr><th>Gerado em</th><th>Resumo do arquivo (SHA-256)</th><th></th></tr></thead>
+    <tbody>{% for doc in result.files %}<tr><td>{{ doc.generated_at|datahora }}</td><td><code>{{ doc.file_hash }}</code></td><td>{% if result.access %}<a href="{% url 'documents:download' doc.pk %}">Baixar</a>{% endif %}</td></tr>{% endfor %}</tbody></table>
+    {% if not result.access %}<p class="descricao">Você não tem acesso ao projeto deste documento; por isso só a validade e os resumos aparecem.</p>{% endif %}
+  </div>
+  {% else %}
+  <p class="mensagem mensagem-error">Código não encontrado. Confira os 16 caracteres; documentos de rascunho e cópias em DOCX não têm código.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

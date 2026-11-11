@@ -115,3 +115,13 @@ textarea.codigo { font-family: Consolas, "DejaVu Sans Mono", monospace; font-siz
 .tabela-editavel input, .tabela-editavel select { width: 100%; min-width: 6rem; }
 .chips label { display: inline-block; margin: 0 .5rem .25rem 0; }
 .marca-revisao { background: #fff4ce; border: 1px solid #c19c00; padding: .5rem .75rem; }
+
+/* Geração de documentos (feature 006) */
+.situacao-queued, .situacao-running { background: var(--cor-aviso-fundo); color: #7a5600; padding: 0 .4em; border-radius: 3px; }
+.situacao-done { background: var(--cor-sucesso-fundo); color: #1f6b35; padding: 0 .4em; border-radius: 3px; }
+.situacao-failed { background: var(--cor-alerta-fundo); color: var(--cor-alerta); padding: 0 .4em; border-radius: 3px; }
+.etiqueta { font-size: .85em; background: var(--cor-sucesso-fundo); padding: 0 .4em; border-radius: 3px; }
+.etiqueta-alerta { background: var(--cor-alerta-fundo); color: var(--cor-alerta); }
+.pedido { margin-bottom: .5rem; }
+fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .5rem 1rem; }
+.logo-previa { max-width: 100%; height: auto; }

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Documentos gerados – {{ title }}{% endblock %}
+{% block content %}
+<p><a href="{{ back_url }}">← {{ title }}</a></p>
+<h1>Documentos gerados</h1>
+<p class="descricao">{{ title }} · versão {{ version }} · {% if approved %}aprovada: o PDF é o documento oficial, selado e com código de verificação; o DOCX é cópia para conferência{% else %}não aprovada: os arquivos saem com a marca d'água "RASCUNHO – NÃO VÁLIDO"{% endif %}.</p>
+<div class="acoes">
+  {% for value, label in formats %}
+  <form method="post" action="{% url 'documents:generate' kind obj.pk %}" hx-post="{% url 'documents:generate' kind obj.pk %}" hx-target="#pedidos" hx-swap="afterbegin">
+    {% csrf_token %}
+    <input type="hidden" name="formato" value="{{ value }}">
+    <button type="submit" class="botao">Gerar {{ label }}{% if value == "pdf" and approved %} oficial{% endif %}</button>
+  </form>
+  {% endfor %}
+</div>
+<h2>Pedidos em andamento</h2>
+<div id="pedidos">
+  {% for pending in requests %}{% include "documents/_request.html" %}{% empty %}<p class="descricao" id="sem-pedidos">Nenhum pedido em andamento.</p>{% endfor %}
+</div>
+<h2>Histórico de gerações</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Data e hora</th><th>Quem gerou</th><th>Formato</th><th>Versão</th><th>Situação do documento</th><th>Modelos usados</th><th>Resumo do conteúdo</th><th>Código</th><th>Arquivo</th></tr></thead>
+  <tbody>
+  {% for doc in history %}
+    <tr>
+      <td>{{ doc.generated_at|datahora }}</td>
+      <td>{{ doc.generated_by.get_full_name|default:doc.generated_by.username }}</td>
+      <td>{{ doc.get_format_display }}{% if doc.official %} oficial{% endif %}</td>
+      <td>{{ doc.version_display }}</td>
+      <td>{{ doc.document_status }}</td>
+      <td>{% if doc.form_template %}Formulário {{ doc.form_template.version_display }} · {% endif %}Layout {{ doc.layout.version_display }}</td>
+      <td><code title="{{ doc.content_hash }}">{{ doc.content_hash|slice:":16" }}…</code>{% if doc.same_as_first is True %} <span class="etiqueta">igual à primeira</span>{% elif doc.same_as_first is False %} <span class="etiqueta etiqueta-alerta">diferente da primeira</span>{% endif %}</td>
+      <td>{{ doc.verification_code|default:"—" }}</td>
+      <td><a href="{% url 'documents:download' doc.pk %}">Baixar</a> <small>({{ doc.file.size_display }})</small></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9">Nenhum documento gerado ainda.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

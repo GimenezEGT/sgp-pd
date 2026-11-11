@@ -13,4 +13,6 @@ urlpatterns = [
     path("modelos/", include("sgp.formtemplates.urls")),
     path("", include("sgp.subdocuments.urls")),
     path("assinaturas/", include("sgp.signatures.urls")),
+    path("documentos/", include("sgp.documents.urls")),
+    path("modelos-layout/", include("sgp.documents.layout_urls")),
 ]

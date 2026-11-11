@@ -1,0 +1,5 @@
+{% load sgp %}<div class="painel pedido" id="pedido-{{ pending.pk }}"{% if pending.is_active %} hx-get="{% url 'documents:request' pending.pk %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %} role="status" aria-live="polite">
+  <p><strong>{{ pending.get_format_display }}{% if pending.official %} oficial{% endif %} · versão {{ pending.version_display }}</strong> · pedido em {{ pending.requested_at|datahora }} · <span class="situacao situacao-{{ pending.status }}">{{ pending.get_status_display }}</span></p>
+  {% if pending.status == "done" and pending.result %}<p><a class="botao" href="{% url 'documents:download' pending.result.pk %}">Baixar o arquivo</a></p>{% endif %}
+  {% if pending.status == "failed" %}<p class="mensagem mensagem-error">{{ pending.error }}</p>{% endif %}
+</div>

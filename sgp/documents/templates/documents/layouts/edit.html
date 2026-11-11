@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Rascunho {{ layout }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'layouts:list' %}">← Modelos de layout</a></p>
+<h1>{{ layout.get_target_display }} – rascunho da versão {{ layout.version_display }}</h1>
+{% if problems %}
+<div class="mensagem mensagem-warning" role="status">
+  <p>Antes de publicar, corrija:</p>
+  <ul>{% for problem in problems %}<li>{{ problem }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+<div class="painel">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.row_version }}
+    <p>{{ form.valid_from.label_tag }} {{ form.valid_from }} {{ form.valid_from.errors }}</p>
+    {% for title, fields in form.sections %}
+    <fieldset>
+      <legend>{{ title }}</legend>
+      {% for field in fields %}<p>{{ field.label_tag }} {{ field }}{% if field.help_text %} <small>{{ field.help_text }}</small>{% endif %} {{ field.errors }}</p>{% endfor %}
+    </fieldset>
+    {% endfor %}
+    <button type="submit" class="botao">Salvar rascunho</button>
+  </form>
+  <div class="acoes">
+    <a class="botao botao-secundario" href="{% url 'layouts:preview' layout.pk %}" target="_blank" rel="noopener">Pré-visualizar (PDF de exemplo)</a>
+    {% if not problems %}
+    <form method="post" action="{% url 'layouts:publish' layout.pk %}">
+      {% csrf_token %}
+      <label for="observacao">Observação da publicação</label> <input id="observacao" name="observacao" maxlength="200">
+      <button type="submit" class="botao botao-secundario">Publicar a versão {{ layout.version_display }}</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

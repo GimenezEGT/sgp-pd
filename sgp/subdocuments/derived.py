@@ -12,7 +12,7 @@ from . import flow
 from .models import ENTRY
 
 FIXED_COLUMNS = {
-    "entry_topics": [("label", "Requisito de entrada"), ("previsto", "Previsto")],
+    "entry_topics": [("label", "Requisitos de entrada"), ("previsto", "Previsto")],
     "entry_requirements": [
         ("label", "Requisito"),
         ("criterio", "Critério de aceitação"),

@@ -131,8 +131,12 @@ def create_project(*, by, data: dict, leader=None) -> Project:
     data = _normalize_product(data)
     with transaction.atomic():
         project = Project.objects.create(leader=leader, created_by=by, **data)
-        ProjectCharter.objects.create(project=project)
+        charter = ProjectCharter.objects.create(project=project)
         plan = BusinessPlan.objects.create(project=project)
+        from sgp.documents.layouts import bind_current
+
+        bind_current("charter", charter.pk, charter.doc_version)
+        bind_current("business_plan", plan.pk, plan.doc_version)
         AnnualForecast.objects.bulk_create(
             [AnnualForecast(business_plan=plan, year_index=year) for year in range(1, 6)]
         )

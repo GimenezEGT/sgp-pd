@@ -74,7 +74,8 @@ Só um pedido `queued` ou `running` por (kind, object_id, version, format): rest
 
 Novo tipo `docx` em `sgp.files.storage.KINDS` (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`),
 fora dos tipos aceitos em upload; nova função `store_bytes(data, *, name, kind, by)` para arquivos
-gerados. Política de acesso `generated_document` registrada em `sgp.files.access`.
+gerados. Nenhuma política no download genérico de `sgp.files.access`: o arquivo gerado só sai pela
+rota de download da 006, que confere a permissão e registra `documents.downloaded`.
 
 ## Banco
 
