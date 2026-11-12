@@ -22,6 +22,12 @@ Respostas provisórias: a recomendação de cada pergunta foi adotada para não 
 - Q: A vigência pode ser futura? → A: Sim; na aprovação, o aprovador escolhe vigência imediata (padrão) ou uma data futura; até a data, a versão aprovada aguarda vigência e novos documentos continuam na anterior (ratificar com a Garantia da Qualidade).
 - Q: Como um modelo é retirado de uso? → A: Qualidade/AR pede a retirada com motivo e o Gestor de P&D a aprova com assinatura eletrônica, como numa revisão; o modelo retirado continua consultável e não é oferecido a novos documentos (ratificar com a Garantia da Qualidade).
 
+### Session 2026-11-11
+
+Depois da feature 006 (modelos de layout em uso na geração de documentos):
+
+- Q: Um modelo de layout (de subdocumentos, TAP ou Plano de Negócios) pode ser retirado de uso? → A: Não: todo documento precisa de um layout para ser gerado, então o layout de um tipo de documento só muda por nova versão; a retirada de uso vale para os modelos de subdocumento (ratificar com a Garantia da Qualidade).
+
 ## Contexto
 
 Os formulários do PSG 20 mudam de versão ("Formulário Versão: 05"), e o rodapé de todos os documentos muda quando o formulário é revisado (docs/contexto/01-visao-geral.md). A Qualidade/Assuntos Regulatórios mantém os modelos de formulário e de layout. O sistema guarda dois tipos de modelo:
@@ -159,7 +165,7 @@ A pessoa autorizada descarta uma revisão em rascunho que não vai adiante, com 
 - **FR-012**: Versão publicada NÃO DEVE ser alterada; correção só por nova revisão.
 - **FR-013**: Documentos já iniciados DEVEM continuar na versão de modelo em que começaram; documentos novos DEVEM usar a versão vigente na data de criação.
 - **FR-014**: O conteúdo de cada versão publicada DEVE ter resumo criptográfico, e a verificação de integridade DEVE apontar qualquer alteração posterior.
-- **FR-015**: Um modelo DEVE poder ser retirado de uso: a Qualidade/AR pede com motivo e o Gestor de P&D aprova com assinatura eletrônica; retirado, não é oferecido a novos documentos e continua consultável.
+- **FR-015**: Um modelo de subdocumento DEVE poder ser retirado de uso: a Qualidade/AR pede com motivo e o Gestor de P&D aprova com assinatura eletrônica ou devolve com comentário; retirado, não é oferecido a novos documentos e continua consultável. Modelo de layout não é retirado de uso; muda só por nova versão.
 
 **Rastreabilidade**
 
