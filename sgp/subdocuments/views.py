@@ -142,6 +142,9 @@ def subdocument_detail(request, pk):
         return denied
     context = _page_context(request, subdocument, editing=False)
     context["missing"] = services.completeness(subdocument) if subdocument.is_draft else []
+    from sgp.studies.services import linked_studies
+
+    context["studies"] = linked_studies(subdocument)  # feature 007
     context["events"] = EventPresenter(request.user).decorate(
         AuditEvent.objects.filter(
             object_type="subdocuments.subdocument", object_id=str(subdocument.pk)

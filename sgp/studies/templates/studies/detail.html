@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{{ study }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'studies:project_list' study.project_id %}">← Estudos do projeto</a>{% if study.subdocument %} · <a href="{% url 'subdocuments:detail' study.subdocument_id %}">{{ study.subdocument }}</a>{% endif %}</p>
+<h1>{{ study.title }}</h1>
+<p class="descricao">{{ study.study_type.label }} · versão {{ study.version_display }} · {{ study.get_status_display }}{% if study.locked_at %} em {{ study.locked_at|datahora }}{% endif %} · {{ study.get_rounding_display }}, {{ study.places }} casas ({{ study.fine_places }} em R², correlação e regressão) · {{ study.get_ci_method_display }}{% if study.cutoff is not None %} · corte {{ study.cutoff }} ({{ study.get_cutoff_direction_display|lower }}){% endif %}</p>
+{% if study.version_reason %}<p><strong>Motivo da versão:</strong> {{ study.version_reason }}</p>{% endif %}
+
+<h2>Critério de aceitação</h2>
+{% if study.criteria %}
+<ul>{% for c in criteria_results %}<li>{{ c.rotulo }} {% for code, symbol in comparisons %}{% if code == c.comparacao %}{{ symbol }}{% endif %}{% endfor %} {{ c.limite }}: {% if not c.calculavel %}não calculável – não atendido{% elif c.atendido %}<strong>atendido</strong> ({{ c.valor }}){% else %}<strong>não atendido</strong> ({{ c.valor }}){% endif %}</li>{% endfor %}</ul>
+{% else %}<p class="descricao">Sem critério definido.</p>{% endif %}
+{% if can_edit and not study.rows and not study.not_applicable %}
+<form method="post" action="{% url 'studies:edit' study.pk %}" class="painel">
+  {% csrf_token %}<input type="hidden" name="acao" value="criterios">
+  {% for i in "012" %}
+  <p><select name="c__{{ i }}__metrica" aria-label="Métrica"><option value="">—</option>{% for code, label in metrics %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select>
+     <select name="c__{{ i }}__comparacao" aria-label="Comparação">{% for code, symbol in comparisons %}<option value="{{ code }}">{{ symbol }}</option>{% endfor %}</select>
+     <input name="c__{{ i }}__limite" aria-label="Limite" placeholder="ex.: 15,0"></p>
+  {% endfor %}
+  <button type="submit" class="botao">Gravar critério</button>
+  <p class="descricao">O critério não muda depois do primeiro resultado lançado.</p>
+</form>
+{% endif %}
+
+{% if study.not_applicable %}
+<div class="painel"><p><strong>Não aplicável.</strong> {{ study.justification }}</p>
+{% if can_edit %}<form method="post" action="{% url 'studies:not_applicable' study.pk %}">{% csrf_token %}<input type="hidden" name="desmarcar" value="1"><button type="submit" class="botao botao-secundario">Desmarcar não aplicável</button></form>{% endif %}</div>
+{% else %}
+<h2>Medidas</h2>
+<form method="post" action="{% url 'studies:edit' study.pk %}">
+  {% csrf_token %}<input type="hidden" name="acao" value="linhas"><input type="hidden" name="row_version" value="{{ study.row_version }}">
+  <div class="tabela-rolagem">
+  <table>
+    <thead><tr><th>Nº</th>{% for code, label in columns %}<th>{{ label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for cells in rows %}<tr><td>{{ forloop.counter }}</td>{% for cell in cells %}<td>{% if can_edit %}<input name="r__{{ forloop.parentloop.counter0 }}__{{ cell.column }}" value="{{ cell.value }}" size="8">{% else %}{{ cell.value }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
+    {% if can_edit %}{% for index in blank_rows %}<tr><td></td>{% for code, label in columns %}<td><input name="r__{{ index }}__{{ code }}" size="8" aria-label="{{ label }}"></td>{% endfor %}</tr>{% endfor %}{% endif %}
+    </tbody>
+  </table>
+  </div>
+  {% if can_edit %}<button type="submit" class="botao">Gravar medidas e recalcular</button> <a class="botao botao-secundario" href="{% url 'studies:import' study.pk %}">Importar CSV ou XLSX</a>{% endif %}
+</form>
+<p class="descricao">Lote, amostra e kit pelo código do cadastro; esperado e obtido como positivo ou negativo; números com vírgula decimal.</p>
+
+<h2>Resultados calculados</h2>
+<table>
+  <thead><tr><th>Resultado</th><th>Valor</th><th>IC 95%</th><th>Arredondamento</th></tr></thead>
+  <tbody>{% for item in global_results %}<tr><td>{{ item.rotulo }}</td><td>{{ item.valor }}</td><td>{{ item.ic|default:"—" }}</td><td>{{ item.regra|default:"—" }}</td></tr>{% endfor %}</tbody>
+</table>
+{% for group in group_results %}
+<h3>{{ group.rotulo }}</h3>
+<table><tbody>{% for item in group.itens %}<tr><td>{{ item.rotulo }}</td><td>{{ item.valor }}</td><td>{{ item.ic|default:"—" }}</td></tr>{% endfor %}</tbody></table>
+{% endfor %}
+{% if can_edit and not study.rows %}
+<form method="post" action="{% url 'studies:not_applicable' study.pk %}" class="painel">
+  {% csrf_token %}<label for="justificativa">Justificativa do não aplicável</label><br><textarea id="justificativa" name="justificativa" rows="2"></textarea><br>
+  <button type="submit" class="botao botao-secundario">Marcar como não aplicável</button>
+</form>
+{% endif %}
+{% endif %}
+
+{% if can_new_version %}
+<form method="post" action="{% url 'studies:new_version' study.pk %}" class="painel">
+  {% csrf_token %}<p>Estudo bloqueado pela aprovação do documento. Para corrigir ou recalcular, crie nova versão.</p>
+  <label for="motivo">Motivo</label> <input id="motivo" name="motivo" maxlength="500" required> <button type="submit" class="botao">Criar nova versão</button>
+</form>
+{% endif %}
+<h2>Versões</h2>
+<ul>{% for v in versions %}<li><a href="{% url 'studies:detail' v.pk %}">Versão {{ v.version_display }}</a> – {{ v.get_status_display }}{% if v.version_reason %} – {{ v.version_reason }}{% endif %}</li>{% endfor %}</ul>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Estudos – {{ project.code|default:project.title }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project.code|default:project.title }}</a></p>
+<h1>Estudos de desempenho e estabilidade</h1>
+<p class="descricao">Os resultados são calculados pelo sistema a partir das medidas; o critério de aceitação é definido antes dos resultados.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Estudo</th><th>Tipo</th><th>Versão</th><th>Situação</th><th>Alimenta</th><th>Conclusão</th></tr></thead>
+  <tbody>
+  {% for study in studies %}
+    <tr>
+      <td><a href="{% url 'studies:detail' study.pk %}">{{ study.title }}</a></td>
+      <td>{{ study.study_type.label }}</td>
+      <td>{{ study.version_display }}</td>
+      <td>{% if study.not_applicable %}Não aplicável{% else %}{{ study.get_status_display }}{% endif %}</td>
+      <td>{% if study.subdocument %}{{ study.subdocument }}{% else %}—{% endif %}</td>
+      <td>{% for c in study.results.criterios %}{% if c.atendido %}atendido{% else %}não atendido{% endif %}{% if not forloop.last %}; {% endif %}{% empty %}—{% endfor %}</td>
+    </tr>
+  {% empty %}<tr><td colspan="6">Nenhum estudo cadastrado.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% if can_edit %}
+<section class="painel">
+  <h2>Novo estudo</h2>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit" class="botao">Criar estudo</button></form>
+</section>
+{% endif %}
+{% endblock %}

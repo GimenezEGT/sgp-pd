@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Importar medidas – {{ study }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'studies:detail' study.pk %}">← {{ study }}</a></p>
+<h1>Importar medidas</h1>
+<form method="post" enctype="multipart/form-data" class="painel">
+  {% csrf_token %}
+  <p><label for="equipamento">Equipamento (o mapeamento fica salvo para ele)</label> <input id="equipamento" name="equipamento" value="{{ equipment }}" list="equipamentos" maxlength="120">
+  <datalist id="equipamentos">{% for m in mappings %}<option value="{{ m.equipment }}">{% endfor %}</datalist></p>
+  <fieldset><legend>Coluna do arquivo para cada campo</legend>
+  {% for code, label, column in columns %}<p><label for="col-{{ code }}">{{ label }}</label> <input id="col-{{ code }}" name="col__{{ code }}" value="{{ column }}" maxlength="120"></p>{% endfor %}
+  </fieldset>
+  <p><label for="arquivo">Arquivo CSV (; ou ,) ou XLSX</label> <input id="arquivo" type="file" name="arquivo" accept=".csv,.xlsx"></p>
+  <button type="submit" class="botao">Pré-visualizar</button>
+</form>
+{% if preview %}
+<section class="painel">
+  <h2>Pré-visualização</h2>
+  <p>{{ preview.total }} linha(s) no arquivo · {{ preview.accepted }} aceita(s) · {{ preview.errors|length }} recusada(s)</p>
+  {% if preview.errors %}<ul class="mensagem mensagem-warning">{% for e in preview.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  {% if preview.accepted %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="acao" value="confirmar"><input type="hidden" name="token" value="{{ preview.token }}"><input type="hidden" name="equipamento" value="{{ equipment }}">
+    {% for code, label, column in columns %}<input type="hidden" name="col__{{ code }}" value="{{ column }}">{% endfor %}
+    <button type="submit" class="botao">Confirmar a importação das linhas aceitas</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}
