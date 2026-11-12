@@ -38,7 +38,7 @@ class FileKind:
             return head.startswith(PNG_SIGNATURE)
         if self.code == "jpeg":
             return head.startswith(JPEG_SIGNATURE)
-        if self.code == "xlsx":
+        if self.code in ("xlsx", "docx"):
             return head.startswith(ZIP_SIGNATURE)
         if self.code == "csv":
             return NUL not in head
@@ -58,9 +58,16 @@ KINDS = {
             (".xlsx",),
         ),
         FileKind("csv", "CSV", "text/csv", (".csv",)),
+        FileKind(
+            "docx",
+            "DOCX",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            (".docx",),
+        ),
     )
 }
 DOCUMENT_KINDS = ("pdf", "png", "jpeg")
+GENERATED_KINDS = ("pdf", "docx")  # só gerados pelo sistema (feature 006), nunca aceitos em upload
 SPREADSHEET_KINDS = ("csv", "xlsx")
 DOCUMENTS = None  # tipos de anexo de documento habilitados em FILE_DOCUMENT_TYPES
 HEAD_SIZE = 4096
@@ -164,6 +171,34 @@ def store_upload(uploaded, *, by, allowed=DOCUMENTS) -> StoredFile:
         },
     )
     return stored
+
+
+def store_bytes(data: bytes, *, name: str, kind: str, by) -> StoredFile:
+    """Grava um arquivo gerado pelo sistema (feature 006), endereçado pelo SHA-256.
+
+    O evento de negócio (ex.: documents.generated) é registrado por quem gera, com o resumo.
+    """
+    if kind not in GENERATED_KINDS or not KINDS[kind].matches(data[:HEAD_SIZE]):
+        raise ValidationError("Conteúdo gerado não corresponde ao tipo informado.")
+    sha256 = hashlib.sha256(data).hexdigest()
+    root = media_root()
+    storage_name = f"{sha256[:2]}/{sha256[2:4]}/{sha256}"
+    target = root / storage_name
+    if not target.exists():
+        temp_dir = root / "tmp"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as temp:
+            temp.write(data)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(temp.name, target)
+    return StoredFile.objects.create(
+        sha256=sha256,
+        original_name=os.path.basename(name)[:255],
+        content_type=KINDS[kind].content_type,
+        size=len(data),
+        storage_name=storage_name,
+        uploaded_by=by,
+    )
 
 
 def read_verified(stored: StoredFile) -> bytes:

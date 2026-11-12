@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Modelos de layout{% endblock %}
+{% block content %}
+<h1>Modelos de layout</h1>
+<p class="descricao">Capa, cabeçalho, rodapé e estilos dos documentos gerados. Cada versão de documento usa o layout vigente quando começou e continua nele. Layout publicado não muda.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Documentos</th><th>Versão vigente</th><th>Vigência</th><th>Outras versões</th><th>Rascunho</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.label }}</td>
+      <td>{% if row.current %}<a href="{% url 'layouts:detail' row.current.pk %}">Versão {{ row.current.version_display }}</a>{% else %}—{% endif %}</td>
+      <td>{% if row.current %}{{ row.current.valid_from|data }}{% endif %}</td>
+      <td>{% for version in row.versions %}{% if version != row.current and version.status == "published" %}<a href="{% url 'layouts:detail' version.pk %}">{{ version.version_display }}</a> {% endif %}{% endfor %}</td>
+      <td>{% if row.draft %}{% if is_quality %}<a href="{% url 'layouts:edit' row.draft.pk %}">Versão {{ row.draft.version_display }} em rascunho</a>{% else %}Versão {{ row.draft.version_display }} em rascunho{% endif %}{% else %}—{% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

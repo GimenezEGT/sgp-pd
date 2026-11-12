@@ -186,6 +186,9 @@ def create_subdocument(project, subdocument_type, *, by) -> Subdocument:
             FlowAuthorizationUse.objects.create(
                 authorization=authorization, subdocument=subdocument
             )
+        from sgp.documents.layouts import bind_current
+
+        bind_current("subdocument", subdocument.pk, subdocument.version)
         _event(
             "subdocuments.created",
             subdocument,

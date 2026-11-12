@@ -29,6 +29,13 @@ NAV_ITEMS: list[NavItem] = [
         "Abrir projetos, preencher TAP e Plano de Negócios, acompanhar aprovações.",
     ),
     NavItem(
+        "Verificar documento",
+        "documents:verify",
+        frozenset(Profile),
+        "Projetos",
+        "Conferir pelo código de verificação um documento oficial gerado pelo sistema.",
+    ),
+    NavItem(
         "Fila de revisão",
         "signatures:queue",
         frozenset({Profile.RD_MANAGER}),
@@ -41,6 +48,13 @@ NAV_ITEMS: list[NavItem] = [
         frozenset(Profile),
         "Cadastros",
         "Modelos dos subdocumentos do PSG 20, com versões e vigência.",
+    ),
+    NavItem(
+        "Modelos de layout",
+        "layouts:list",
+        frozenset(Profile),
+        "Cadastros",
+        "Capa, cabeçalho, rodapé e estilos dos documentos gerados, com versões e vigência.",
     ),
     NavItem(
         "Cadastros",

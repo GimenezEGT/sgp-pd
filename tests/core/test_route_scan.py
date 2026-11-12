@@ -93,6 +93,20 @@ ROUTE_CONTRACT = {
     "signatures:new_version": ("POST", PROJECT_ACCESS),
     "signatures:verify": ("POST", PROJECT_ACCESS),
     "signatures:version": ("GET", PROJECT_ACCESS),
+    # Feature 006: documentos gerados (acesso ao documento, coberto em tests/documents) e
+    # modelos de layout (consulta por todos; edição, prévia e publicação pela Qualidade/AR).
+    "documents:verify": ("GET", ANY_PROFILE),
+    "documents:history": ("GET", PROJECT_ACCESS),
+    "documents:generate": ("POST", PROJECT_ACCESS),
+    "documents:request": ("GET", PROJECT_ACCESS),
+    "documents:download": ("GET", PROJECT_ACCESS),
+    "layouts:list": ("GET", ANY_PROFILE),
+    "layouts:detail": ("GET", ANY_PROFILE),
+    "layouts:logo": ("GET", ANY_PROFILE),
+    "layouts:new_version": ("POST", {Profile.QUALITY}),
+    "layouts:edit": ("GET", {Profile.QUALITY}),
+    "layouts:preview": ("GET", {Profile.QUALITY}),
+    "layouts:publish": ("POST", {Profile.QUALITY}),
 }
 
 

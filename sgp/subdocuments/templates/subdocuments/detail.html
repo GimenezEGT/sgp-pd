@@ -5,6 +5,7 @@
 {% include "subdocuments/_header.html" %}
 <div class="acoes">
   {% if can_edit %}<a class="botao" href="{% url 'subdocuments:edit' subdocument.pk %}">Editar</a>{% endif %}
+  <a class="botao botao-secundario" href="{% url 'documents:history' 'subdocument' subdocument.pk %}">Documentos gerados (PDF e DOCX)</a>
 </div>
 {% if subdocument.is_draft and missing %}
 <div class="mensagem mensagem-warning" role="status"><p>Falta para aprovar:</p><ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul></div>

@@ -138,6 +138,12 @@ def vocab_seed(db):
     seed_v05.load(
         django_apps, valid_from=timezone.localdate().replace(year=2020), published_at=timezone.now()
     )
+    # Layouts versão 01 (feature 006).
+    from sgp.documents import seed as layout_seed
+
+    layout_seed.load(
+        django_apps, valid_from=timezone.localdate().replace(year=2020), published_at=timezone.now()
+    )
 
 
 @pytest.fixture

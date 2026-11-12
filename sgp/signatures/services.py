@@ -203,7 +203,7 @@ def return_document(kind: str, obj, *, by, comment: str):
 
 
 def _freeze(adapter, obj, by, content, digest) -> ApprovedVersion:
-    return ApprovedVersion.objects.create(
+    approved = ApprovedVersion.objects.create(
         kind=adapter.kind,
         object_id=obj.pk,
         project=adapter.project(obj),
@@ -212,6 +212,11 @@ def _freeze(adapter, obj, by, content, digest) -> ApprovedVersion:
         content_hash=digest,
         approved_by=by,
     )
+    # Feature 006 (FR-017): o conteúdo exibido da versão aprovada fica congelado para a geração.
+    from sgp.documents.content import freeze
+
+    freeze(adapter.kind, obj, approved=approved)
+    return approved
 
 
 def approve(kind: str, obj, *, by, password: str, request=None):
@@ -274,6 +279,9 @@ def new_version(kind: str, obj, *, by, reason: str):
             )
         before = adapter.version(obj)
         adapter.bump_version(obj)
+        from sgp.documents.layouts import bind_current
+
+        bind_current(adapter.kind, obj.pk, adapter.version(obj))
         _event(
             "signatures.new_version",
             adapter,
