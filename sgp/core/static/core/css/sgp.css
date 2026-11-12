@@ -74,6 +74,7 @@ textarea { min-height: 6rem; }
 .botao:hover { background: var(--cor-primaria-escura); }
 .botao-secundario { background: #fff; color: var(--cor-primaria); }
 .botao-perigo { background: var(--cor-alerta); border-color: var(--cor-alerta); }
+.em-linha { display: inline-block; margin: 0 .5rem .5rem 0; }
 .botao-discreto { background: transparent; border-color: rgba(255, 255, 255, .6); padding: .25rem .75rem; }
 
 .filtros { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .75rem; align-items: end; }

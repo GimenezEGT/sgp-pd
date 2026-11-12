@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ titulo }} — SGP-P&amp;D</title>
+<style>
+  @page { size: A4; margin: 18mm 15mm 20mm 15mm;
+    @bottom-right { content: "Página " counter(page) " de " counter(pages); font-size: 8pt; color: #555; }
+    @bottom-left { content: "SGP-P&D — {{ prefixo }} — versão {{ versao }}"; font-size: 8pt; color: #555; }
+  }
+  body { font-family: "Carlito", "DejaVu Sans", sans-serif; font-size: 10pt; color: #111; }
+  h1 { font-size: 15pt; margin: 0 0 4mm 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 4mm; }
+  th, td { border: 0.4pt solid #888; padding: 1.6mm 2mm; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  .dados td { border: none; padding: 0.8mm 0; }
+  .dados td:first-child { width: 45mm; color: #444; }
+  .resultado { font-weight: bold; }
+  .reprovado { color: #a40000; font-weight: bold; }
+  .aprovado { color: #0a5a0a; }
+  .nao_aplicavel { color: #555; }
+  .assinaturas { margin-top: 12mm; }
+  .assinaturas td { border: none; padding-top: 10mm; width: 50%; }
+  .linha { border-top: 0.4pt solid #111; padding-top: 1mm; }
+  .nota { font-size: 8.5pt; color: #444; margin-top: 6mm; }
+</style>
+</head>
+<body>
+<h1>{{ titulo }}</h1>
+<table class="dados">
+  <tr><td>Sistema</td><td>SGP-P&amp;D — versão {{ versao }}</td></tr>
+  <tr><td>Endereço</td><td>{{ endereco }}</td></tr>
+  <tr><td>Executada por</td><td>{{ executor }} ({{ login }}), pela {{ canal|lower }}</td></tr>
+  <tr><td>Início e fim</td><td>{{ inicio|date:"d/m/Y H:i:s" }} a {{ fim|date:"d/m/Y H:i:s" }} (horário de Brasília)</td></tr>
+  <tr><td>Resultado geral</td><td class="resultado {% if aprovada %}aprovado{% else %}reprovado{% endif %}">{% if aprovada %}Aprovada{% else %}Reprovada{% endif %} — {{ itens|length }} itens, {{ reprovados }} reprovado(s), {{ nao_aplicaveis }} não aplicável(is)</td></tr>
+</table>
+<table>
+  <thead><tr><th>Código</th><th>Item conferido</th><th>Resultado</th><th>Detalhe</th></tr></thead>
+  <tbody>
+  {% for item in itens %}<tr><td>{{ item.codigo }}</td><td>{{ item.descricao }}</td><td class="{{ item.resultado }}">{{ item.rotulo }}</td><td>{{ item.detalhe }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+<p class="nota">Relatório gerado pelo sistema e guardado com resumo SHA-256. Valores de segredos nunca são exibidos. A aprovação da qualificação e a liberação para uso oficial são da Garantia da Qualidade, com os roteiros de <code>docs/validacao/</code>.</p>
+<table class="assinaturas">
+  <tr><td><div class="linha">Executado por (TI)</div></td><td><div class="linha">Revisado por (Garantia da Qualidade) — data</div></td></tr>
+</table>
+</body>
+</html>
