@@ -105,3 +105,19 @@ def test_versao_anterior_a_013_tem_resumo_de_base_ou_e_informada(quality, rapd_t
     forms.FormTemplate.objects.filter(pk=seeded.pk).update(approved_hash="")
     result = services.verify("form", seeded, by=quality)
     assert result["integro"] is False and "antes da revisão controlada" in result["problemas"][0]
+
+
+@pytest.mark.req("013:FR-005")
+@pytest.mark.req("013:FR-012")
+def test_reverter_e_nova_revisao_com_o_conteudo_da_versao_antiga(
+    submitted, approver, signing, quality, rapd_type
+):
+    services.approve("form", submitted, by=approver, password=signing.password)
+    old = forms.FormTemplate.objects.get(subdocument_type=rapd_type, form_version=5)
+    revert = forms.create_draft(rapd_type, by=quality, source=old)
+    assert revert.form_version == 7 and revert.definition == old.definition
+    services.submit("form", revert, by=quality, reason="Reverter o rótulo", impact="Novos RAPD")
+    services.approve("form", revert, by=approver, password=signing.password)
+    assert forms.current_template(rapd_type).form_version == 7
+    old.refresh_from_db()
+    assert old.status == "published"  # a versão antiga não é reativada nem alterada

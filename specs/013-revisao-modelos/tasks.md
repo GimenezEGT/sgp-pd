@@ -50,7 +50,7 @@ description: "Task list for feature 013 — Revisão controlada dos modelos"
 - [X] T013 Permissões das rotas no contrato de `tests/core/test_route_scan.py` (FR-002, FR-004, SC-001)
 - [X] T014 [P] Atualizar `README.md` (feature 013) e registrar SC-005 como verificação manual
 - [X] T015 Rodar `scripts/verificar.sh` e corrigir o que faltar
-- [ ] T016 Executar o quickstart na pilha real e registrar em `docs/validacao/013-resultados-execucao.md`
+- [X] T016 Executar o quickstart na pilha real e registrar em `docs/validacao/013-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 
@@ -60,3 +60,9 @@ Setup → Foundational → US1/US2 → US3 → US4 → US5 → Polish.
 
 MVP = ciclo de revisão com aprovação assinada (US1 a US3); depois histórico, comparação, descarte e
 retirada.
+
+---
+
+## Phase 8: Convergence
+
+- [X] T017 Teste da reversão para versão antiga por nova revisão (a antiga não é reativada) em `tests/revisions/test_validity.py` per FR-005 (partial)
