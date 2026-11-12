@@ -3,7 +3,7 @@
 from sgp.documents.content import frozen
 from sgp.signatures.models import ApprovedVersion
 from sgp.subdocuments.flow import FLOW
-from sgp.subdocuments.models import CHANGE, Subdocument
+from sgp.subdocuments.models import CHANGE, Subdocument, SubdocumentStatus
 from sgp.vocab.models import get_term
 
 APPROVED_DISPOSITION = "aprovado"
@@ -90,7 +90,15 @@ def pending_items(project) -> list[str]:
         for sub in subs:
             approval = latest_approval("subdocument", sub.pk)
             if approval is None:
-                items.append(f"{sub}: sem versão aprovada ({sub.get_status_display().lower()}).")
+                if sub.status == SubdocumentStatus.APPROVED:
+                    items.append(
+                        f"{sub}: aprovado antes da assinatura eletrônica, sem versão aprovada "
+                        "registrada; crie nova versão e aprove."
+                    )
+                else:
+                    items.append(
+                        f"{sub}: sem versão aprovada ({sub.get_status_display().lower()})."
+                    )
                 continue
             if frozen("subdocument", sub.pk, approval.version) is None:
                 items.append(

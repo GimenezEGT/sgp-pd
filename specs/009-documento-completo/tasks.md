@@ -35,8 +35,8 @@ description: "Task list for feature 009 — Documento completo do projeto"
 
 - [X] T008 Teste de desempenho de 300 páginas (`slow`) em `tests/fulldoc/test_performance.py` (SC-003); SC-004 em `docs/validacao/verificacoes-manuais.json`
 - [X] T009 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 009)
-- [ ] T010 Rodar `scripts/verificar.sh` e `pytest -m slow tests/fulldoc`
-- [ ] T011 Executar o quickstart na pilha real e registrar em `docs/validacao/009-resultados-execucao.md`
+- [X] T010 Rodar `scripts/verificar.sh` e `pytest -m slow tests/fulldoc`
+- [X] T011 Executar o quickstart na pilha real e registrar em `docs/validacao/009-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 

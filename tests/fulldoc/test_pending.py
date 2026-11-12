@@ -48,3 +48,12 @@ def test_projeto_aprovado_sem_assinatura_aponta_tap_e_plano(open_project):
     items = pending_items(open_project())
     assert items[0].startswith("Termo de Abertura do Projeto: sem versão aprovada")
     assert items[1].startswith("Plano de Negócios: sem versão aprovada")
+
+
+def test_aprovado_antes_da_assinatura_eletronica(signed_project, create_sub):
+    from sgp.subdocuments.models import Subdocument, SubdocumentStatus
+
+    sub = create_sub(signed_project, "entrada")
+    Subdocument.objects.filter(pk=sub.pk).update(status=SubdocumentStatus.APPROVED)
+    items = pending_items(signed_project)
+    assert any("aprovado antes da assinatura eletrônica" in item for item in items)
