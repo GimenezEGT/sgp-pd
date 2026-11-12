@@ -8,6 +8,16 @@
 
 **Input**: User description: "Geração do dossiê técnico para notificação ou registro na ANVISA, quando todos os dados necessários estiverem presentes. Leia docs/contexto/03-padroes-formatacao.md (seção Dossiê) e 04-requisitos-regulatorios.md. Objetivo: montar o dossiê a partir dos dados aprovados do projeto, no formato atual da empresa (itens I a XII), sem copiar e colar, mostrando antes o que falta. Histórias: 1. Como Assuntos Regulatórios, abro o dossiê de um projeto e vejo a checagem de completude: cada item exigido pelo art. 58 e pelo Anexo II da RDC 830/2023 para a classe de risco do produto, com a origem do dado e o status (completo, faltando, não aplicável com justificativa). 2. Gero o dossiê em DOCX e PDF com cabeçalho "Dossiê Técnico <produto>", rodapé com a razão social e numeração de páginas, itens em algarismos romanos, subitens em letras e números e tabelas numeradas. 3. Textos que não vêm de dados (ex.: processo de fabricação, unidade fabril) saem de uma biblioteca de textos padrão aprovados e versionados. 4. O dossiê termina com a declaração de responsabilidade do responsável técnico e legal (nome, registro no conselho, cidade e data) para assinatura. 5. Gero aditamentos: o sistema compara com a última versão enviada e destaca o que mudou. 6. Registro o envio (número do processo ou expediente, data) e o resultado da petição. Regras: só entram dados de versões aprovadas; produto de classe I gera o dossiê para arquivo, sem envio; itens "não aplicável" saem com a justificativa registrada na Entrada ou no estudo; uma família de produtos gera um dossiê com todos os kits da família."
 
+## Clarifications
+
+### Session 2026-11-11
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: A estrutura final foi conferida contra o Manual para Regularização de Dispositivos para Diagnóstico in Vitro (ANVISA, 25/08/2026)? → A: Ainda não; adota-se a estrutura I a XII do contexto (alinhada ao art. 58 e ao Anexo II), guardada numa definição declarativa que a Qualidade/AR ajusta sem programação; a conferência contra o Manual fica pendente com Assuntos Regulatórios antes do primeiro envio (ratificar com Assuntos Regulatórios).
+- Q: Os anexos (rótulos, instrução de uso, gerenciamento de risco, imagens) são incorporados ao documento ou enviados como PDFs separados? → A: Seguem como arquivos separados num pacote junto com o dossiê; o dossiê traz a lista de anexos (número, nome, origem e resumo criptográfico) e cada item cita o anexo correspondente (ratificar com Assuntos Regulatórios).
+- Q: Como o responsável técnico e legal assina? → A: O sistema gera a declaração com os dados do responsável e o bloco de assinatura; a assinatura é feita fora do sistema (certificado ICP-Brasil no PDF ou na plataforma de peticionamento) e, no registro do envio, Assuntos Regulatórios anexa o PDF assinado, arquivado com resumo criptográfico (ratificar com Assuntos Regulatórios e o Jurídico).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Checagem de completude por item (Priority: P1)
@@ -110,7 +120,7 @@ Assuntos Regulatórios registra o envio (número do processo ou expediente e dat
 
 **Checagem**
 
-- **FR-001**: A checagem DEVE listar, para a classe de risco do produto, cada item exigido pelo art. 58 e pelo Anexo II da RDC 830/2023, com a origem do dado e o status (completo, faltando, não aplicável com justificativa) [NEEDS CLARIFICATION: a estrutura final foi conferida contra o Manual para Regularização de Dispositivos para Diagnóstico in Vitro (ANVISA, 25/08/2026)?].
+- **FR-001**: A checagem DEVE listar, para a classe de risco do produto, cada item exigido pelo art. 58 e pelo Anexo II da RDC 830/2023 na estrutura I a XII do contexto, com a origem do dado e o status (completo, faltando, não aplicável com justificativa).
 - **FR-002**: A definição dos itens, da aplicabilidade por classe e da origem de cada dado DEVE poder ser ajustada pela Qualidade/AR sem programação, com versões.
 - **FR-003**: Só dados de versões aprovadas DEVEM entrar; item não aplicável DEVE sair com a justificativa registrada; não aplicável sem justificativa conta como faltando.
 
@@ -118,8 +128,8 @@ Assuntos Regulatórios registra o envio (número do processo ou expediente e dat
 
 - **FR-004**: O dossiê DEVE ser gerado em DOCX e PDF no formato do contexto (cabeçalho, rodapé, itens em romanos, subitens, tabelas numeradas, nome do produto em itálico, não aplicável com justificativa).
 - **FR-005**: Com item obrigatório faltando, só o rascunho DEVE ser gerado.
-- **FR-006**: Os anexos (rótulos, instrução de uso, gerenciamento de risco, imagens) DEVEM acompanhar o dossiê [NEEDS CLARIFICATION: incorporados ao documento ou enviados como PDFs separados?].
-- **FR-007**: O dossiê DEVE terminar com a declaração de responsabilidade do responsável técnico e legal (nome, conselho, UF, número, cidade e data) e o bloco de assinatura [NEEDS CLARIFICATION: como o responsável assina: certificado ICP-Brasil ou assinatura da plataforma de peticionamento?].
+- **FR-006**: Os anexos (rótulos, instrução de uso, gerenciamento de risco, imagens) DEVEM seguir como arquivos separados num pacote com o dossiê, listados no dossiê com número, nome, origem e resumo criptográfico e citados nos itens.
+- **FR-007**: O dossiê DEVE terminar com a declaração de responsabilidade do responsável técnico e legal (nome, conselho, UF, número, cidade e data) e o bloco de assinatura; a assinatura é feita fora do sistema e o PDF assinado é anexado no registro do envio.
 - **FR-008**: Textos padrão (processo de fabricação, unidade fabril e outros) DEVEM vir de uma biblioteca versionada com aprovação, registrando a versão usada.
 - **FR-009**: Uma família de produtos DEVE gerar um dossiê com todos os kits da família.
 - **FR-010**: Cada dossiê gerado DEVE ser arquivado com versão, resumo criptográfico e as versões de origem.
@@ -151,3 +161,4 @@ Assuntos Regulatórios registra o envio (número do processo ou expediente e dat
 - A classe de risco vem do tópico "Classificação de Risco" da Entrada aprovada.
 - Família de produtos: projetos com o mesmo nome de família do produto, a mesma tecnologia e a mesma classe de risco.
 - Responsável técnico e legal, razão social e cidade vêm de configuração mantida pela Qualidade/AR.
+- Estrutura, anexos e assinatura do responsável definidos nas respostas provisórias do esclarecimento (sessão 2026-11-11).
