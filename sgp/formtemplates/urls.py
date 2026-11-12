@@ -9,5 +9,4 @@ urlpatterns = [
     path("<int:pk>/", views.template_detail, name="detail"),
     path("<int:pk>/nova-versao/", views.template_new_version, name="new_version"),
     path("<int:pk>/editar/", views.template_edit, name="edit"),
-    path("<int:pk>/publicar/", views.template_publish, name="publish"),
 ]

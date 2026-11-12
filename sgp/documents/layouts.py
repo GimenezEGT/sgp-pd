@@ -1,6 +1,7 @@
 """Modelos de layout: vigência, rascunho, edição, publicação e vínculo por versão de documento.
 
-Só a Qualidade/AR cria, altera, pré-visualiza e publica (FR-020). Publicado não muda (serviço e
+Só a Qualidade/AR cria, altera e pré-visualiza (FR-020); a publicação é efeito da aprovação
+assinada da revisão (feature 013). Publicado não muda (serviço e
 gatilho no banco). Cada versão de documento usa o layout vigente quando começou (FR-021).
 """
 
@@ -126,9 +127,14 @@ def _snapshot(layout: LayoutTemplate) -> dict:
 
 
 def create_draft(target: str, *, by, source: LayoutTemplate | None = None) -> LayoutTemplate:
+    from sgp.revisions import services as revisions
+
     require_quality(by)
     if target not in LayoutTarget.values:
         raise ValidationError("Alvo de layout inexistente.")
+    family = LayoutTemplate.objects.filter(target=target).first()
+    if family is not None:
+        revisions.ensure_can_open("layout", family)
     with transaction.atomic():
         if LayoutTemplate.objects.filter(target=target, status=LayoutStatus.DRAFT).exists():
             raise ValidationError("Já existe um rascunho deste modelo de layout; continue nele.")
@@ -149,6 +155,7 @@ def create_draft(target: str, *, by, source: LayoutTemplate | None = None) -> La
             raise ValidationError(
                 "Já existe um rascunho deste modelo de layout; continue nele."
             ) from exc
+        revisions.opened("layout", layout, by)
         record_event(
             "layouts.draft_created",
             actor=by,
@@ -176,6 +183,9 @@ def update_draft(
         layout = LayoutTemplate.objects.select_for_update().get(pk=layout.pk)
         if layout.status != LayoutStatus.DRAFT:
             raise ValidationError(NOT_DRAFT)
+        from sgp.revisions.services import require_editing
+
+        require_editing(layout)
         if row_version is not None and int(row_version) != layout.row_version:
             raise ValidationError(STALE)
         errors = layout_schema.schema_errors(definition)
@@ -196,38 +206,4 @@ def update_draft(
             record_event(
                 "layouts.draft_updated", actor=by, obj=layout, old_value=old, new_value=new
             )
-    return layout
-
-
-def publish(layout: LayoutTemplate, *, by, note: str = "") -> LayoutTemplate:
-    require_quality(by)
-    with transaction.atomic():
-        layout = LayoutTemplate.objects.select_for_update().get(pk=layout.pk)
-        if layout.status != LayoutStatus.DRAFT:
-            raise ValidationError(NOT_DRAFT)
-        errors = definition_errors(layout, layout.definition)
-        current = current_layout(layout.target)
-        if current and layout.valid_from < current.valid_from:
-            errors.append(
-                "A vigência não pode ser anterior à da versão vigente "
-                f"({current.valid_from:%d/%m/%Y})."
-            )
-        if errors:
-            raise ValidationError(errors)
-        logo_bytes(layout)  # logotipo legível e íntegro antes de publicar
-        layout.status = LayoutStatus.PUBLISHED
-        layout.published_by = by
-        layout.published_at = timezone.now()
-        layout.note = note[:200]
-        layout.save(update_fields=["status", "published_by", "published_at", "note"])
-        record_event(
-            "layouts.published",
-            actor=by,
-            obj=layout,
-            new_value={
-                "alvo": layout.get_target_display(),
-                "versao": layout.version_display,
-                "vigencia": layout.valid_from,
-            },
-        )
     return layout

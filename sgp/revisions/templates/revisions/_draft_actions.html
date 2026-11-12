@@ -1,0 +1,20 @@
+{% load sgp %}<section class="painel" aria-label="Revisão controlada">
+  <h2>Revisão controlada</h2>
+  {% if obj.review_status == "submitted" %}
+  <p>Enviada para aprovação{% if obj.submitted_by %} por {{ obj.submitted_by.get_full_name }}{% endif %} em {{ obj.submitted_at|datahora }}. Motivo: {{ obj.revision_reason }}. Impacto: {{ obj.revision_impact }}.</p>
+  <p class="descricao">Revisão enviada não muda; o Gestor de P&amp;D aprova com assinatura ou devolve com comentário.</p>
+  {% else %}
+  <form method="post" action="{% url 'revisions:submit' kind obj.pk %}">
+    {% csrf_token %}
+    <p><label for="motivo">Motivo da revisão</label><br><textarea id="motivo" name="motivo" rows="2" required>{{ obj.revision_reason }}</textarea></p>
+    <p><label for="impacto">Impacto esperado</label><br><textarea id="impacto" name="impacto" rows="2" required>{{ obj.revision_impact }}</textarea></p>
+    <button type="submit" class="botao">Enviar para aprovação</button>
+  </form>
+  <form method="post" action="{% url 'revisions:discard' kind obj.pk %}" class="acoes">
+    {% csrf_token %}
+    <label for="motivo-descarte">Motivo do descarte</label> <input id="motivo-descarte" name="motivo" maxlength="500">
+    <button type="submit" class="botao botao-perigo">Descartar a revisão</button>
+  </form>
+  {% endif %}
+  <p><a href="{% url 'revisions:history' kind obj.pk %}">Histórico do modelo</a> · <a href="{% url 'revisions:compare' kind obj.pk %}">Comparar com a versão vigente</a></p>
+</section>

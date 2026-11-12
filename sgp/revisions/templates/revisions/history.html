@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Histórico – {{ family }}{% endblock %}
+{% block content %}
+<p><a href="{{ detail_url }}">← {{ family }}</a> · <a href="{% url 'revisions:list' %}">Revisões de modelos</a></p>
+<h1>Histórico – {{ family }}</h1>
+{% for row in rows %}
+<section class="painel">
+  <h2>Versão {{ row.obj.version_display }} · {{ row.label }}</h2>
+  <p class="descricao">Vigência: {{ row.obj.valid_from|data }} · criada por {{ row.obj.created_by.get_full_name|default:"carga inicial" }} em {{ row.obj.created_at|datahora }}{% if row.obj.approved_hash %} · resumo aprovado <code>{{ row.obj.approved_hash|slice:":16" }}…</code>{% endif %}</p>
+  {% if row.obj.revision_reason %}<p><strong>Motivo:</strong> {{ row.obj.revision_reason }} · <strong>Impacto:</strong> {{ row.obj.revision_impact }}</p>{% endif %}
+  {% if row.obj.discard_reason %}<p><strong>Motivo do descarte:</strong> {{ row.obj.discard_reason }}</p>{% endif %}
+  <table>
+    <thead><tr><th>Etapa</th><th>Quem</th><th>Quando</th><th>Comentário</th></tr></thead>
+    <tbody>{% for step in row.steps %}<tr><td>{{ step.get_step_display }}</td><td>{{ step.actor.get_full_name|default:"sistema" }}</td><td>{{ step.at|datahora }}</td><td>{{ step.comment }}</td></tr>{% empty %}<tr><td colspan="4">Sem etapas registradas (versão anterior à revisão controlada).</td></tr>{% endfor %}</tbody>
+  </table>
+  {% for s in row.signatures %}<p>Assinatura ({{ s.get_purpose_display }}): {{ s.signer_name }}{% if s.signer_title %} / {{ s.signer_title }}{% endif %} em {{ s.signed_at|datahora }}</p>{% endfor %}
+  <p><strong>Documentos iniciados nesta versão:</strong> {{ row.usage_count }}</p>
+  {% if row.usage %}<ul>{% for item in row.usage %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+  <div class="acoes">
+    <a class="botao botao-secundario" href="{% url 'revisions:compare' kind row.obj.pk %}">Comparar</a>
+    {% if can_verify and row.obj.status == "published" %}<form method="post" action="{% url 'revisions:verify' kind row.obj.pk %}">{% csrf_token %}<button type="submit" class="botao botao-secundario">Verificar integridade</button></form>{% endif %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

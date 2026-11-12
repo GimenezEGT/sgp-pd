@@ -11,6 +11,7 @@
   <button type="submit" class="botao">Criar nova versão a partir desta</button>
 </form>
 {% endif %}
+{% include "revisions/_version_actions.html" with kind="form" obj=template %}
 {% include "formtemplates/_cover.html" %}
 {% include "formtemplates/_topics.html" %}
 {% endblock %}

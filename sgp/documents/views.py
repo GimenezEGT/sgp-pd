@@ -174,6 +174,9 @@ def layout_detail(request, pk):
         "current": layouts.current_layout(layout.target),
         "parameters": _parameters(layout),
         "is_quality": _is_quality(request.user),
+        "can_verify": bool({Profile.QUALITY, Profile.RD_MANAGER} & active_profiles(request.user)),
+        "can_decide": Profile.RD_MANAGER in active_profiles(request.user),
+        "can_retire": False,  # layout não é retirado de uso (feature 013, esclarecimento 2026-11-11)
     }
     return render(request, "documents/layouts/detail.html", context)
 
@@ -258,25 +261,6 @@ def layout_preview(request, pk):
     )
     response["X-Content-Type-Options"] = "nosniff"
     return response
-
-
-@require_POST
-@profile_required(Profile.QUALITY)
-def layout_publish(request, pk):
-    layout = get_object_or_404(LayoutTemplate, pk=pk)
-    try:
-        layouts.publish(layout, by=request.user, note=request.POST.get("observacao", ""))
-    except ValidationError as exc:
-        for message in exc.messages:
-            messages.error(request, message)
-        return redirect("layouts:edit", pk=layout.pk)
-    except (IntegrityFailure, LogoIntegrityError):
-        messages.error(request, "O logotipo desta versão falhou na conferência de integridade.")
-        return redirect("layouts:edit", pk=layout.pk)
-    messages.success(
-        request, "Modelo de layout publicado; documentos já iniciados continuam no layout deles."
-    )
-    return redirect("layouts:detail", pk=layout.pk)
 
 
 @require_GET

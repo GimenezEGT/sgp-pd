@@ -15,6 +15,7 @@
   <a class="botao botao-secundario" href="{% url 'layouts:preview' layout.pk %}" target="_blank" rel="noopener">Pré-visualizar (PDF de exemplo)</a>
 </div>
 {% endif %}
+{% include "revisions/_version_actions.html" with kind="layout" obj=layout %}
 <div class="painel">
   <p><strong>Logotipo</strong>{% if not layout.logo_id %} (faixa padrão da planilha Capas Projeto){% endif %}</p>
   <p><img class="logo-previa" src="{% url 'layouts:logo' layout.pk %}" alt="Logotipo do layout"></p>

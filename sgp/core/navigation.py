@@ -50,6 +50,13 @@ NAV_ITEMS: list[NavItem] = [
         "Modelos dos subdocumentos do PSG 20, com versões e vigência.",
     ),
     NavItem(
+        "Revisões de modelos",
+        "revisions:list",
+        frozenset(Profile),
+        "Cadastros",
+        "Revisões de modelos em andamento, aprovação assinada pelo Gestor e retiradas de uso.",
+    ),
+    NavItem(
         "Modelos de layout",
         "layouts:list",
         frozenset(Profile),

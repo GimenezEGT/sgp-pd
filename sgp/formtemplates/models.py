@@ -6,14 +6,16 @@ from django.db.models import Q
 from django.utils import timezone
 
 from sgp.core.models import ProtectedModel
+from sgp.revisions.models import RevisableTemplate
 
 
 class TemplateStatus(models.TextChoices):
     DRAFT = "draft", "Rascunho"
     PUBLISHED = "published", "Publicado"
+    DISCARDED = "discarded", "Descartado"
 
 
-class FormTemplate(ProtectedModel):
+class FormTemplate(ProtectedModel, RevisableTemplate):
     subdocument_type = models.ForeignKey(
         "vocab.Term",
         on_delete=models.PROTECT,

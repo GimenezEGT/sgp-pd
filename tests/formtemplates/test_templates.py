@@ -37,7 +37,7 @@ def test_rascunho_da_proxima_versao_copia_a_vigente(quality, critical_type, even
 
 
 @pytest.mark.req("004:FR-001")
-def test_editar_e_publicar_com_evento(quality, critical_type, events):
+def test_editar_e_publicar_com_evento(quality, critical_type, events, publish_revision):
     draft = services.create_draft(critical_type, by=quality)
     definition = dict(draft.definition)
     definition["topics"] = draft.topics + [
@@ -50,9 +50,9 @@ def test_editar_e_publicar_com_evento(quality, critical_type, events):
     draft = services.update_draft(draft, by=quality, data={}, definition=definition, row_version=1)
     updated = events("formtemplates.draft_updated")[-1]
     assert "topico:estatistica" in updated.new_value
-    services.publish(draft, by=quality)
+    publish_revision("form", draft, quality)  # publicação pela revisão controlada (feature 013)
     draft.refresh_from_db()
-    assert draft.is_published and draft.published_by == quality
+    assert draft.is_published and draft.published_by.username == "gestor.revisao"
     assert services.current_template(critical_type) == draft
     assert events("formtemplates.published")[-1].new_value["versao"] == "06"
 
@@ -64,8 +64,10 @@ def test_publicacao_recusada_com_definicao_invalida(quality, critical_type):
     duplicated = dict(draft.topics[0], key="outro")
     definition["topics"] = draft.topics + [duplicated]
     draft = services.update_draft(draft, by=quality, data={}, definition=definition)
+    from sgp.revisions import services as revisions
+
     with pytest.raises(ValidationError) as error:
-        services.publish(draft, by=quality)
+        revisions.submit("form", draft, by=quality, reason="Teste", impact="Teste")
     assert any("rótulo repetido" in message for message in error.value.messages)
 
 
@@ -111,8 +113,14 @@ def test_telas_da_qualidade(client, quality, critical_type):
     }
     page = client.post(reverse("formtemplates:edit", args=[draft.pk]), payload).content.decode()
     assert "JSON inválido na linha 1" in page
-    payload["definition"] = json.dumps(draft.definition)
+    changed = dict(draft.definition)
+    changed["topics"] = [dict(draft.topics[0], label=draft.topics[0]["label"] + " (revisado)")]
+    changed["topics"] += draft.topics[1:]
+    payload["definition"] = json.dumps(changed)
     client.post(reverse("formtemplates:edit", args=[draft.pk]), payload)
-    client.post(reverse("formtemplates:publish", args=[draft.pk]))
+    client.post(
+        reverse("revisions:submit", args=["form", draft.pk]),
+        {"motivo": "Rótulo revisado", "impacto": "Só documentos novos"},
+    )
     draft.refresh_from_db()
-    assert draft.is_published
+    assert draft.review_status == "submitted"  # publicação só com a aprovação (feature 013)

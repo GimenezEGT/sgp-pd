@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Comparar versões – {{ family }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'revisions:history' kind obj.pk %}">← Histórico – {{ family }}</a></p>
+<h1>Comparar versões – {{ family }}</h1>
+<form method="get" class="painel">
+  <label for="com">Comparar a versão {{ obj.version_display }} com</label>
+  <select id="com" name="com">{% for v in versions %}{% if v.pk != obj.pk %}<option value="{{ v.pk }}"{% if v.pk == other_pk %} selected{% endif %}>versão {{ v.version_display }} ({{ v.get_status_display }})</option>{% endif %}{% endfor %}</select>
+  <button type="submit" class="botao">Comparar</button>
+</form>
+<h2>Versão {% if older %}{{ older.version_display }}{% else %}—{% endif %} → versão {{ newer.version_display }}</h2>
+{% include "revisions/_diff.html" %}
+{% endblock %}

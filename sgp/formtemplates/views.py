@@ -31,6 +31,18 @@ def _preview(template: FormTemplate) -> dict:
     }
 
 
+def _revision_flags(user, template, current) -> dict:
+    """Ações da revisão controlada (feature 013) mostradas no detalhe da versão."""
+    profiles = active_profiles(user)
+    return {
+        "can_verify": bool({Profile.QUALITY, Profile.RD_MANAGER} & profiles),
+        "can_decide": Profile.RD_MANAGER in profiles,
+        "can_retire": Profile.QUALITY in profiles
+        and current is not None
+        and current.pk == template.pk,
+    }
+
+
 @require_GET
 def template_list(request):
     types = Term.objects.of("tipo-subdocumento").order_by("position")
@@ -59,6 +71,7 @@ def template_detail(request, pk):
         "template": template,
         "current": current,
         "is_quality": Profile.QUALITY in active_profiles(request.user),
+        **_revision_flags(request.user, template, current),
         **_preview(template),
     }
     return render(request, "formtemplates/detail.html", context)
@@ -116,18 +129,3 @@ def template_edit(request, pk):
         problems = services.definition_errors(template, template.definition)
     context = {"template": template, "form": form, "problems": problems, **_preview(template)}
     return render(request, "formtemplates/edit.html", context)
-
-
-@require_POST
-@profile_required(Profile.QUALITY)
-def template_publish(request, pk):
-    template = get_object_or_404(FormTemplate, pk=pk)
-    try:
-        services.publish(template, by=request.user)
-    except ValidationError as exc:
-        _errors(request, exc)
-        return redirect("formtemplates:edit", pk=template.pk)
-    messages.success(
-        request, "Modelo publicado; documentos já iniciados continuam na versão deles."
-    )
-    return redirect("formtemplates:detail", pk=template.pk)

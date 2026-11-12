@@ -161,7 +161,7 @@ def test_alteracao_so_aceita_topicos_da_entrada(project, approved_entry, make_su
 @pytest.mark.req("004:FR-007")
 @pytest.mark.req("004:SC-002")
 def test_nova_versao_do_modelo_nao_altera_documento_iniciado(
-    project, approved_entry, make_subdocument, analyst, make_user
+    project, approved_entry, make_subdocument, analyst, make_user, publish_revision
 ):
     quality = make_user(None, Profile.QUALITY)
     formulation_type = get_term("tipo-subdocumento", "formulacao")
@@ -173,7 +173,7 @@ def test_nova_versao_do_modelo_nao_altera_documento_iniciado(
         dict(draft.topics[0], label="Nome do Produto (revisado)")
     ] + draft.topics[1:]
     template_services.update_draft(draft, by=quality, data={}, definition=definition)
-    template_services.publish(draft, by=quality)
+    publish_revision("form", draft, quality)
     started.refresh_from_db()
     assert started.template.form_version == 5 and started.data == data_before
     assert numbering.visible_topics(started)[0][1]["label"] == "Nome do Produto"
@@ -184,7 +184,7 @@ def test_nova_versao_do_modelo_nao_altera_documento_iniciado(
 
 @pytest.mark.req("004:FR-007")
 def test_migracao_pelo_gestor(
-    project, approved_entry, make_subdocument, analyst, manager, make_user, events
+    project, approved_entry, make_subdocument, analyst, manager, make_user, events, publish_revision
 ):
     quality = make_user(None, Profile.QUALITY)
     formulation_type = get_term("tipo-subdocumento", "formulacao")
@@ -206,7 +206,7 @@ def test_migracao_pelo_gestor(
     definition = dict(draft.definition)
     definition["topics"] = [topic for topic in draft.topics if topic["key"] != "complementares"]
     template_services.update_draft(draft, by=quality, data={}, definition=definition)
-    template_services.publish(draft, by=quality)
+    publish_revision("form", draft, quality)
     with pytest.raises(ValidationError, match="Só o Gestor"):
         services.migrate_template(started, by=analyst, reason="x")
     with pytest.raises(ValidationError, match="motivo"):
@@ -223,7 +223,7 @@ def test_migracao_pelo_gestor(
 
 
 @pytest.mark.req("004:FR-004")
-def test_vigencia_futura(make_user):
+def test_vigencia_futura(make_user, publish_revision):
     from datetime import timedelta
 
     from django.utils import timezone
@@ -234,10 +234,13 @@ def test_vigencia_futura(make_user):
     template_services.update_draft(
         draft,
         by=quality,
-        data={"valid_from": timezone.localdate() + timedelta(days=30)},
+        data={
+            "valid_from": timezone.localdate() + timedelta(days=30),
+            "reference": draft.reference + " (revisada)",
+        },
         definition=draft.definition,
     )
-    template_services.publish(draft, by=quality)
+    publish_revision("form", draft, quality)
     assert template_services.current_template(rapd).form_version == 5
     future = timezone.localdate() + timedelta(days=31)
     assert template_services.current_template(rapd, on=future).form_version == 6

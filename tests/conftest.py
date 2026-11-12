@@ -290,3 +290,29 @@ def signing(directory):
         approve=approve,
         submit_and_approve=submit_and_approve,
     )
+
+
+@pytest.fixture
+def publish_revision(make_user, signing):
+    """Publica uma revisão de modelo pelo ciclo da feature 013: envio pela Qualidade/AR e aprovação
+    assinada por um Gestor de P&D diferente de quem elaborou."""
+    from django.utils import timezone
+
+    from sgp.accounts.profiles import Profile
+    from sgp.revisions import services
+
+    state = {}
+
+    def _publish(kind, template, by, *, valid_from=None):
+        if "manager" not in state:
+            state["manager"] = make_user("gestor.revisao", Profile.RD_MANAGER)
+            signing.enable(state["manager"])
+        template.refresh_from_db()
+        if valid_from is None and template.valid_from > timezone.localdate():
+            valid_from = template.valid_from
+        services.submit(kind, template, by=by, reason="Revisão de teste", impact="Sem impacto")
+        return services.approve(
+            kind, template, by=state["manager"], password=signing.password, valid_from=valid_from
+        )
+
+    return _publish

@@ -1,0 +1,13 @@
+<div class="acoes">
+  <a class="botao botao-secundario" href="{% url 'revisions:history' kind obj.pk %}">Histórico e revisões</a>
+  <a class="botao botao-secundario" href="{% url 'revisions:compare' kind obj.pk %}">Comparar versões</a>
+  {% if can_verify and obj.is_published %}<form method="post" action="{% url 'revisions:verify' kind obj.pk %}">{% csrf_token %}<button type="submit" class="botao botao-secundario">Verificar integridade</button></form>{% endif %}
+  {% if can_decide and obj.review_status == "submitted" and obj.status == "draft" %}<a class="botao" href="{% url 'revisions:approve' kind obj.pk %}">Analisar a revisão enviada</a>{% endif %}
+  {% if can_retire %}
+  <form method="post" action="{% url 'revisions:retirement_request' obj.pk %}">
+    {% csrf_token %}
+    <label for="motivo-retirada">Motivo da retirada de uso</label> <input id="motivo-retirada" name="motivo" maxlength="500">
+    <button type="submit" class="botao botao-perigo">Pedir retirada de uso</button>
+  </form>
+  {% endif %}
+</div>

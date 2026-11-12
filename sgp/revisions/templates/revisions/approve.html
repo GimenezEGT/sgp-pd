@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Aprovar revisão – {{ family }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'revisions:list' %}">← Revisões de modelos</a></p>
+<h1>{{ family }} – revisão da versão {{ obj.version_display }}</h1>
+<p class="descricao">Situação: {{ obj.get_review_status_display }}{% if obj.submitted_by %} · enviada por {{ obj.submitted_by.get_full_name }} em {{ obj.submitted_at|datahora }}{% endif %}</p>
+<div class="painel">
+  <p><strong>Motivo:</strong> {{ obj.revision_reason|default:"—" }}</p>
+  <p><strong>Impacto esperado:</strong> {{ obj.revision_impact|default:"—" }}</p>
+</div>
+<h2>Comparação com a versão {% if baseline %}{{ baseline.version_display }} (vigente){% else %}anterior{% endif %}</h2>
+{% include "revisions/_diff.html" %}
+{% if problems %}<div class="mensagem mensagem-warning" role="status"><p>Regras do modelo a corrigir:</p><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul></div>{% endif %}
+{% if obj.status == "draft" and obj.review_status == "submitted" %}
+<div class="painel">
+  <h2>Aprovar com assinatura eletrônica</h2>
+  <form method="post">
+    {% csrf_token %}
+    <p><label><input type="radio" name="vigencia" value="imediata" checked> Vigência imediata</label>
+       <label><input type="radio" name="vigencia" value="data"> A partir de</label> <input type="date" name="data_vigencia" aria-label="Data de início da vigência"></p>
+    <p><label for="senha">Senha de rede</label> <input id="senha" type="password" name="senha" autocomplete="current-password" required></p>
+    <button type="submit" class="botao">Aprovar e publicar</button>
+  </form>
+  <h2>Devolver</h2>
+  <form method="post" action="{% url 'revisions:return' kind obj.pk %}">
+    {% csrf_token %}
+    <p><label for="comentario">Comentário (obrigatório)</label><br><textarea id="comentario" name="comentario" rows="3" required></textarea></p>
+    <button type="submit" class="botao botao-secundario">Devolver para a Qualidade/AR</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
