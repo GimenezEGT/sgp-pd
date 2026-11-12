@@ -125,6 +125,27 @@ ROUTE_CONTRACT = {
     "studies:not_applicable": ("POST", PROJECT_ACCESS),
     "studies:import": ("GET", PROJECT_ACCESS),
     "studies:new_version": ("POST", PROJECT_ACCESS),
+    # Feature 008: caderno de laboratório (acesso ao projeto; regras de autor, editor e
+    # testemunha cobertas em tests/notebook).
+    "notebook:search": ("GET", ANY_PROFILE),
+    "notebook:project": ("GET", PROJECT_ACCESS),
+    "notebook:create": ("GET", PROJECT_ACCESS),
+    "notebook:detail": ("GET", PROJECT_ACCESS),
+    "notebook:edit": ("GET", PROJECT_ACCESS),
+    "notebook:material_add": ("POST", PROJECT_ACCESS),
+    "notebook:material_remove": ("POST", PROJECT_ACCESS),
+    "notebook:attachment_add": ("POST", PROJECT_ACCESS),
+    "notebook:attachment_remove": ("POST", PROJECT_ACCESS),
+    "notebook:relevance": ("POST", PROJECT_ACCESS),
+    "notebook:sign": ("POST", PROJECT_ACCESS),
+    "notebook:witness": ("POST", PROJECT_ACCESS),
+    "notebook:addendum_add": ("POST", PROJECT_ACCESS),
+    "notebook:link_add": ("POST", PROJECT_ACCESS),
+    "notebook:link_remove": ("POST", PROJECT_ACCESS),
+    "notebook:promote": ("GET", PROJECT_ACCESS),
+    "notebook:templates": ("GET", ANY_PROFILE),
+    "notebook:template_detail": ("GET", ANY_PROFILE),
+    "notebook:template_deactivate": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
 }
 
 

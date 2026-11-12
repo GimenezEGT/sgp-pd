@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "sgp.documents",
     "sgp.revisions",
     "sgp.studies",
+    "sgp.notebook",
 ]
 
 MIDDLEWARE = [
@@ -182,6 +183,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 SIGNATURE_MAX_FAILURES = env_int("SIGNATURE_MAX_FAILURES", 3)
 SIGNATURE_LOCK_MINUTES = env_int("SIGNATURE_LOCK_MINUTES", 15)
 REVIEW_ALERT_DAYS = env_int("REVIEW_ALERT_DAYS", 5)
+
+# Caderno de laboratório (feature 008): dias corridos para assinar uma entrada antes de ela
+# aparecer como atrasada (esclarecimento provisório, ratificar com o Gestor de P&D).
+NOTEBOOK_SIGN_DAYS = env_int("NOTEBOOK_SIGN_DAYS", 7)
 
 # Geração de documentos (feature 006): certificado do selo (PKCS#12) e senha só em variáveis de
 # ambiente; sem certificado, o PDF oficial não é emitido.

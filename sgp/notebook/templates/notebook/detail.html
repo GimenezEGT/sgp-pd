@@ -5,7 +5,7 @@
 <p><a href="{% url 'notebook:project' entry.project_id %}">← Caderno do {{ entry.project.code }}</a></p>
 <h1>Entrada {{ entry.number }} – {{ entry.title }}</h1>
 <p class="descricao">{{ entry.project }} · autor {{ entry.author.get_full_name|default:entry.author.username }} · criada em {{ entry.created_at|datahora }} (servidor){% if entry.template %} · modelo {{ entry.template.name }}, versão {{ entry.template.version }}{% endif %}</p>
-<p><span class="situacao situacao-{{ entry.status }}">{{ situation }}</span>{% if entry.relevant %} <span class="etiqueta">relevante – exige testemunha</span>{% endif %}</p>
+<p><span class="situacao situacao-{{ situation_code }}">{{ situation }}</span>{% if entry.relevant %} <span class="etiqueta">relevante – exige testemunha</span>{% endif %}</p>
 <div class="acoes">
   {% if can_edit %}<a class="botao" href="{% url 'notebook:edit' entry.pk %}">Editar o registro</a>{% endif %}
   {% if can_mark_relevant %}<form method="post" action="{% url 'notebook:relevance' entry.pk %}">{% csrf_token %}<input type="hidden" name="relevante" value="{% if entry.relevant %}0{% else %}1{% endif %}"><button type="submit" class="botao botao-secundario">{% if entry.relevant %}Desmarcar relevante{% else %}Marcar como relevante (pede testemunha){% endif %}</button></form>{% endif %}

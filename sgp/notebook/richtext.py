@@ -45,11 +45,11 @@ ATTRIBUTES = {
 }
 IMAGE_SRC = re.compile(r"^/arquivos/(\d+)/$")
 SPAN = re.compile(r"^(?:[1-9]|1\d|20)$")
-HAS_TAG = re.compile(r"<\s*/?\s*[a-zA-Z!]")
+HAS_TAG = re.compile(r"</?[a-zA-Z!]")
 IMG_WITHOUT_SRC = re.compile(r"<img(?![^>]*\ssrc=)[^>]*>")
 ANY_TAG = re.compile(r"<[^>]+>")
 SPACES = re.compile(r"\s+")
-DIV = re.compile(r"<(/?)div", re.IGNORECASE)
+DIV = re.compile(r"<(/?)div\b", re.IGNORECASE)
 
 
 def plain_to_html(text: str) -> str:

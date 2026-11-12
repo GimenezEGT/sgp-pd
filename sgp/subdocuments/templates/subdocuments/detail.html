@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp %}
+{% load sgp notebook %}
 {% block title %}{{ subdocument }}{% endblock %}
 {% block content %}
 {% include "subdocuments/_header.html" %}
@@ -35,6 +35,7 @@
   </form>
 </div>
 {% endif %}
+{% notebook_links subdocument %}
 <h2>Histórico na trilha</h2>
 <div class="tabela-rolagem"><table><thead><tr><th>Seq.</th><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Motivo</th></tr></thead><tbody>
 {% for event in events %}<tr><td class="numero">{{ event.seq }}</td><td>{{ event.occurred_at|datahora }}</td><td>{{ event.actor_username }}</td><td>{{ event.event_type|rotulo_evento }}</td><td>{{ event.reason }}</td></tr>{% empty %}<tr><td colspan="5">Nenhum evento.</td></tr>{% endfor %}

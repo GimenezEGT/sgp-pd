@@ -125,3 +125,22 @@ textarea.codigo { font-family: Consolas, "DejaVu Sans Mono", monospace; font-siz
 .pedido { margin-bottom: .5rem; }
 fieldset { border: 1px solid #ccc; margin: 0 0 1rem; padding: .5rem 1rem; }
 .logo-previa { max-width: 100%; height: auto; }
+
+/* Caderno de laboratório (feature 008) */
+.linha-tempo { list-style: none; padding: 0; }
+.entrada-caderno { border-left: 3px solid var(--cor-primaria); background: var(--cor-superficie); padding: .25rem .75rem; margin: .75rem 0; }
+.entrada-caderno p { margin: .25rem 0; }
+.carregar-mais { margin: 1rem 0; }
+.situacao-open, .situacao-awaiting_witness { background: var(--cor-aviso-fundo); color: #7a5600; }
+.situacao-overdue { background: var(--cor-alerta-fundo); color: var(--cor-alerta); }
+.situacao-signed, .situacao-witnessed { background: var(--cor-sucesso-fundo); color: #1f6b35; }
+.form-linha { display: inline; }
+.texto-formatado table, .editor-area table { border-collapse: collapse; margin: .5rem 0; }
+.texto-formatado th, .texto-formatado td, .editor-area th, .editor-area td { border: 1px solid var(--cor-borda); padding: .25rem .5rem; min-width: 3rem; }
+.texto-formatado img, .editor-area img { max-width: 100%; height: auto; }
+.editor-rico { border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-superficie); }
+.editor-barra { display: flex; flex-wrap: wrap; gap: .25rem; padding: .25rem; border-bottom: 1px solid var(--cor-borda); }
+.editor-barra button { font: inherit; font-size: .85rem; padding: .15rem .5rem; border: 1px solid var(--cor-borda); background: var(--cor-fundo); border-radius: 3px; cursor: pointer; }
+.editor-area { min-height: 8rem; padding: .5rem .75rem; }
+.editor-area:focus { outline: 2px solid var(--cor-primaria); outline-offset: -2px; }
+.editor-aviso { font-size: .85rem; color: var(--cor-texto-suave); margin: 0; padding: 0 .5rem .25rem; }

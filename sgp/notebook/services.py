@@ -60,9 +60,16 @@ def _require(allowed: bool, message: str) -> None:
         raise PermissionDenied(message)
 
 
+def _fresh(entry) -> NotebookEntry:
+    """Estado atual da entrada no banco (o objeto recebido pode estar desatualizado)."""
+    return NotebookEntry.objects.select_related("project", "author", "template").get(pk=entry.pk)
+
+
 def _locked_entry(entry) -> NotebookEntry:
-    return NotebookEntry.objects.select_for_update().select_related("project", "author").get(
-        pk=entry.pk
+    return (
+        NotebookEntry.objects.select_for_update()
+        .select_related("project", "author")
+        .get(pk=entry.pk)
     )
 
 
@@ -146,6 +153,7 @@ def create_entry(project: Project, *, by, data: dict) -> NotebookEntry:
 
 
 def update_entry(entry: NotebookEntry, *, by, data: dict, row_version=None) -> NotebookEntry:
+    entry = _fresh(entry)
     _require(
         permissions.can_edit_entry(by, entry),
         "Só o autor altera a entrada, e só enquanto ela está aberta.",
@@ -314,6 +322,7 @@ def remove_attachment(attachment: EntryAttachment, *, by) -> EntryAttachment:
 
 
 def set_relevance(entry: NotebookEntry, *, by, relevant: bool) -> NotebookEntry:
+    entry = _fresh(entry)
     _require(
         permissions.can_mark_relevant(by, entry),
         "A relevância é marcada pelo autor ou pelo Gestor de P&D, antes da testemunha.",
@@ -342,6 +351,7 @@ def set_relevance(entry: NotebookEntry, *, by, relevant: bool) -> NotebookEntry:
 
 
 def sign_entry(entry: NotebookEntry, *, by, password: str, request=None) -> NotebookSignature:
+    entry = _fresh(entry)
     _require(
         permissions.can_sign(by, entry), "Só o autor assina a entrada, e só enquanto está aberta."
     )
@@ -372,6 +382,7 @@ def author_signature(entry) -> NotebookSignature | None:
 
 
 def witness_entry(entry: NotebookEntry, *, by, password: str, request=None) -> NotebookSignature:
+    entry = _fresh(entry)
     refusal = permissions.witness_refusal(by, entry)
     _require(not refusal, _sentence(refusal))
     reauthenticate(request, by, password)
@@ -420,6 +431,7 @@ def witness_entry(entry: NotebookEntry, *, by, password: str, request=None) -> N
 
 
 def add_addendum(entry: NotebookEntry, *, by, text: str, password: str, request=None) -> Addendum:
+    entry = _fresh(entry)
     _require(
         permissions.can_add_addendum(by, entry),
         "Adendos são feitos pelos editores do projeto em entradas já assinadas.",
@@ -508,7 +520,11 @@ def link(entry: NotebookEntry, *, by, target) -> NotebookLink:
             "notebook.linked",
             entry,
             by,
-            new_value={"alvo": created.get_target_type_display(), "id": target.pk, "registro": str(target)},
+            new_value={
+                "alvo": created.get_target_type_display(),
+                "id": target.pk,
+                "registro": str(target),
+            },
         )
     return created
 
@@ -608,7 +624,10 @@ def create_template(*, by, data: dict) -> EntryTemplate:
             name=name, created_by=by, change_reason="Criação", **_template_texts(data)
         )
         record_event(
-            "notebook.template_created", actor=by, obj=template, new_value=_template_snapshot(template)
+            "notebook.template_created",
+            actor=by,
+            obj=template,
+            new_value=_template_snapshot(template),
         )
     return template
 

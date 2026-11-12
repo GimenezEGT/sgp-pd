@@ -76,9 +76,7 @@ class FilterForm(forms.Form):
         if projects is None:
             del self.fields["projeto"]
         else:
-            self.fields["projeto"].choices = [("", "Todos")] + [
-                (p.pk, str(p)) for p in projects
-            ]
+            self.fields["projeto"].choices = [("", "Todos")] + [(p.pk, str(p)) for p in projects]
 
     def filters(self, project=None) -> search.Filters:
         data = self.cleaned_data if self.is_valid() else {}
@@ -225,6 +223,7 @@ def entry_detail(request, pk):
     context = {
         "entry": entry,
         "situation": search.SITUATION_LABELS[search.situation(entry)],
+        "situation_code": search.situation(entry),
         "texts": _texts(entry),
         "materials": entry.materials.filter(removed_at__isnull=True),
         "removed_materials": entry.materials.filter(removed_at__isnull=False),
@@ -299,12 +298,17 @@ def material_add(request, pk):
         return denied
     try:
         material = services.add_material(
-            entry, by=request.user, kind=request.POST.get("tipo", ""), code=request.POST.get("codigo", "")
+            entry,
+            by=request.user,
+            kind=request.POST.get("tipo", ""),
+            code=request.POST.get("codigo", ""),
         )
     except ValidationError as exc:
         _errors(request, exc)
     else:
-        messages.success(request, f"{material.get_kind_display()} {material.code} ligado à entrada.")
+        messages.success(
+            request, f"{material.get_kind_display()} {material.code} ligado à entrada."
+        )
     return _detail(entry, "materiais")
 
 
@@ -350,7 +354,9 @@ def attachment_add(request, pk):
                 "name": attachment.file.original_name,
             }
         )
-    messages.success(request, f"Anexo {attachment.file.original_name} incluído com o resumo SHA-256.")
+    messages.success(
+        request, f"Anexo {attachment.file.original_name} incluído com o resumo SHA-256."
+    )
     return _detail(entry, "anexos")
 
 
@@ -448,7 +454,9 @@ def addendum_add(request, pk):
 def _link_target(entry, post):
     target_type = post.get("alvo", "")
     if target_type == "subdocument":
-        return get_object_or_404(Subdocument, pk=post.get("subdocumento") or 0, project=entry.project)
+        return get_object_or_404(
+            Subdocument, pk=post.get("subdocumento") or 0, project=entry.project
+        )
     if target_type == "study":
         return get_object_or_404(Study, pk=post.get("estudo") or 0, project=entry.project)
     if target_type == "lot":
@@ -648,11 +656,13 @@ def template_detail(request, pk):
 @require_POST
 @_guarded
 def template_deactivate(request, pk):
-    template = get_object_or_404(EntryTemplate, pk=pk)
     if not permissions.can_manage_templates(request.user):
         return deny_access(request, "só a Qualidade/AR e o Gestor de P&D mantêm os modelos")
+    template = get_object_or_404(EntryTemplate, pk=pk)
     try:
-        services.deactivate_template(template, by=request.user, reason=request.POST.get("motivo", ""))
+        services.deactivate_template(
+            template, by=request.user, reason=request.POST.get("motivo", "")
+        )
     except ValidationError as exc:
         _errors(request, exc)
     else:

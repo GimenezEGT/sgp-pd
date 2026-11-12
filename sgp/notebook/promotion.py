@@ -57,7 +57,9 @@ def _check(entry, attachment: EntryAttachment, study: Study, by) -> None:
     if study.project_id != entry.project_id:
         raise ValidationError("Só estudos do mesmo projeto recebem dados da entrada.")
     if study.status != StudyStatus.EDITING or study.not_applicable:
-        raise ValidationError("O estudo precisa estar em elaboração e com medidas (não aplicável recusado).")
+        raise ValidationError(
+            "O estudo precisa estar em elaboração e com medidas (não aplicável recusado)."
+        )
 
 
 def preview(entry, *, by, attachment: EntryAttachment, study: Study, mapping: dict) -> dict:
