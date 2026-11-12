@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Integração com o Sankhya{% endblock %}
+{% block content %}
+<h1>Integração com o Sankhya</h1>
+<p class="descricao">{% if configured %}Integração ligada{% else %}Integração desligada ou sem credenciais (variáveis <code>SANKHYA_*</code>){% endif %} · mapeamento versão {{ mapping.version }} (<a href="{% url 'integrations:mapping' %}">ver ou alterar</a>). Mensagens aguardando configuração seguem na fila e podem ser exportadas.</p>
+<form method="get" class="painel filtros">
+  <p><label for="situacao">Situação</label><br><select id="situacao" name="situacao"><option value="">Todas</option>{% for code, label in statuses %}<option value="{{ code }}"{% if code == status %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></p>
+  <p><label for="registro">Registro</label><br><select id="registro" name="registro"><option value="">Todos</option>{% for code, label in records %}<option value="{{ code }}"{% if code == record_type %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></p>
+  <p><button type="submit" class="botao">Filtrar</button></p>
+</form>
+<section class="painel" aria-label="Exportação de contingência">
+  <h2>Exportação de contingência</h2>
+  <p>{% for code, label in records %}{{ label }}: <a href="{% url 'integrations:export' %}?registro={{ code }}&amp;formato=csv">CSV</a> · <a href="{% url 'integrations:export' %}?registro={{ code }}&amp;formato=xlsx">XLSX</a> · <a href="{% url 'integrations:export' %}?registro={{ code }}&amp;formato=json">JSON</a>{% if not forloop.last %}<br>{% endif %}{% endfor %}</p>
+</section>
+<div class="tabela-rolagem"><table>
+  <thead><tr><th>Criada em</th><th>Registro</th><th>Chave</th><th>Origem</th><th>Situação</th><th>Tentativas</th><th>Último erro</th><th>Próxima tentativa</th><th></th></tr></thead>
+  <tbody>{% for item in page %}<tr>
+    <td>{{ item.created_at|datahora }}</td><td>{{ item.record_type }}</td><td><code>{{ item.idempotency_key }}</code></td><td>{{ item.object_repr }}</td>
+    <td>{{ item.get_status_display }}{% if item.sent_at %} em {{ item.sent_at|datahora }}{% endif %}</td><td>{{ item.attempts }}</td><td>{{ item.last_error }}</td><td>{{ item.next_attempt_at|datahora|default:"—" }}</td>
+    <td>{% if item.status != "sent" %}<form method="post" action="{% url 'integrations:reprocess' item.pk %}">{% csrf_token %}<button type="submit" class="botao botao-discreto">Reprocessar</button></form>{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="9">Nenhuma mensagem.</td></tr>{% endfor %}</tbody>
+</table></div>
+<p class="paginacao">{% if page.has_previous %}<a href="{% querystring pagina=page.previous_page_number %}">← Anteriores</a>{% endif %} Página {{ page.number }} de {{ page.paginator.num_pages }} {% if page.has_next %}<a href="{% querystring pagina=page.next_page_number %}">Seguintes →</a>{% endif %}</p>
+{% endblock %}

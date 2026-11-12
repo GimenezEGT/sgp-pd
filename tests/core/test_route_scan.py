@@ -169,6 +169,12 @@ ROUTE_CONTRACT = {
     "dossier:text_approve": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
     "dossier:definition": ("GET", ANY_PROFILE),
     "dossier:company": ("GET", ANY_PROFILE),
+    # Feature 012: integração com o Sankhya (fila e configuração só para a TI).
+    "integrations:queue": ("GET", {Profile.ADMIN}),
+    "integrations:reprocess": ("POST", {Profile.ADMIN}),
+    "integrations:export": ("GET", {Profile.ADMIN}),
+    "integrations:mapping": ("GET", {Profile.ADMIN}),
+    "integrations:product": ("GET", ANY_PROFILE),
 }
 
 

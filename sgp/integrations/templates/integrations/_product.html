@@ -1,0 +1,1 @@
+{% if product %}<p class="mensagem mensagem-success">Sankhya – código {{ product.codigo|default:code }}: {{ product.descricao }}{% if product.unidade %} · unidade {{ product.unidade }}{% endif %}{% if product.situacao %} · situação {{ product.situacao }}{% endif %}</p>{% else %}<p class="mensagem mensagem-warning">{{ warning }}</p>{% endif %}

@@ -1,0 +1,35 @@
+# Mapeamento dos registros do SGP-P&D para o Sankhya (feature 012).
+#
+# Registros e campos lógicos do contexto (docs/contexto/07-integracao-sankhya.md). A entidade e os
+# campos do Sankhya de cada registro são definidos pela TI com a consultoria Sankhya (tabelas
+# adicionais); enquanto a entidade estiver vazia, as mensagens do registro ficam "aguardando
+# configuração" e a exportação em arquivo funciona normalmente.
+#
+#   entidade: nome da entidade/instância no Sankhya (usada em loadRecords e saveRecord)
+#   chave: campo do Sankhya que recebe a chave de idempotência (chave primária do registro adicional)
+#   campos: campo lógico do SGP-P&D -> campo do Sankhya (vazio: não enviado)
+formato: 1
+produto:
+  entidade: ""
+  campos: {codigo: "", descricao: "", unidade: "", situacao: ""}
+registros:
+  projeto:
+    entidade: ""
+    chave: ""
+    campos: {codigo_projeto: "", nome: "", produto: "", tecnologia: "", orgao: "", classe_risco: "", lider: "", situacao: "", versao_projeto: "", data_abertura: ""}
+  documento:
+    entidade: ""
+    chave: ""
+    campos: {codigo_projeto: "", tipo_subdocumento: "", versao_documento: "", versao_formulario: "", referencia_psg: "", data_aprovacao: "", elaborador: "", aprovador: "", resumo_conteudo: "", pdf_sha256: "", pdf_codigo_verificacao: ""}
+  lote:
+    entidade: ""
+    chave: ""
+    campos: {codigo_lote: "", tipo: "", codigo_projeto: "", data_fabricacao: "", data_validade: "", local: "", responsavel: ""}
+  insumo_novo:
+    entidade: ""
+    chave: ""
+    campos: {descricao: "", tipo: "", fabricante: "", lote_fabricante: "", certificado_nome: "", certificado_sha256: "", codigo_projeto: "", situacao: ""}
+  resultado_estudo:
+    entidade: ""
+    chave: ""
+    campos: {codigo_projeto: "", tipo_estudo: "", titulo: "", versao: "", criterio: "", resultado: "", conclusao: "", documento_origem: ""}

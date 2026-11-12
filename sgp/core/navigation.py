@@ -155,6 +155,13 @@ NAV_ITEMS: list[NavItem] = [
         "Logins bloqueados por tentativas inválidas.",
     ),
     NavItem(
+        "Integração com o Sankhya",
+        "integrations:queue",
+        frozenset({Profile.ADMIN}),
+        "Administração",
+        "Fila de envio ao ERP, reprocessamento, mapeamento e exportação de contingência.",
+    ),
+    NavItem(
         "Trilha de auditoria",
         "audit:trail",
         frozenset(AUDIT_TRAIL_PROFILES),

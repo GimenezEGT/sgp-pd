@@ -22,4 +22,5 @@ urlpatterns = [
     path("", include("sgp.notifications.urls")),
     path("", include("sgp.dashboard.urls")),
     path("", include("sgp.dossier.urls")),
+    path("", include("sgp.integrations.urls")),
 ]

@@ -13,4 +13,12 @@
     <button type="submit" class="botao">Salvar</button>
   </form>
 </div>
+{% if kind.slug == "insumos" or kind.slug == "lotes" %}
+<div class="painel" aria-label="Consulta no Sankhya">
+  <p><label for="codigo-sankhya">Consultar o código no cadastro de produtos do Sankhya</label><br>
+    <input id="codigo-sankhya" name="codigo" maxlength="60">
+    <button type="button" class="botao botao-secundario" hx-get="{% url 'integrations:product' %}" hx-include="#codigo-sankhya" hx-target="#resultado-sankhya">Consultar no Sankhya</button></p>
+  <div id="resultado-sankhya" aria-live="polite"></div>
+</div>
+{% endif %}
 {% endblock %}
