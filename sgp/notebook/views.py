@@ -307,7 +307,7 @@ def material_add(request, pk):
         _errors(request, exc)
     else:
         messages.success(
-            request, f"{material.get_kind_display()} {material.code} ligado à entrada."
+            request, f"Material ligado à entrada: {material.get_kind_display()} {material.code}."
         )
     return _detail(entry, "materiais")
 
@@ -320,7 +320,7 @@ def material_remove(request, pk):
     if denied:
         return denied
     services.remove_material(material, by=request.user)
-    messages.success(request, f"{material.get_kind_display()} {material.code} retirado da entrada.")
+    messages.success(request, f"Material retirado da entrada: {material.get_kind_display()} {material.code}.")
     return _detail(entry, "materiais")
 
 

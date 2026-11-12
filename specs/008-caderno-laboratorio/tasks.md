@@ -45,8 +45,8 @@ description: "Task list for feature 008 — Caderno de laboratório eletrônico"
 ## Phase 8: Polish
 
 - [X] T013 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 008)
-- [ ] T014 Rodar `scripts/verificar.sh`
-- [ ] T015 Executar o quickstart na pilha real e registrar em `docs/validacao/008-resultados-execucao.md`
+- [X] T014 Rodar `scripts/verificar.sh`
+- [X] T015 Executar o quickstart na pilha real e registrar em `docs/validacao/008-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 

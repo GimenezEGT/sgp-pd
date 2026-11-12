@@ -144,3 +144,33 @@ def test_tela_de_promocao(client, make_entry, analyst, make_study):
     )
     study.refresh_from_db()
     assert len(study.rows) == 3
+
+
+@pytest.mark.req("008:FR-011")
+def test_promocao_de_planilha_xlsx(make_entry, analyst, make_study):
+    import io
+
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from openpyxl import Workbook
+
+    book = Workbook()
+    sheet = book.active
+    sheet.append(["Valor"])
+    for value in (1.5, 2.5):
+        sheet.append([value])
+    buffer = io.BytesIO()
+    book.save(buffer)
+    entry = make_entry()
+    attachment = services.add_attachment(
+        entry, by=analyst, uploaded=SimpleUploadedFile("leituras.xlsx", buffer.getvalue())
+    )
+    study = make_study("repetibilidade")
+    preview = promotion.preview(
+        entry, by=analyst, attachment=attachment, study=study, mapping={"y": "Valor"}
+    )
+    promotion.confirm(
+        entry, by=analyst, token=preview["token"], equipment="", mapping={"y": "Valor"}
+    )
+    study.refresh_from_db()
+    assert len(study.rows) == 2
+    assert entry.links.get(study=study).kind == LinkKind.PROMOTED
