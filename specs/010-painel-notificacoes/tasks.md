@@ -34,8 +34,8 @@ description: "Task list for feature 010 — Painel do gestor e notificações"
 ## Phase 6: Polish
 
 - [X] T008 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 010)
-- [ ] T009 Rodar `scripts/verificar.sh`
-- [ ] T010 Executar o quickstart na pilha real e registrar em `docs/validacao/010-resultados-execucao.md`
+- [X] T009 Rodar `scripts/verificar.sh`
+- [X] T010 Executar o quickstart na pilha real e registrar em `docs/validacao/010-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 
