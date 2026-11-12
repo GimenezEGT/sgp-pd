@@ -175,6 +175,14 @@ ROUTE_CONTRACT = {
     "integrations:export": ("GET", {Profile.ADMIN}),
     "integrations:mapping": ("GET", {Profile.ADMIN}),
     "integrations:product": ("GET", ANY_PROFILE),
+    # Feature 014: operação e validação (ações da TI; acompanhamento também da Qualidade).
+    "operations:panel": ("GET", {Profile.ADMIN, Profile.QUALITY}),
+    "operations:backup_now": ("POST", {Profile.ADMIN}),
+    "operations:restore_now": ("POST", {Profile.ADMIN}),
+    "operations:qualify_installation": ("POST", {Profile.ADMIN}),
+    "operations:qualify_operation": ("POST", {Profile.ADMIN, Profile.QUALITY}),
+    "operations:report": ("GET", {Profile.ADMIN, Profile.QUALITY}),
+    "operations:access_review": ("GET", {Profile.ADMIN, Profile.QUALITY}),
 }
 
 

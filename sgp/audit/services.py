@@ -90,21 +90,23 @@ def _break(seq, kind: str, detail: str) -> dict:
     return {"seq": seq, "kind": kind, "detail": detail}
 
 
-def verify_chain(
-    *, trigger: str = ChainVerification.Trigger.MANUAL, triggered_by=None
-) -> ChainVerification:
-    """Percorre toda a cadeia e registra o resultado (FR-021)."""
-    started_at = timezone.now()
+def walk_chain(events) -> tuple[int, list[dict], int | None, str]:
+    """Percorre a cadeia de um conjunto de eventos (queryset) e devolve (eventos, quebras,
+    último seq, último resumo)."""
+    rows = (
+        events.order_by("seq").values_list(*HASH_FIELDS, "hash").iterator(chunk_size=VERIFY_CHUNK)
+    )
+    return walk_rows(rows)
+
+
+def walk_rows(rows) -> tuple[int, list[dict], int | None, str]:
+    """Percorre linhas (campos de HASH_FIELDS e o resumo, em ordem de seq) de qualquer banco, como o
+    restaurado no teste de restauração da feature 014."""
     breaks: list[dict] = []
     expected_seq = 1
     prev_hash = GENESIS_HASH
     count = 0
     head_seq, head_hash = None, ""
-    rows = (
-        AuditEvent.objects.order_by("seq")
-        .values_list(*HASH_FIELDS, "hash")
-        .iterator(chunk_size=VERIFY_CHUNK)
-    )
     for row in rows:
         fields = dict(zip(HASH_FIELDS, row[:-1], strict=True))
         stored_hash = row[-1]
@@ -125,6 +127,15 @@ def verify_chain(
         prev_hash = stored_hash
         expected_seq = seq + 1
         head_seq, head_hash = seq, stored_hash
+    return count, breaks, head_seq, head_hash
+
+
+def verify_chain(
+    *, trigger: str = ChainVerification.Trigger.MANUAL, triggered_by=None
+) -> ChainVerification:
+    """Percorre toda a cadeia e registra o resultado (FR-021)."""
+    started_at = timezone.now()
+    count, breaks, head_seq, head_hash = walk_chain(AuditEvent.objects.all())
 
     checkpoint = (
         ChainVerification.objects.exclude(head_seq__isnull=True)

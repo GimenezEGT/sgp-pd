@@ -162,6 +162,13 @@ NAV_ITEMS: list[NavItem] = [
         "Fila de envio ao ERP, reprocessamento, mapeamento e exportação de contingência.",
     ),
     NavItem(
+        "Operação e validação",
+        "operations:panel",
+        frozenset({Profile.ADMIN, Profile.QUALITY}),
+        "Administração",
+        "Cópias de segurança, testes de restauração, qualificações (IQ e OQ) e revisão de acessos.",
+    ),
+    NavItem(
         "Trilha de auditoria",
         "audit:trail",
         frozenset(AUDIT_TRAIL_PROFILES),

@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "sgp.dashboard",
     "sgp.dossier",
     "sgp.integrations",
+    "sgp.operations",
 ]
 
 MIDDLEWARE = [
@@ -217,6 +218,22 @@ SANKHYA_CLIENT_SECRET = env_str("SANKHYA_CLIENT_SECRET", "")
 SANKHYA_X_TOKEN = env_str("SANKHYA_X_TOKEN", "")
 SANKHYA_TIMEOUT = env_int("SANKHYA_TIMEOUT", 15)
 INTEGRATION_MAX_ATTEMPTS = env_int("INTEGRATION_MAX_ATTEMPTS", 6)
+
+# Cópia de segurança, restauração e qualificação (feature 014). O destino é montado pela TI de
+# outro servidor ou compartilhamento; o papel dono (o mesmo das migrações) copia e restaura.
+BACKUP_DIR = env_str("BACKUP_DIR", str(BASE_DIR / "var" / "backups"))
+BACKUP_HOUR = env_int("BACKUP_HOUR", 1)
+BACKUP_MINUTE = env_int("BACKUP_MINUTE", 0)
+BACKUP_KEEP_DAYS = env_int("BACKUP_KEEP_DAYS", 35)
+BACKUP_MAX_AGE_HOURS = env_int("BACKUP_MAX_AGE_HOURS", 26)
+RESTORE_TEST_DAY = env_int("RESTORE_TEST_DAY", 1)
+RESTORE_TEST_HOUR = env_int("RESTORE_TEST_HOUR", 3)
+RESTORE_TEST_MAX_AGE_DAYS = 32
+DB_OWNER_USER = env_str("DB_OWNER_USER", "sgp_owner")
+DB_OWNER_PASSWORD = env_str("DB_OWNER_PASSWORD", "")
+PG_DUMP = env_str("PG_DUMP", "pg_dump")
+PG_RESTORE = env_str("PG_RESTORE", "pg_restore")
+SGP_COMMIT = env_str("SGP_COMMIT", "")
 CACHE_URL = env_str("CACHE_URL", "")
 CACHES = {
     "default": (
@@ -280,6 +297,19 @@ CELERY_BEAT_SCHEDULE = {
     "fila-de-integracao-sankhya": {
         "task": "sgp.integrations.process_due",
         "schedule": crontab(minute="*/5"),
+    },
+    # Feature 014: cópia diária, teste de restauração mensal e conferência de cópia em dia.
+    "copia-de-seguranca-diaria": {
+        "task": "sgp.operations.backup",
+        "schedule": crontab(hour=BACKUP_HOUR, minute=BACKUP_MINUTE),
+    },
+    "teste-de-restauracao-mensal": {
+        "task": "sgp.operations.restore_test",
+        "schedule": crontab(day_of_month=RESTORE_TEST_DAY, hour=RESTORE_TEST_HOUR, minute=0),
+    },
+    "conferencia-de-copias-em-dia": {
+        "task": "sgp.operations.check_freshness",
+        "schedule": crontab(hour=8, minute=0),
     },
 }
 

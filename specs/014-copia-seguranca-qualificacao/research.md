@@ -51,8 +51,12 @@
   igual ao do manifesto, C3 `pg_restore --no-owner --no-privileges --exit-on-error` sem erro, C4
   contagem por tabela igual à do manifesto, C5 cadeia da trilha íntegra e último evento igual ao do
   manifesto, C6 todos os arquivos referenciados presentes no acervo com o SHA-256 conferido. A C5
-  usa a função de verificação da feature 001 sobre um apelido de banco (`connections.databases`)
-  criado em tempo de execução com o papel dono.
+  usa a verificação da feature 001 (`walk_rows`, extraída de `walk_chain`) sobre as linhas do
+  banco restaurado, lidas por cursor de servidor numa conexão direta do papel dono. Um apelido de
+  banco criado em tempo de execução (`connections.databases`) foi descartado na implementação:
+  o isolamento dos testes do Django bloqueia conexões a apelidos não declarados. Quando a C5
+  reprova, o detalhe lista as quebras e avisa se a verificação da trilha do banco em uso já as
+  apontava (incidente existente, reproduzido fielmente pela cópia).
 - Rationale: prova que a cópia recupera banco, trilha e arquivos (FR-006, SC-001, SC-002) sem tocar
   no banco em uso.
 - Alternatives considered: restaurar num servidor separado (exige infraestrutura extra); conferir só

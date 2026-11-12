@@ -31,14 +31,24 @@ RUN apt-get update \
        fonts-crosextra-carlito fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --system --uid 1000 --create-home --home-dir /home/sgp sgp
+# Cópia de segurança (feature 014): pg_dump/pg_restore da mesma versão do servidor (17),
+# do repositório oficial do PostgreSQL (o Debian bookworm traz só o cliente 15).
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-common ca-certificates \
+    && /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y \
+    && apt-get install -y --no-install-recommends postgresql-client-17 \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 FROM base AS runtime
+# Commit da versão implantada (evidência da validação, feature 014): --build-arg SGP_COMMIT=...
+ARG SGP_COMMIT=""
+ENV SGP_COMMIT=${SGP_COMMIT}
 COPY --from=builder /opt/venv /opt/venv
 COPY --chown=sgp:sgp . /app
 RUN chmod +x /app/deploy/docker/entrypoint.sh \
     && DJANGO_SECRET_KEY=somente-para-collectstatic python manage.py collectstatic --noinput \
-    && mkdir -p /app/var/media && chown -R sgp:sgp /app/var /app/staticfiles
+    && mkdir -p /app/var/media /app/var/backups && chown -R sgp:sgp /app/var /app/staticfiles
 USER sgp
 EXPOSE 8000
 ENTRYPOINT ["/app/deploy/docker/entrypoint.sh"]
@@ -47,7 +57,8 @@ CMD ["web"]
 FROM base AS dev
 COPY --from=builder-dev /opt/venv /opt/venv
 COPY --chown=sgp:sgp . /app
-RUN chmod +x /app/deploy/docker/entrypoint.sh && mkdir -p /app/var/media && chown -R sgp:sgp /app/var
+RUN chmod +x /app/deploy/docker/entrypoint.sh && mkdir -p /app/var/media /app/var/backups \
+    && chown -R sgp:sgp /app/var
 USER sgp
 EXPOSE 8000
 ENTRYPOINT ["/app/deploy/docker/entrypoint.sh"]

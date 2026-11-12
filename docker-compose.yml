@@ -9,12 +9,18 @@ x-app: &app
     context: .
     dockerfile: deploy/docker/Dockerfile
     target: runtime
+    args:
+      SGP_COMMIT: ${SGP_COMMIT:-}
   env_file: .env
   environment:
     DB_HOST: db
     REDIS_URL: redis://redis:6379/0
+    BACKUP_DIR: /app/var/backups
   volumes:
     - media:/app/var/media
+    # Destino das cópias de segurança (feature 014): diretório do host montado pela TI de outro
+    # servidor ou compartilhamento; nunca o mesmo disco dos dados.
+    - ${BACKUP_HOST_DIR:-./var/backups}:/app/var/backups
   restart: unless-stopped
 
 services:

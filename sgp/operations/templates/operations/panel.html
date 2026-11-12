@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Operação e validação{% endblock %}
+{% block content %}
+<h1>Operação e validação</h1>
+<p class="descricao">Cópias de segurança diárias com teste de restauração (RDC 665/2022, art. 35), qualificações de instalação e de operação e revisão de acessos. Destino das cópias: <code>{{ destination }}</code>; cópias diárias mantidas por {{ keep_days }} dias e a primeira de cada mês sem remoção automática.</p>
+{% if backup_stale %}<p class="mensagem mensagem-warning">Sem cópia de segurança bem-sucedida nas últimas {{ max_age_hours }} horas{% if latest_backup %} (última em {{ latest_backup.finished_at|datahora }}){% endif %}.</p>{% endif %}
+{% if restore_overdue %}<p class="mensagem mensagem-warning">{% if not latest_test %}Nenhum teste de restauração executado.{% elif latest_test.status != "passed" %}O último teste de restauração ({{ latest_test.started_at|datahora }}) reprovou.{% else %}O último teste de restauração aprovado tem mais de {{ restore_max_days }} dias.{% endif %}</p>{% endif %}
+
+<section class="painel" aria-label="Cópias de segurança">
+  <h2>Cópias de segurança</h2>
+  {% if is_admin %}<form method="post" action="{% url 'operations:backup_now' %}">{% csrf_token %}<button type="submit" class="botao"{% if running_backup %} disabled{% endif %}>Fazer cópia agora</button></form>{% endif %}
+  <div class="tabela-rolagem"><table>
+    <thead><tr><th>Início</th><th>Tipo</th><th>Situação</th><th>Pasta</th><th>Banco</th><th>Arquivos (novos)</th><th>Último evento da trilha</th><th>Resumo do manifesto</th><th>Observação</th></tr></thead>
+    <tbody>{% for item in backups %}<tr>
+      <td>{{ item.started_at|datahora }}</td><td>{{ item.get_kind_display }}{% if item.requested_by %} por {{ item.requested_by.get_full_name|default:item.requested_by.username }}{% endif %}</td>
+      <td>{{ item.get_status_display }}</td><td><code>{{ item.label }}</code></td>
+      <td>{% if item.status == "success" %}{{ item.database_size_display }}{% endif %}</td>
+      <td>{% if item.status == "success" %}{{ item.files_total }} ({{ item.files_new }}){% endif %}</td>
+      <td>{{ item.audit_head_seq|default:"" }}</td>
+      <td>{% if item.manifest_sha256 %}<code>{{ item.manifest_sha256|slice:":16" }}…</code>{% endif %}</td>
+      <td>{% if item.error %}{{ item.error }}{% elif item.removed_at %}Removida pela retenção em {{ item.removed_at|datahora }}{% elif item.monthly %}Cópia mensal mantida{% endif %}</td>
+    </tr>{% empty %}<tr><td colspan="9">Nenhuma cópia de segurança.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="painel" aria-label="Testes de restauração">
+  <h2>Testes de restauração</h2>
+  {% if is_admin %}<form method="post" action="{% url 'operations:restore_now' %}">{% csrf_token %}<button type="submit" class="botao"{% if running_test %} disabled{% endif %}>Testar a restauração da cópia mais recente</button></form>{% endif %}
+  <div class="tabela-rolagem"><table>
+    <thead><tr><th>Início</th><th>Tipo</th><th>Cópia</th><th>Situação</th><th>Conferências</th></tr></thead>
+    <tbody>{% for item in tests %}<tr>
+      <td>{{ item.started_at|datahora }}</td><td>{{ item.get_kind_display }}</td><td><code>{{ item.backup.label|default:"—" }}</code></td>
+      <td>{{ item.get_status_display }}{% if item.error %}: {{ item.error }}{% endif %}</td>
+      <td><ul>{% for check in item.checks %}<li>{{ check.codigo }} {% if check.aprovado %}aprovada{% else %}<strong>reprovada</strong>{% endif %} — {{ check.descricao }}: {{ check.detalhe }}</li>{% endfor %}</ul></td>
+    </tr>{% empty %}<tr><td colspan="5">Nenhum teste de restauração.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="painel" aria-label="Qualificações">
+  <h2>Qualificações de instalação e de operação</h2>
+  <p>{% if is_admin %}<form method="post" action="{% url 'operations:qualify_installation' %}" class="em-linha">{% csrf_token %}<button type="submit" class="botao botao-secundario">Executar a qualificação de instalação</button></form>{% endif %}
+  {% if can_oq %}<form method="post" action="{% url 'operations:qualify_operation' %}" class="em-linha">{% csrf_token %}<button type="submit" class="botao botao-secundario">Executar a qualificação de operação</button></form>{% endif %}</p>
+  <div class="tabela-rolagem"><table>
+    <thead><tr><th>Fim</th><th>Tipo</th><th>Canal</th><th>Executada por</th><th>Versão</th><th>Resultado</th><th>Relatório</th></tr></thead>
+    <tbody>{% for run in runs %}<tr>
+      <td>{{ run.finished_at|datahora }}</td><td>{{ run.get_kind_display }}</td><td>{{ run.get_channel_display }}</td>
+      <td>{{ run.executed_by.get_full_name|default:run.executed_by.username }}</td><td>{{ run.system_version }}</td>
+      <td>{% if run.passed %}Aprovada{% else %}Reprovada ({% for item in run.failed_items %}{{ item.codigo }}{% if not forloop.last %}, {% endif %}{% endfor %}){% endif %}</td>
+      <td><a href="{% url 'operations:report' run.pk %}">PDF</a> <code>{{ run.report.sha256|slice:":12" }}…</code></td>
+    </tr>{% empty %}<tr><td colspan="7">Nenhuma qualificação executada.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="painel" aria-label="Revisão de acessos">
+  <h2>Revisão periódica de acessos</h2>
+  <p>Pessoas, perfis ativos (desde e concedido por), papéis por projeto e último acesso: <a href="{% url 'operations:access_review' %}?formato=csv">CSV</a> · <a href="{% url 'operations:access_review' %}?formato=xlsx">XLSX</a>.</p>
+</section>
+{% endblock %}

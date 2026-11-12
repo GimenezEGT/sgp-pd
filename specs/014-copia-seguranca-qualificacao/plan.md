@@ -18,9 +18,9 @@ Abordagem técnica: app `sgp/operations`; `pg_dump`/`pg_restore` da versão 17 (
 do PostgreSQL na imagem) chamados pelo worker; instantâneo exportado (`pg_export_snapshot`) numa
 transação REPEATABLE READ em que também se contam as linhas, se lê o último evento da trilha e a
 lista de arquivos, e o `pg_dump --snapshot` grava exatamente esse estado; tarefas Celery agendadas
-no beat; verificação da cadeia da trilha reaproveitada da feature 001 sobre um apelido de banco
-criado em tempo de execução para o banco restaurado; relatórios renderizados pelo WeasyPrint e
-guardados pelo armazenamento da feature 003.
+no beat; verificação da cadeia da trilha reaproveitada da feature 001 (`walk_rows`) sobre as
+linhas do banco restaurado, lidas por cursor de servidor numa conexão direta do papel dono;
+relatórios renderizados pelo WeasyPrint e guardados pelo armazenamento da feature 003.
 
 ## Technical Context
 
@@ -99,15 +99,15 @@ sgp/operations/
 ├── tasks.py / views.py / urls.py / templates/operations/
 └── management/commands/  copia_seguranca, teste_restauracao,
                           qualificacao_instalacao, qualificacao_operacao
-sgp/audit/services.py  # verificação da cadeia separada em função reutilizável (walk_chain)
+sgp/audit/services.py  # verificação da cadeia separada em funções reutilizáveis (walk_chain, walk_rows)
 deploy/docker/Dockerfile   # postgresql-client-17 e SGP_COMMIT
 docker-compose.yml         # volume do destino de cópias
 tests/operations/
 ```
 
 **Structure Decision**: uma app nova no monólito, como nas features anteriores; a verificação da
-cadeia da trilha é extraída para uma função que recebe o conjunto de eventos, usada pela
-verificação diária (feature 001) e pelo teste de restauração.
+cadeia da trilha é extraída para uma função que recebe as linhas dos eventos (`walk_rows`),
+usada pela verificação diária (feature 001, por `walk_chain`) e pelo teste de restauração.
 
 ## Complexity Tracking
 

@@ -40,6 +40,13 @@ AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
 `DJANGO_DEBUG=false`. As variáveis estão em
 [specs/001-fundacao-acesso-auditoria/contracts/configuracao.md](specs/001-fundacao-acesso-auditoria/contracts/configuracao.md).
 
+Cópias de segurança (feature 014): `BACKUP_HOST_DIR` aponta para o diretório do host montado pela TI
+de outro servidor ou compartilhamento; a cópia roda todo dia (01:00) e o teste de restauração todo
+mês (dia 1, 03:00), com o painel **Operação e validação**. Construa a imagem com
+`SGP_COMMIT=$(git rev-parse HEAD)` para que relatórios e cópias registrem a versão. Validação:
+[docs/validacao/README.md](docs/validacao/README.md) (IQ, OQ e pacote de validação) e
+[docs/operacao/recuperacao.md](docs/operacao/recuperacao.md) (recuperação).
+
 ## Funções já entregues
 
 | Feature | O que entrega |
@@ -53,6 +60,7 @@ AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
 | 011 | Dossiê técnico para a ANVISA na estrutura I a XII: definição declarativa em YAML (itens, classes e fontes) versionada, checagem item a item para a classe de risco (completo, faltando, não aplicável com justificativa, com a origem), PDF/A e DOCX no formato do contexto com declaração do responsável técnico e legal, pacote ZIP com os anexos, biblioteca de textos padrão com aprovação por senha, complementos por projeto, família de kits, registro do envio e do resultado e aditamento com os itens alterados |
 | 012 | Integração com o Sankhya só pelo API Gateway oficial: cliente com OAuth 2.0 client credentials e renovação do token, mensagens de integração criadas na transação das aprovações (projeto, documento, lotes, insumos novos como solicitação de cadastro, resultados de estudo) e enviadas por saveRecord com chave de idempotência e novas tentativas em espera crescente, mapeamento configurável pela TI, consulta de produto no cadastro de insumos e lotes, fila com reprocessamento e exportação de contingência em CSV, XLSX e JSON |
 | 013 | Revisão controlada dos modelos de subdocumento e de layout (pedido do usuário): a Qualidade/AR abre, altera, envia com motivo e impacto e descarta; o Gestor de P&D devolve com comentário ou aprova com assinatura e vigência imediata ou futura; histórico com etapas, comparação entre versões, uso por versão, verificação de integridade e retirada de uso de modelo de subdocumento |
+| 014 | Operação e validação: cópia de segurança diária do banco (instantâneo consistente) e dos arquivos (acervo endereçado pelo SHA-256) com manifesto, retenção de 35 dias com a cópia mensal mantida, teste de restauração mensal num banco isolado (resumos, restauração, contagens, cadeia da trilha e arquivos), avisos por e-mail à TI, qualificações de instalação (IQ) e de operação (OQ) com relatório PDF guardado, revisão de acessos em CSV/XLSX e roteiros de IQ, OQ e recuperação |
 | 006 | Geração dos documentos no padrão da planilha Capas Projeto: PDF/A-2b (oficial quando aprovado, selado com o certificado da empresa e com código de verificação) e DOCX de conferência para subdocumentos, TAP e Plano de Negócios; marca d'água nos rascunhos, conteúdo congelado na aprovação (regeneração idêntica), arquivo das gerações com SHA-256 e modelos de layout versionados mantidos pela Qualidade |
 | 005 | Ciclo de revisão (rascunho, em revisão, devolvido, aprovado; anterior substituída) com assinatura eletrônica: senha de rede, significado, data e hora do servidor e SHA-256 do conteúdo canônico; versões aprovadas congeladas, verificação de integridade, nova versão com motivo, delegação, bloqueio após três falhas e fila de revisão; TAP e Plano assinados na submissão e na aprovação do projeto |
 | 004 | Modelos de formulário versionados (versão 05 dos nove subdocumentos carregada) e subdocumentos preenchidos a partir do modelo: Entrada com "aplica / não se aplica", Validação com pendências, Verificação Final derivada, Saída e Alteração de Projeto; ordem do fluxo com autorização do Gestor e aprovação provisória até a 005 |

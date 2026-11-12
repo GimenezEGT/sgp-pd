@@ -21,11 +21,14 @@ Recusado: diretório inexistente, sem permissão de gravação, igual a `MEDIA_R
   "banco": {"arquivo": "banco.dump", "tamanho": 0, "sha256": "<64 hex>", "servidor": "17.x", "nome": "<banco>"},
   "tabelas": {"<tabela>": 0},
   "trilha": {"seq": 0, "hash": "<64 hex>"},
-  "arquivos": {"total": 0, "novos": 0, "bytes": 0, "lista": [["<sha256>", 0]]}
+  "arquivos": {"total": 0, "novos": 0, "bytes": 0, "lista": [["<sha256>", 0]],
+               "problemas": [["<sha256>", "ausente|alterado"]]}
 }
 ```
 
-O SHA-256 do próprio manifesto fica em `BackupRun.manifest_sha256`.
+O SHA-256 do próprio manifesto fica em `BackupRun.manifest_sha256`. Com arquivo guardado ausente ou
+alterado, a cópia reprova, mas a pasta fica com o banco copiado e o manifesto com `problemas`
+(o arquivo alterado não entra no acervo); a retenção remove essas pastas como as diárias.
 
 ## Teste de restauração
 
@@ -47,7 +50,7 @@ Banco isolado: `<NAME>_restauracao`, descartado antes (se sobrou) e ao fim.
 | `python manage.py copia_seguranca` | cópia manual imediata (mesmo serviço da tarefa diária) |
 | `python manage.py teste_restauracao` | teste de restauração da cópia mais recente |
 | `python manage.py qualificacao_instalacao --usuario <login>` | IQ, canal "linha de comando"; a pessoa precisa ter o perfil Administrador ativo |
-| `python manage.py qualificacao_operacao --usuario <login>` | OQ, canal "linha de comando"; Administrador ou Garantia da Qualidade |
+| `python manage.py qualificacao_operacao --usuario <login>` | OQ, canal "linha de comando"; a pessoa precisa ter o perfil Administrador ativo (a Garantia da Qualidade executa pela tela) |
 
 Saída com código 1 quando a cópia, o teste ou a qualificação reprova.
 
