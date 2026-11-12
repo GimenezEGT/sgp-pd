@@ -8,6 +8,18 @@
 
 **Input**: User description: "Estudos de desempenho e estabilidade estruturados, com cálculo automático, que alimentam o RAPD, a Validação do Produto e o dossiê. Leia docs/contexto/05-vocabularios.md e 06-casos-de-teste.md. Problema: hoje os resultados são tabelas digitadas no Word, com médias, desvios e CV% calculados à mão ou em planilhas soltas, sem um vocabulário comum para os tipos de estudo. Histórias: 1. Como analista, crio um estudo escolhendo o tipo numa lista controlada: comparação de métodos (exatidão), repetibilidade, reprodutibilidade, entre lotes, sensibilidade analítica, linearidade, interferentes, reatividade cruzada, efeito prozona, cut-off, sensibilidade e especificidade clínicas, estabilidade de longa duração, estabilidade após aberto e estabilidade de transporte. 2. Defino o critério de aceitação antes de lançar resultados (ex.: CV% < 15%, R² > 0,95, diferença média de Ct ≤ 2); o critério fica congelado no estudo. 3. Lanço ou importo resultados (planilha ou arquivo do equipamento), ligando cada linha a amostra, lote, kit de referência, dia, corrida e replicata cadastrados. 4. O sistema calcula média, desvio-padrão, CV%, diferença média, regressão linear com equação e R², concordância e sensibilidade/especificidade com IC 95%, e informa se o critério foi atendido. 5. Para estudo não aplicável (ex.: efeito prozona em método não imunológico), registro 'não aplicável' com justificativa, que segue para o dossiê. 6. Tabelas e conclusões entram no RAPD ou na Validação sem redigitação, com numeração automática. Regras: estudo usado em documento assinado não é editado; recalcular gera nova versão; casas decimais e separador seguem o padrão brasileiro e a configuração do estudo; todo cálculo tem teste com vetores de referência de resultado conhecido. Fora do escopo: protocolos estatísticos além dos listados (avaliar depois)."
 
+## Clarifications
+
+### Session 2026-11-11
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Truncar ou arredondar, e com quantas casas, por tipo de resultado? → A: Arredondar "meio para o par" (a regra da ABNT NBR 5891; conferir o texto vigente), aplicado só na exibição e nos documentos, sobre o valor completo; casas padrão: 2 para média, desvio-padrão, diferenças, CV% e percentuais (sensibilidade, especificidade, concordância, detecção, desvio percentual e IC), 4 para R², correlação, inclinação e intercepto; regra e casas configuráveis por estudo (truncar, meio para cima ou meio para o par) e registradas junto do resultado (ratificar com a Garantia da Qualidade).
+- Q: Qual o método do IC 95% para proporções? → A: Exato de Clopper-Pearson, como na proposta de docs/contexto/05-vocabularios.md; Wilson disponível como opção do estudo (ratificar com a Garantia da Qualidade).
+- Q: Quais formatos de arquivo de equipamento precisam de importação? → A: CSV (separador ponto e vírgula ou vírgula) e XLSX, com mapeamento de colunas salvo por equipamento; formatos próprios de equipamento entram quando P&D fornecer arquivos de exemplo (dependência registrada) (ratificar com o Gestor de P&D).
+- Q: Quais estudos são obrigatórios por tecnologia? → A: Nenhuma obrigatoriedade fixa nesta feature: os estudos exigidos continuam sendo os requisitos de desempenho marcados "aplica" na Entrada, que viram pendências na Validação (feature 004); a lista por tecnologia fica para a Qualidade definir (ratificar com a Garantia da Qualidade e o Gestor de P&D).
+- Q: Quem fornece e aprova os vetores de referência dos testes de cálculo? → A: A Garantia da Qualidade aprova a lista de docs/contexto/06-casos-de-teste.md (V1 a V8) como evidência da validação; vetores novos entram por mudança controlada da lista (ratificar com a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Criar o estudo com tipo controlado e critério congelado (Priority: P1)
@@ -110,12 +122,12 @@ Os estudos vinculados entram nos documentos do RAPD e da Validação como tabela
 - **FR-001**: O tipo de estudo DEVE ser escolhido numa lista controlada mantida pela Qualidade, com os 14 tipos da história 1; não há texto livre para o tipo.
 - **FR-002**: O estudo DEVE pertencer a um projeto, ter versão (01, 02...) e poder ser vinculado a um tópico do RAPD ou da Validação do Produto do mesmo projeto.
 - **FR-003**: O critério de aceitação (métrica do tipo de estudo, comparação e limite) DEVE ser definido antes dos resultados e NÃO DEVE mudar depois do primeiro resultado lançado.
-- **FR-004**: Cada estudo DEVE registrar a regra de arredondamento [NEEDS CLARIFICATION: truncar ou arredondar, e com quantas casas, por tipo de resultado?] e o método do IC 95% de proporções [NEEDS CLARIFICATION: Clopper-Pearson, Wilson ou outro?].
+- **FR-004**: Cada estudo DEVE registrar a regra de arredondamento (padrão "meio para o par"; opções truncar e meio para cima) com as casas por tipo de resultado (padrão 2; 4 para R², correlação, inclinação e intercepto) e o método do IC 95% de proporções (padrão Clopper-Pearson; opção Wilson).
 
 **Resultados**
 
 - **FR-005**: As linhas de resultado DEVEM guardar valores e referências a amostra, lote e kit de referência cadastrados, dia, corrida e replicata, com numeração feita pelo sistema; código inexistente no cadastro DEVE ser recusado.
-- **FR-006**: A importação de CSV ou XLSX DEVE usar um mapeamento de colunas salvo por equipamento, mostrar pré-visualização com as linhas recusadas e o motivo e só gravar depois da confirmação [NEEDS CLARIFICATION: quais formatos de arquivo de equipamento precisam de importação?].
+- **FR-006**: A importação de CSV ou XLSX DEVE usar um mapeamento de colunas salvo por equipamento, mostrar pré-visualização com as linhas recusadas e o motivo e só gravar depois da confirmação; formatos aceitos: CSV (ponto e vírgula ou vírgula) e XLSX.
 
 **Cálculo**
 
@@ -161,3 +173,4 @@ Os estudos vinculados entram nos documentos do RAPD e da Validação como tabela
 - A lista de tipos de estudo é a proposta de docs/contexto/05-vocabularios.md, reduzida aos 14 tipos da história 1; a Qualidade aprova e mantém a lista (feature 003).
 - Os estudos alimentam os documentos pelo vínculo com o tópico; os modelos de formulário (004) não mudam nesta feature.
 - Protocolos estatísticos além dos listados ficam para avaliação futura.
+- Arredondamento, método do IC, formatos de importação, estudos obrigatórios por tecnologia e aprovação dos vetores definidos nas respostas provisórias do esclarecimento (sessão 2026-11-11); formatos próprios de equipamento dependem de arquivos de exemplo de P&D.
