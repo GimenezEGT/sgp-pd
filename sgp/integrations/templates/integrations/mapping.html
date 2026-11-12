@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Mapeamento do Sankhya{% endblock %}
+{% block content %}
+<p><a href="{% url 'integrations:queue' %}">← Integração com o Sankhya</a></p>
+<h1>Mapeamento do Sankhya</h1>
+<p class="descricao">Versão {{ current.version }} de {{ current.created_at|datahora }}. Liga cada registro do SGP-P&amp;D à entidade e aos campos das tabelas adicionais do Sankhya, definidos com a consultoria. Entidade vazia: mensagens aguardando configuração.</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  <p><label for="yaml">Mapeamento (YAML)</label><br><textarea id="yaml" name="yaml" rows="34" class="codigo">{{ text }}</textarea></p>
+  <p><label for="observacao">Observação</label><br><input id="observacao" name="observacao" maxlength="500" size="80"></p>
+  <button type="submit" class="botao">Publicar nova versão</button>
+</form>
+{% endblock %}

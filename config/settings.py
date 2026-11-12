@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "sgp.notifications",
     "sgp.dashboard",
     "sgp.dossier",
+    "sgp.integrations",
 ]
 
 MIDDLEWARE = [
@@ -206,6 +207,16 @@ DEFAULT_FROM_EMAIL = env_str("DEFAULT_FROM_EMAIL", "SGP-P&D <sgp-pd@localhost>")
 SITE_URL = env_str("SITE_URL", "https://localhost:8443")
 NOTIFICATION_DIGEST_HOUR = env_int("NOTIFICATION_DIGEST_HOUR", 7)
 DASHBOARD_CACHE_SECONDS = env_int("DASHBOARD_CACHE_SECONDS", 300)
+
+# Integração com o Sankhya (feature 012): só pelo API Gateway oficial; credenciais só aqui,
+# vindas do ambiente. Desligada por padrão (sem credenciais, as mensagens aguardam).
+SANKHYA_ENABLED = env_bool("SANKHYA_ENABLED", False)
+SANKHYA_BASE_URL = env_str("SANKHYA_BASE_URL", "https://api.sankhya.com.br")
+SANKHYA_CLIENT_ID = env_str("SANKHYA_CLIENT_ID", "")
+SANKHYA_CLIENT_SECRET = env_str("SANKHYA_CLIENT_SECRET", "")
+SANKHYA_X_TOKEN = env_str("SANKHYA_X_TOKEN", "")
+SANKHYA_TIMEOUT = env_int("SANKHYA_TIMEOUT", 15)
+INTEGRATION_MAX_ATTEMPTS = env_int("INTEGRATION_MAX_ATTEMPTS", 6)
 CACHE_URL = env_str("CACHE_URL", "")
 CACHES = {
     "default": (
@@ -264,6 +275,11 @@ CELERY_BEAT_SCHEDULE = {
     "resumo-diario-de-pendencias": {
         "task": "sgp.notifications.daily_digest",
         "schedule": crontab(hour=NOTIFICATION_DIGEST_HOUR, minute=0),
+    },
+    # Feature 012: varredura da fila de integração com o Sankhya.
+    "fila-de-integracao-sankhya": {
+        "task": "sgp.integrations.process_due",
+        "schedule": crontab(minute="*/5"),
     },
 }
 
