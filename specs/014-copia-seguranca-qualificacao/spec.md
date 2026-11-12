@@ -103,6 +103,8 @@ A cada trimestre, a TI e a Garantia da Qualidade revisam quem tem acesso ao sist
 - Teste de restauração sem nenhuma cópia bem-sucedida: reprova e avisa.
 - Banco isolado de um teste anterior interrompido: descartado antes do novo teste.
 - Nenhuma cópia bem-sucedida nas últimas 26 horas (ex.: agendador parado): os administradores são avisados.
+- Serviço externo não configurado no ambiente: integração com o Sankhya desligada é "não aplicável" (a exportação de contingência da feature 012 está prevista); diretório (LDAP) e envio de e-mail são obrigatórios e o item reprova.
+- Qualificação reprovada: fica registrada com o relatório e os itens reprovados; depois da correção, executa-se de novo e as duas execuções ficam no histórico; o uso oficial depende da liberação pela Garantia da Qualidade.
 
 ## Requirements *(mandatory)*
 
