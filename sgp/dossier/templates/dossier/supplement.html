@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Complemento – {{ item_key }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'dossier:project' project.pk %}">← Dossiê do {{ project.code }}</a></p>
+<h1>Complemento do item</h1>
+<p class="descricao">{{ label }}. Escreva o texto deste item para o projeto, ou marque como não aplicável com a justificativa.</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  <p><label for="texto">Texto</label><br><textarea id="texto" name="texto" rows="8" cols="80">{{ record.text|default:"" }}</textarea></p>
+  <p><label><input type="checkbox" name="nao_aplicavel" value="1"{% if record.not_applicable %} checked{% endif %}> Não aplicável</label></p>
+  <p><label for="justificativa">Justificativa do não aplicável</label><br><textarea id="justificativa" name="justificativa" rows="3" cols="80">{{ record.justification|default:"" }}</textarea></p>
+  <button type="submit" class="botao">Gravar complemento</button>
+</form>
+{% endblock %}

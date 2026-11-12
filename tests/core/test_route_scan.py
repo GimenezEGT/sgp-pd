@@ -157,6 +157,18 @@ ROUTE_CONTRACT = {
     "dashboard:timeline": ("GET", PROJECT_ACCESS),
     "dashboard:pending": ("GET", ANY_PROFILE),
     "notifications:preferences": ("GET", ANY_PROFILE),
+    # Feature 011: dossiê técnico (acesso ao projeto; manutenção pela Qualidade/AR, coberto em
+    # tests/dossier).
+    "dossier:project": ("GET", PROJECT_ACCESS),
+    "dossier:supplement": ("GET", PROJECT_ACCESS),
+    "dossier:download": ("GET", PROJECT_ACCESS),
+    "dossier:submit": ("POST", PROJECT_ACCESS),
+    "dossier:addendum": ("GET", PROJECT_ACCESS),
+    "dossier:result": ("POST", PROJECT_ACCESS),
+    "dossier:texts": ("GET", ANY_PROFILE),
+    "dossier:text_approve": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
+    "dossier:definition": ("GET", ANY_PROFILE),
+    "dossier:company": ("GET", ANY_PROFILE),
 }
 
 

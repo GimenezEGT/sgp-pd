@@ -1,0 +1,106 @@
+# Definição padrão do dossiê técnico (feature 011).
+#
+# Estrutura e títulos de docs/contexto/03-padroes-formatacao.md (seção "Dossiê técnico"),
+# alinhada ao art. 58 da RDC 830/2023. A Qualidade/AR publica novas versões pela tela.
+# As letras dos subitens que o contexto lista sem letra (I.F e VI.B a VI.M) foram atribuídas em
+# sequência pelo sistema e devem ser conferidas por Assuntos Regulatórios nos originais.
+#
+# Cada item folha tem uma ou mais fontes:
+#   subdocumento: tópico (e campos) do conteúdo aprovado e congelado de um subdocumento
+#   estudos: tipos de estudo da feature 007 (versão bloqueada pela aprovação)
+#   normas: normas citadas na Entrada; referencias: referências citadas nos subdocumentos
+#   anexos: arquivos de um tópico (seguem no pacote do dossiê)
+#   texto_padrao: texto aprovado da biblioteca; complemento: texto do projeto escrito por AR
+# "classes" limita o item às classes de risco; fora delas, o item sai como não aplicável com a
+# justificativa "fora_da_classe".
+formato: 1
+classes: [I, II, III, IV]
+itens:
+  - numero: I
+    titulo: DESCRIÇÃO DO PRODUTO
+    subitens:
+      - numero: A
+        titulo: Finalidade (Indicação de Uso)
+        subitens:
+          - {numero: "1", titulo: Analito, fontes: [{tipo: complemento}]}
+          - {numero: "2", titulo: Funcionalidade, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: funcionalidade}]}
+          - {numero: "3", titulo: Detecção (Fator de Risco), fontes: [{tipo: complemento}]}
+          - {numero: "4", titulo: Usuário, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: tipo_usuario, campos: [tipo]}]}
+          - {numero: "5", titulo: Local de Uso, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: tipo_usuario, campos: [local_uso]}]}
+          - {numero: "6", titulo: Classificação do Uso (Único ou Múltiplo), fontes: [{tipo: subdocumento, subdocumento: entrada, topico: classificacao_uso}]}
+          - {numero: "7", titulo: Classificação da Automação, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: automacao}]}
+          - {numero: "8", titulo: Classificação do Teste (Qualitativo ou Quantitativo), fontes: [{tipo: complemento}]}
+          - {numero: "9", titulo: Tipo de Amostra, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: amostras}]}
+          - {numero: "10", titulo: População Alvo, fontes: [{tipo: complemento}]}
+      - {numero: B, titulo: Metodologia, fontes: [{tipo: complemento}]}
+      - {numero: C, titulo: Classe de Risco, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: classificacao_risco}]}
+      - {numero: D, titulo: Composição, fontes: [{tipo: subdocumento, subdocumento: formulacao, topico: materias_primas}]}
+      - {numero: E, titulo: Apresentação e Embalagem, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: apresentacoes}]}
+      - {numero: F, titulo: "Equipamentos, Software, Configurações, Acessórios, Comercialização", fontes: [{tipo: complemento}]}
+  - numero: II
+    titulo: IMAGEM DO PRODUTO
+    fontes: [{tipo: anexos, subdocumento: saida, topico: documentos, imagens: true}]
+  - numero: III
+    titulo: GERENCIAMENTO DE RISCO
+    fontes:
+      - {tipo: anexos, subdocumento: entrada, topico: gerenciamento_risco}
+      - {tipo: anexos, subdocumento: saida, topico: matriz_risco}
+  - numero: IV
+    titulo: NORMAS TÉCNICAS
+    fontes: [{tipo: normas}]
+  - numero: V
+    titulo: CERTIFICADO DE CONFORMIDADE (INSTRUMENTOS DE CERTIFICAÇÃO COMPULSÓRIA)
+    fontes: [{tipo: complemento}]
+  - numero: VI
+    titulo: ESTUDO DE DESEMPENHO
+    classes: [II, III, IV]
+    fora_da_classe: Desempenho analítico exigido para as classes II a IV (RDC 830/2023, Anexo II).
+    subitens:
+      - numero: A
+        titulo: Amostra Biológica
+        subitens:
+          - {numero: "1", titulo: Caracterização e validação das amostras clínicas, fontes: [{tipo: complemento}]}
+          - {numero: "2", titulo: Condições de armazenamento e estabilidade, fontes: [{tipo: complemento}]}
+      - {numero: B, titulo: Rastreabilidade metrológica de calibradores e controles, fontes: [{tipo: complemento}]}
+      - {numero: C, titulo: Exatidão, fontes: [{tipo: estudos, tipos: [comparacao-metodos]}]}
+      - {numero: D, titulo: "Precisão (repetibilidade, reprodutibilidade, interensaio)", fontes: [{tipo: estudos, tipos: [repetibilidade, reprodutibilidade, entre-lotes]}]}
+      - {numero: E, titulo: Sensibilidade analítica, fontes: [{tipo: estudos, tipos: [sensibilidade-analitica]}]}
+      - {numero: F, titulo: Interferentes, fontes: [{tipo: estudos, tipos: [interferentes]}]}
+      - {numero: G, titulo: Reatividade cruzada, fontes: [{tipo: estudos, tipos: [reatividade-cruzada]}]}
+      - {numero: H, titulo: Efeito prozona de alta dose, fontes: [{tipo: estudos, tipos: [efeito-prozona]}]}
+      - {numero: I, titulo: Linearidade, fontes: [{tipo: estudos, tipos: [linearidade]}]}
+      - {numero: J, titulo: Valor de cut-off, fontes: [{tipo: estudos, tipos: [cut-off]}]}
+      - {numero: K, titulo: Validação do procedimento de ensaio, fontes: [{tipo: complemento}]}
+      - {numero: L, titulo: Validação do procedimento de limpeza e desinfecção, fontes: [{tipo: complemento}]}
+      - {numero: M, titulo: Relatório de usabilidade, fontes: [{tipo: complemento}]}
+  - numero: VII
+    titulo: ESTUDO DE ESTABILIDADE
+    subitens:
+      - {numero: A, titulo: Longa duração (e transporte), fontes: [{tipo: estudos, tipos: [estabilidade-longa]}]}
+      - {numero: B, titulo: Após aberto / on board, fontes: [{tipo: estudos, tipos: [estabilidade-aberto]}]}
+      - {numero: C, titulo: Transporte, fontes: [{tipo: estudos, tipos: [estabilidade-transporte]}]}
+      - {numero: D, titulo: Condições de armazenamento e transporte, fontes: [{tipo: subdocumento, subdocumento: entrada, topico: armazenamento}]}
+  - numero: VIII
+    titulo: DESEMPENHO CLÍNICO
+    classes: [III, IV]
+    fora_da_classe: Desempenho clínico exigido apenas para as classes III e IV (RDC 830/2023, Anexo II).
+    subitens:
+      - {numero: A, titulo: Sensibilidade e especificidade clínicas, fontes: [{tipo: estudos, tipos: [sensibilidade-especificidade]}]}
+      - {numero: B, titulo: Valor esperado ou de referência, fontes: [{tipo: complemento}]}
+      - {numero: C, titulo: Relatório de avaliação de evidências clínicas, fontes: [{tipo: complemento}]}
+  - numero: IX
+    titulo: ROTULAGEM E INSTRUÇÃO DE USO
+    subitens:
+      - {numero: A, titulo: Rótulos primário e secundário, fontes: [{tipo: anexos, subdocumento: saida, topico: documentos}]}
+      - {numero: B, titulo: Instrução de uso, fontes: [{tipo: anexos, subdocumento: saida, topico: documentos}]}
+  - numero: X
+    titulo: UNIDADE FABRIL
+    fontes: [{tipo: texto_padrao, chave: unidade-fabril}]
+  - numero: XI
+    titulo: PROCESSO DE FABRICAÇÃO
+    fontes:
+      - {tipo: texto_padrao, chave: processo-fabricacao}
+      - {tipo: subdocumento, subdocumento: lote-piloto, topico: modo_preparo}
+  - numero: XII
+    titulo: REFERÊNCIAS BIBLIOGRÁFICAS
+    fontes: [{tipo: referencias}]

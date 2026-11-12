@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "sgp.fulldoc",
     "sgp.notifications",
     "sgp.dashboard",
+    "sgp.dossier",
 ]
 
 MIDDLEWARE = [

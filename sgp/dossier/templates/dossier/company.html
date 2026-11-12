@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Empresa e responsável técnico{% endblock %}
+{% block content %}
+<h1>Empresa e responsável técnico e legal</h1>
+<p class="descricao">Razão social do rodapé do dossiê e dados da declaração de responsabilidade (RDC 830/2023, art. 56).</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  <p><label for="legal_name">Razão social</label><br><input id="legal_name" name="legal_name" value="{{ values.legal_name }}" maxlength="200" size="60"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="city">Cidade</label><br><input id="city" name="city" value="{{ values.city }}" maxlength="120"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="rt_name">Responsável técnico e legal</label><br><input id="rt_name" name="rt_name" value="{{ values.rt_name }}" maxlength="200" size="60"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="rt_title">Cargo</label><br><input id="rt_title" name="rt_title" value="{{ values.rt_title }}" maxlength="120"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="rt_council">Conselho</label><br><input id="rt_council" name="rt_council" value="{{ values.rt_council }}" maxlength="120" size="40"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="rt_uf">UF do conselho</label><br><input id="rt_uf" name="rt_uf" value="{{ values.rt_uf }}" maxlength="2" size="3"{% if not is_quality %} readonly{% endif %}></p>
+  <p><label for="rt_number">Número no conselho</label><br><input id="rt_number" name="rt_number" value="{{ values.rt_number }}" maxlength="40"{% if not is_quality %} readonly{% endif %}></p>
+  {% if is_quality %}<button type="submit" class="botao">Gravar</button>{% endif %}
+</form>
+{% endblock %}

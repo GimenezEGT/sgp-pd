@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Dossiê técnico – {{ project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
+<h1>Dossiê técnico para a ANVISA</h1>
+<p class="descricao">Montado dos dados aprovados na estrutura I a XII. Com item obrigatório faltando, só sai rascunho. <a href="{% url 'dossier:texts' %}">Textos padrão</a> · <a href="{% url 'dossier:company' %}">Empresa e responsável técnico</a> · <a href="{% url 'dossier:definition' %}">Definição do dossiê</a></p>
+{% if result %}
+<section class="painel" aria-label="Checagem">
+  <h2>Checagem de completude</h2>
+  <p>Classe de risco: <strong>{{ result.risk_class|default:"não definida na Entrada aprovada" }}</strong> · {% if result.kits|length > 1 %}Família: {% for kit in result.kits %}{{ kit.product_name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}Produto: {{ project.product_name }}{% endif %} · Definição versão {{ result.definition.version }}</p>
+  <p>{% if result.final_allowed %}<span class="situacao situacao-ok">Pronto para o dossiê final</span>{% else %}<span class="situacao situacao-pendente">{{ result.missing|length }} item(ns) faltando{% if result.company_missing %}; empresa e responsável técnico não cadastrados{% endif %}</span>{% endif %}</p>
+  <div class="tabela-rolagem"><table>
+    <thead><tr><th>Item</th><th>Situação</th><th>Origem</th><th>Observação</th>{% if is_quality %}<th></th>{% endif %}</tr></thead>
+    <tbody>{% for item in result.items %}<tr>
+      <td>{{ item.path_label }}</td>
+      <td><span class="situacao situacao-{% if item.status == 'complete' %}ok{% elif item.status == 'na' %}done{% else %}overdue{% endif %}">{{ item.status_label }}</span></td>
+      <td>{{ item.origin }}</td>
+      <td>{% if item.status == 'na' %}{{ item.justification }}{% else %}{{ item.reason }}{% endif %}</td>
+      {% if is_quality %}<td>{% if "Complemento" in item.origin %}<a href="{% url 'dossier:supplement' project.pk item.key %}">Complemento</a>{% endif %}</td>{% endif %}
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  {% if is_quality %}<form method="post">{% csrf_token %}<button type="submit" class="botao">{% if result.final_allowed %}Gerar o dossiê final{% else %}Gerar rascunho{% endif %}</button></form>{% endif %}
+</section>
+{% endif %}
+<h2>Versões geradas</h2>
+<table>
+  <thead><tr><th>Versão</th><th>Situação</th><th>Classe</th><th>Gerado em</th><th>Arquivos</th><th>Envios</th></tr></thead>
+  <tbody>{% for version in versions %}<tr>
+    <td>{{ version.number|stringformat:"02d" }}</td>
+    <td>{% if version.final %}Final{% else %}Rascunho{% endif %}</td>
+    <td>{{ version.risk_class|default:"—" }}</td>
+    <td>{{ version.generated_at|datahora }}</td>
+    <td><a href="{% url 'dossier:download' version.pk 'pdf' %}">PDF</a> · <a href="{% url 'dossier:download' version.pk 'docx' %}">DOCX</a>{% if version.package_id %} · <a href="{% url 'dossier:download' version.pk 'pacote' %}">Pacote com anexos</a>{% endif %} · <a href="{% url 'dossier:addendum' version.pk %}">Aditamento</a></td>
+    <td>
+      {% for item in version.submissions.all %}<p>{{ item.protocol }} em {{ item.submitted_on|data }} – {{ item.get_result_display }}{% if item.result_on %} em {{ item.result_on|data }}{% endif %}
+        {% if is_quality and item.result == "pending" %}<form method="post" action="{% url 'dossier:result' item.pk %}" class="form-linha">{% csrf_token %}<select name="resultado" aria-label="Resultado">{% for code, label in results %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select> <input type="date" name="data" aria-label="Data do resultado" required> <button type="submit" class="botao botao-discreto">Registrar resultado</button></form>{% endif %}</p>{% endfor %}
+      {% if is_quality and version.final and version.risk_class != "I" %}<form method="post" action="{% url 'dossier:submit' version.pk %}" enctype="multipart/form-data">{% csrf_token %}<input name="protocolo" placeholder="Processo ou expediente" aria-label="Processo ou expediente" required> <input type="date" name="data" aria-label="Data do envio" required> <input type="file" name="pdf_assinado" accept=".pdf" aria-label="PDF assinado"> <button type="submit" class="botao botao-discreto">Registrar envio</button></form>{% elif version.final and version.risk_class == "I" %}<span class="descricao">Classe I: arquivado, sem envio.</span>{% endif %}
+    </td>
+  </tr>{% empty %}<tr><td colspan="6">Nenhuma versão gerada.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

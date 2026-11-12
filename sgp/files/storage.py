@@ -38,7 +38,7 @@ class FileKind:
             return head.startswith(PNG_SIGNATURE)
         if self.code == "jpeg":
             return head.startswith(JPEG_SIGNATURE)
-        if self.code in ("xlsx", "docx"):
+        if self.code in ("xlsx", "docx", "zip"):
             return head.startswith(ZIP_SIGNATURE)
         if self.code == "csv":
             return NUL not in head
@@ -64,10 +64,12 @@ KINDS = {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             (".docx",),
         ),
+        FileKind("zip", "ZIP", "application/zip", (".zip",)),
     )
 }
 DOCUMENT_KINDS = ("pdf", "png", "jpeg")
-GENERATED_KINDS = ("pdf", "docx")  # só gerados pelo sistema (feature 006), nunca aceitos em upload
+# Só gerados pelo sistema (PDF e DOCX da 006, pacote ZIP do dossiê da 011), nunca aceitos em upload.
+GENERATED_KINDS = ("pdf", "docx", "zip")
 SPREADSHEET_KINDS = ("csv", "xlsx")
 DOCUMENTS = None  # tipos de anexo de documento habilitados em FILE_DOCUMENT_TYPES
 HEAD_SIZE = 4096
