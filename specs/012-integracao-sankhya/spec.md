@@ -8,6 +8,16 @@
 
 **Input**: User description: "Integração com o ERP Sankhya para que os dados dos subdocumentos aprovados fiquem armazenados e utilizáveis no ERP, e para que códigos de produtos e insumos venham do cadastro oficial. Leia docs/contexto/07-integracao-sankhya.md. Histórias: 1. Como analista, ao cadastrar insumos e lotes, busco o código no cadastro de produtos do Sankhya e o sistema traz descrição e unidade, evitando código digitado errado. 2. Quando um subdocumento é aprovado, seus dados estruturados vão para o Sankhya, nas tabelas adicionais definidas com a TI: projeto, subdocumento, versão, data, signatários, campos principais e identificação do PDF oficial. 3. Na Saída de Projeto aprovada, novas matérias-primas e materiais de embalagem viram solicitações de cadastro no Sankhya, com dados e certificados. 4. Como TI, acompanho a fila de integração (enviado, erro, reenviado) e reprocesso falhas sem duplicar registros. 5. Enquanto a API não estiver liberada, exporto os mesmos dados em CSV, XLSX ou JSON no layout combinado. Regras: integração só pelo API Gateway oficial; credenciais fora do código; cada envio é idempotente e registrado na trilha de auditoria; falha de integração nunca bloqueia o trabalho no sistema."
 
+## Clarifications
+
+### Session 2026-11-12
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Quais tabelas adicionais e campos a consultoria vai criar no Sankhya? → A: Ainda não definidos; o sistema monta os registros do modelo lógico do contexto (Projeto P&D, Documento P&D, Lote P&D, Insumo novo, Resultado de estudo) e um mapeamento configurável, mantido pela TI, liga cada registro à entidade e aos campos do Sankhya; sem mapeamento, as mensagens ficam "aguardando configuração" e a exportação em arquivo funciona (ratificar com a TI e a consultoria Sankhya).
+- Q: Envio imediato na aprovação ou lote noturno? → A: Imediato, logo depois da aprovação, com novas tentativas automáticas em espera crescente e reprocessamento manual pela TI (ratificar com a TI).
+- Q: A nova matéria-prima é cadastrada direto ou entra como solicitação para o cadastro? → A: Entra como solicitação de cadastro (registro "Insumo novo" com situação "solicitado"); o cadastro no Sankhya continua com a equipe responsável (ratificar com o Gestor de P&D, a Produção e a TI).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Buscar o código no cadastro do Sankhya (Priority: P1)
@@ -96,9 +106,9 @@ Enquanto a API não estiver liberada, os mesmos dados são exportados em CSV, XL
 - **FR-001**: A integração DEVE usar só o API Gateway oficial da Sankhya (OAuth 2.0 client credentials e serviços `CRUDServiceProvider`), sem acesso direto ao banco do ERP.
 - **FR-002**: Credenciais (client_id, client_secret, X-Token) DEVEM ficar só em variáveis de ambiente.
 - **FR-003**: A busca de produto ou insumo pelo código DEVE trazer descrição, unidade e situação do cadastro do Sankhya, sem bloquear o cadastro quando o ERP estiver indisponível.
-- **FR-004**: A aprovação de subdocumento DEVE gerar, na mesma transação, a mensagem de integração com projeto, subdocumento, versão, data, signatários, campos principais e identificação do PDF oficial [NEEDS CLARIFICATION: quais tabelas adicionais e campos a consultoria vai criar no Sankhya?].
-- **FR-005**: As mensagens DEVEM ser enviadas em segundo plano [NEEDS CLARIFICATION: envio imediato na aprovação ou lote noturno?], com novas tentativas e chave de idempotência; reenvio não duplica registros.
-- **FR-006**: Insumos novos da Saída aprovada DEVEM gerar solicitações de cadastro [NEEDS CLARIFICATION: cadastro direto pelo sistema ou solicitação para o cadastro do Sankhya?].
+- **FR-004**: A aprovação de subdocumento DEVE gerar, na mesma transação, a mensagem de integração com projeto, subdocumento, versão, data, signatários, resumo do conteúdo aprovado e identificação do PDF oficial (quando houver), no modelo lógico do contexto; a entidade e os campos do Sankhya vêm de um mapeamento configurável mantido pela TI.
+- **FR-005**: As mensagens DEVEM ser enviadas em segundo plano logo depois da aprovação, com novas tentativas em espera crescente e chave de idempotência; reenvio não duplica registros; sem mapeamento configurado, ficam aguardando configuração.
+- **FR-006**: Insumos novos da Saída aprovada DEVEM gerar solicitações de cadastro (registro "Insumo novo" com situação "solicitado"), com descrição, tipo, fabricante e certificado; o sistema não cadastra o produto direto no ERP.
 - **FR-007**: A TI DEVE acompanhar a fila (situação, tentativas, último erro) e reprocessar falhas.
 - **FR-008**: A exportação de contingência DEVE gerar CSV (UTF-8, ";", vírgula decimal), XLSX e JSON no envelope do contexto, um arquivo por registro.
 - **FR-009**: Envio, falha, reprocessamento e exportação DEVEM ser registrados na trilha; falha de integração nunca bloqueia o trabalho no sistema.
@@ -121,3 +131,4 @@ Enquanto a API não estiver liberada, os mesmos dados são exportados em CSV, XL
 
 - O usuário do Sankhya que representa o sistema e as permissões dele são definidos pela TI e pela consultoria.
 - Homologação no ambiente de testes da Sankhya antes da produção.
+- Mapeamento, momento do envio e solicitação de insumo novo definidos nas respostas provisórias do esclarecimento (sessão 2026-11-12).
