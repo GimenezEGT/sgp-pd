@@ -39,7 +39,7 @@ description: "Task list for feature 007 — Estudos de desempenho e estabilidade
 
 - [X] T012 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 007)
 - [X] T013 Rodar `scripts/verificar.sh`
-- [ ] T014 Executar o quickstart na pilha real e registrar em `docs/validacao/007-resultados-execucao.md`
+- [X] T014 Executar o quickstart na pilha real e registrar em `docs/validacao/007-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 
