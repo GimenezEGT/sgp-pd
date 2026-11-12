@@ -99,6 +99,27 @@ NAV_ITEMS: list[NavItem] = [
         "Textos de partida por tipo de experimento, mantidos pela Qualidade/AR e pelo Gestor.",
     ),
     NavItem(
+        "Textos padrão do dossiê",
+        "dossier:texts",
+        frozenset(Profile),
+        "Cadastros",
+        "Unidade fabril, processo de fabricação e outros textos aprovados do dossiê técnico.",
+    ),
+    NavItem(
+        "Empresa e responsável técnico",
+        "dossier:company",
+        frozenset(Profile),
+        "Cadastros",
+        "Razão social e responsável técnico e legal da declaração do dossiê.",
+    ),
+    NavItem(
+        "Definição do dossiê",
+        "dossier:definition",
+        frozenset(Profile),
+        "Cadastros",
+        "Estrutura I a XII, classes de risco e fonte de cada item do dossiê técnico.",
+    ),
+    NavItem(
         "Cadastros",
         "catalog:index",
         frozenset(Profile),

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Aditamento – {{ version }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'dossier:project' version.project_id %}">← Dossiê</a></p>
+<h1>Aditamento</h1>
+{% if previous %}
+<p class="descricao">Versão {{ version.number|stringformat:"02d" }} comparada com a última versão enviada ({{ previous.number|stringformat:"02d" }}): {{ changes|length }} item(ns) alterado(s). <a href="?pdf=1">Gerar o PDF do aditamento</a></p>
+{% for change in changes %}
+<section class="painel">
+  <h2>{{ change.titulo }}</h2>
+  <div class="tabela-rolagem"><table><thead><tr><th>Versão enviada</th><th>Versão atual</th></tr></thead>
+  <tbody><tr><td>{% for line in change.before %}{{ line }}<br>{% empty %}(sem conteúdo){% endfor %}</td><td>{% for line in change.after %}{{ line }}<br>{% empty %}(sem conteúdo){% endfor %}</td></tr></tbody></table></div>
+</section>
+{% empty %}<p>Nada mudou desde a versão enviada.</p>{% endfor %}
+{% else %}
+<p>Nenhuma versão anterior foi enviada; o aditamento compara com a última versão com envio registrado.</p>
+{% endif %}
+{% endblock %}

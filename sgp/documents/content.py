@@ -295,65 +295,71 @@ def _br(text) -> str:
 
 def study_blocks(sub, topic_key: str) -> list[dict]:
     """Estudos vinculados ao tópico (feature 007): medidas, resultados e conclusão numerados."""
-    from sgp.studies import profiles
     from sgp.studies.services import linked_studies
 
     blocks = []
     for study in linked_studies(sub, topic_key):
-        header = f"{study.title} ({study.study_type.label}) {DASH} versão {study.version_display}"
-        blocks.append(_values("Estudo", [header]))
-        if study.not_applicable:
-            blocks.append(_values("Não aplicável", [study.justification]))
-            continue
-        profile = profiles.PROFILES.get(study.study_type.code)
-        if profile is None:
-            continue
-        rows = [
-            [str(number)]
-            + [
-                (row.get(c) or {}).get("codigo", "")
-                if c in ("amostra", "lote", "kit")
-                else {"pos": "Positivo", "neg": "Negativo"}.get(row.get(c), _br(row.get(c, "")))
-                for c in profile.columns
-            ]
-            for number, row in enumerate(study.rows, start=1)
+        blocks += blocks_for_study(study)
+    return blocks
+
+
+def blocks_for_study(study) -> list[dict]:
+    """Medidas, resultados e conclusão de um estudo (também usado pelo dossiê, feature 011)."""
+    from sgp.studies import profiles
+
+    blocks = []
+    header = f"{study.title} ({study.study_type.label}) {DASH} versão {study.version_display}"
+    blocks.append(_values("Estudo", [header]))
+    if study.not_applicable:
+        blocks.append(_values("Não aplicável", [study.justification]))
+        return blocks
+    profile = profiles.PROFILES.get(study.study_type.code)
+    if profile is None:
+        return blocks
+    rows = [
+        [str(number)]
+        + [
+            (row.get(c) or {}).get("codigo", "")
+            if c in ("amostra", "lote", "kit")
+            else {"pos": "Positivo", "neg": "Negativo"}.get(row.get(c), _br(row.get(c, "")))
+            for c in profile.columns
         ]
-        blocks.append(
-            _table(
-                f"Medidas – {study.title}",
-                ["Nº"] + [profiles.COLUMN_LABELS[c] for c in profile.columns],
-                rows,
-            )
+        for number, row in enumerate(study.rows, start=1)
+    ]
+    blocks.append(
+        _table(
+            f"Medidas – {study.title}",
+            ["Nº"] + [profiles.COLUMN_LABELS[c] for c in profile.columns],
+            rows,
         )
-        results = study.results or {}
-        result_rows = []
-        for group in [{"rotulo": "Global", "metricas": results.get("global", [])}] + results.get(
-            "grupos", []
-        ):
-            for item in group["metricas"]:
-                value = (
-                    _br(item["arredondado"])
-                    if item["arredondado"] is not None
-                    else "não calculável"
-                )
-                interval = " a ".join(_br(v) for v in item.get("ic", [])) if item.get("ic") else ""
-                result_rows.append(
-                    [group["rotulo"], item["rotulo"], value, interval, item.get("regra", "")]
-                )
-        blocks.append(
-            _table(
-                f"Resultados – {study.title}",
-                ["Grupo", "Resultado", "Valor", "IC 95%", "Arredondamento"],
-                result_rows,
+    )
+    results = study.results or {}
+    result_rows = []
+    for group in [{"rotulo": "Global", "metricas": results.get("global", [])}] + results.get(
+        "grupos", []
+    ):
+        for item in group["metricas"]:
+            value = (
+                _br(item["arredondado"]) if item["arredondado"] is not None else "não calculável"
             )
+            interval = " a ".join(_br(v) for v in item.get("ic", [])) if item.get("ic") else ""
+            result_rows.append(
+                [group["rotulo"], item["rotulo"], value, interval, item.get("regra", "")]
+            )
+    blocks.append(
+        _table(
+            f"Resultados – {study.title}",
+            ["Grupo", "Resultado", "Valor", "IC 95%", "Arredondamento"],
+            result_rows,
         )
-        conclusions = [
-            f"{c['rotulo']} {profiles.COMPARISONS[c['comparacao']]} {_br(c['limite'])}: "
-            + ("atendido" if c["atendido"] else "não atendido")
-            + (f" ({_br(c['valor'])})" if c["valor"] is not None else " (não calculável)")
-            for c in results.get("criterios", [])
-        ]
-        blocks.append(_values("Conclusão", conclusions or ["Sem critério de aceitação definido."]))
+    )
+    conclusions = [
+        f"{c['rotulo']} {profiles.COMPARISONS[c['comparacao']]} {_br(c['limite'])}: "
+        + ("atendido" if c["atendido"] else "não atendido")
+        + (f" ({_br(c['valor'])})" if c["valor"] is not None else " (não calculável)")
+        for c in results.get("criterios", [])
+    ]
+    blocks.append(_values("Conclusão", conclusions or ["Sem critério de aceitação definido."]))
     return blocks
 
 

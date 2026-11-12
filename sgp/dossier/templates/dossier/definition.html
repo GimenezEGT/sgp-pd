@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Definição do dossiê{% endblock %}
+{% block content %}
+<h1>Definição do dossiê técnico</h1>
+<p class="descricao">Versão {{ current.version }} de {{ current.created_at|datahora }}. Estrutura I a XII, classes de risco e fonte de cada item. A Qualidade/AR publica nova versão colando o YAML; a estrutura é validada antes de valer.</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  <p><label for="yaml">Definição (YAML)</label><br><textarea id="yaml" name="yaml" rows="30" class="codigo"{% if not is_quality %} readonly{% endif %}>{{ text }}</textarea></p>
+  {% if is_quality %}<p><label for="observacao">Observação</label><br><input id="observacao" name="observacao" maxlength="500" size="80"></p>
+  <button type="submit" class="botao">Publicar nova versão</button>{% endif %}
+</form>
+{% endblock %}
