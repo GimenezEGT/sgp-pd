@@ -48,6 +48,11 @@ class FullDocument(AppendOnlyModel):
         verbose_name_plural = "documentos completos do projeto"
         ordering = ["-generated_at", "-pk"]
 
+    def __str__(self) -> str:
+        situation = "oficial" if self.official else "rascunho"
+        code = self.project.code or self.project.title
+        return f"Documento completo {code} – versão {self.project_version:02d} ({situation})"
+
     @property
     def notebook_label(self) -> str:
         return "completo" if self.options.get("caderno") == NOTEBOOK_FULL else "resumido"

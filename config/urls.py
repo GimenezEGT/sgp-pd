@@ -19,4 +19,6 @@ urlpatterns = [
     path("", include("sgp.studies.urls")),
     path("", include("sgp.notebook.urls")),
     path("", include("sgp.fulldoc.urls")),
+    path("", include("sgp.notifications.urls")),
+    path("", include("sgp.dashboard.urls")),
 ]

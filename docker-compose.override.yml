@@ -10,6 +10,9 @@ services:
       # Certificado autoassinado de teste para o selo (gerado por `manage.py selo_teste`).
       DOCUMENT_SEAL_PKCS12: /app/var/certs/selo-teste.p12
       DOCUMENT_SEAL_PASSWORD: ${DOCUMENT_SEAL_DEV_PASSWORD:-selo-teste-dev-ficticio}
+      # E-mails do desenvolvimento em arquivos (var/emails), sem SMTP.
+      EMAIL_BACKEND: django.core.mail.backends.filebased.EmailBackend
+      CACHE_URL: redis://redis:6379/1
     volumes:
       - .:/app
     depends_on:
@@ -23,6 +26,8 @@ services:
     environment:
       DOCUMENT_SEAL_PKCS12: /app/var/certs/selo-teste.p12
       DOCUMENT_SEAL_PASSWORD: ${DOCUMENT_SEAL_DEV_PASSWORD:-selo-teste-dev-ficticio}
+      EMAIL_BACKEND: django.core.mail.backends.filebased.EmailBackend
+      CACHE_URL: redis://redis:6379/1
     volumes:
       - .:/app
 

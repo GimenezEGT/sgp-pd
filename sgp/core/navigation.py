@@ -36,6 +36,27 @@ NAV_ITEMS: list[NavItem] = [
         "Conferir pelo código de verificação um documento oficial gerado pelo sistema.",
     ),
     NavItem(
+        "Painel de projetos",
+        "dashboard:portfolio",
+        frozenset(Profile),
+        "Projetos",
+        "Carteira com etapa, aprovados, marcos e atraso; exportação em planilha.",
+    ),
+    NavItem(
+        "Minhas pendências",
+        "dashboard:pending",
+        frozenset(Profile),
+        "Projetos",
+        "O que está com você: aprovar, corrigir, assinar e testemunhar.",
+    ),
+    NavItem(
+        "Notificações por e-mail",
+        "notifications:preferences",
+        frozenset(Profile),
+        "Projetos",
+        "Escolha os e-mails que quer receber; assinatura pendente é sempre enviada.",
+    ),
+    NavItem(
         "Caderno de laboratório",
         "notebook:search",
         frozenset(Profile),

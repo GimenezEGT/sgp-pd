@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     "sgp.studies",
     "sgp.notebook",
     "sgp.fulldoc",
+    "sgp.notifications",
+    "sgp.dashboard",
 ]
 
 MIDDLEWARE = [
@@ -189,6 +191,29 @@ REVIEW_ALERT_DAYS = env_int("REVIEW_ALERT_DAYS", 5)
 # aparecer como atrasada (esclarecimento provisório, ratificar com o Gestor de P&D).
 NOTEBOOK_SIGN_DAYS = env_int("NOTEBOOK_SIGN_DAYS", 7)
 
+# Painel e notificações (feature 010): SMTP interno por variáveis de ambiente; no
+# desenvolvimento os e-mails vão para arquivos (EMAIL_BACKEND de arquivo).
+EMAIL_BACKEND = env_str("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = env_str("EMAIL_HOST", "localhost")
+EMAIL_PORT = env_int("EMAIL_PORT", 25)
+EMAIL_HOST_USER = env_str("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env_str("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
+EMAIL_TIMEOUT = 15
+EMAIL_FILE_PATH = env_str("EMAIL_FILE_PATH", str(BASE_DIR / "var" / "emails"))
+DEFAULT_FROM_EMAIL = env_str("DEFAULT_FROM_EMAIL", "SGP-P&D <sgp-pd@localhost>")
+SITE_URL = env_str("SITE_URL", "https://localhost:8443")
+NOTIFICATION_DIGEST_HOUR = env_int("NOTIFICATION_DIGEST_HOUR", 7)
+DASHBOARD_CACHE_SECONDS = env_int("DASHBOARD_CACHE_SECONDS", 300)
+CACHE_URL = env_str("CACHE_URL", "")
+CACHES = {
+    "default": (
+        {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": CACHE_URL}
+        if CACHE_URL
+        else {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    )
+}
+
 # Geração de documentos (feature 006): certificado do selo (PKCS#12) e senha só em variáveis de
 # ambiente; sem certificado, o PDF oficial não é emitido.
 DOCUMENT_SEAL_PKCS12 = env_str("DOCUMENT_SEAL_PKCS12", "")
@@ -233,6 +258,11 @@ CELERY_BEAT_SCHEDULE = {
     "vigencia-diaria-dos-modelos": {
         "task": "sgp.revisions.record_due",
         "schedule": crontab(hour=0, minute=5),
+    },
+    # Feature 010: resumo diário das pendências vencidas.
+    "resumo-diario-de-pendencias": {
+        "task": "sgp.notifications.daily_digest",
+        "schedule": crontab(hour=NOTIFICATION_DIGEST_HOUR, minute=0),
     },
 }
 

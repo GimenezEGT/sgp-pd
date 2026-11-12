@@ -124,6 +124,9 @@ class NotebookEntry(ProtectedModel):
         indexes = [
             GinIndex(fields=["search_vector"], name="notebook_entry_search_idx"),
             models.Index(fields=["project", "-created_at"], name="notebook_entry_timeline_idx"),
+            models.Index(
+                fields=["project", "status", "created_at"], name="notebook_entry_pending_idx"
+            ),
         ]
 
     def __str__(self) -> str:
