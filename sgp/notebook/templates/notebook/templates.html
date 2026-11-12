@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load sgp static %}
+{% block title %}Modelos de entrada do caderno{% endblock %}
+{% block content %}
+<h1>Modelos de entrada do caderno</h1>
+<p class="descricao">Textos de partida por tipo de experimento. A entrada copia os textos ao nascer e guarda a versão usada; alterar um modelo cria nova versão e não muda entradas antigas. Mantidos pela Qualidade/AR e pelo Gestor de P&amp;D.</p>
+<table>
+  <thead><tr><th>Tipo de experimento</th><th>Versão vigente</th><th>Situação</th><th>Alterado em</th></tr></thead>
+  <tbody>{% for item in templates %}<tr><td><a href="{% url 'notebook:template_detail' item.pk %}">{{ item.name }}</a></td><td>{{ item.version }}</td><td>{% if item.active %}Ativo{% else %}Desativado{% endif %}</td><td>{{ item.created_at|datahora }}</td></tr>{% empty %}<tr><td colspan="4">Nenhum modelo cadastrado.</td></tr>{% endfor %}</tbody>
+</table>
+{% if can_manage %}
+<h2>Novo modelo</h2>
+<form method="post" class="painel">
+  {% csrf_token %}
+  {% for field in form %}<div class="campo"><label for="{{ field.id_for_label }}">{{ field.label }}</label><br>{{ field }}{{ field.errors }}</div>{% endfor %}
+  <button type="submit" class="botao">Criar modelo</button>
+</form>
+<script src="{% static 'notebook/editor.js' %}" defer></script>
+{% endif %}
+{% endblock %}

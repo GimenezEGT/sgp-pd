@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if project %}Caderno – {{ project.code }}{% else %}Caderno de laboratório{% endif %}{% endblock %}
+{% block content %}
+{% if project %}<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>{% endif %}
+<h1>{% if project %}Caderno de laboratório – {{ project.code }}{% else %}Caderno de laboratório{% endif %}</h1>
+<p class="descricao">{% if project %}Linha do tempo das entradas do projeto, da mais recente para a mais antiga.{% else %}Busca nas entradas dos projetos a que você tem acesso.{% endif %} Entradas abertas há mais de {{ sign_days }} dias aparecem como atrasadas.</p>
+{% if can_create %}<p class="acoes"><a class="botao" href="{% url 'notebook:create' project.pk %}">Nova entrada</a></p>{% endif %}
+<form method="get" class="painel filtros" aria-label="Filtros do caderno">
+  {% for field in form %}<p><label for="{{ field.id_for_label }}">{{ field.label }}</label><br>{{ field }}</p>{% endfor %}
+  <p><button type="submit" class="botao">Buscar</button></p>
+</form>
+<p>{{ page.paginator.count }} entrada(s).</p>
+<ol class="linha-tempo" aria-label="Entradas do caderno">
+{% include "notebook/_entries.html" %}
+</ol>
+{% endblock %}

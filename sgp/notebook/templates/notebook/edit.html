@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Editar entrada {{ entry.number }} – {{ entry.project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'notebook:detail' entry.pk %}">← Entrada {{ entry.number }}</a></p>
+<h1>Editar a entrada {{ entry.number }}</h1>
+<p class="descricao">Formate o texto pela barra (negrito, sobrescrito, subscrito, listas, título e tabela). Cole ou arraste fotos direto no texto: elas viram anexos com resumo SHA-256. O servidor guarda só a formatação permitida.</p>
+<form method="post" class="painel" id="form-entrada">
+  {% csrf_token %}
+  <input type="hidden" name="row_version" value="{{ entry.row_version }}">
+  <div class="campo"><label for="titulo">Título</label><br><input id="titulo" name="title" value="{{ entry.title }}" maxlength="300" required size="80"></div>
+  {% for text in texts %}
+  <div class="campo"><label for="campo-{{ text.field }}">{{ text.label }}</label><br>
+    <textarea id="campo-{{ text.field }}" name="{{ text.field }}" rows="6" data-rich="1" data-upload-url="{% url 'notebook:attachment_add' entry.pk %}">{{ text.value }}</textarea></div>
+  {% endfor %}
+  <div class="acoes">
+    <button type="submit" class="botao">Gravar e ver a entrada</button>
+    <button type="submit" name="continuar" value="1" class="botao botao-secundario">Gravar e continuar editando</button>
+  </div>
+</form>
+{% if attachments %}
+<p class="descricao">Anexos da entrada: {% for item in attachments %}{{ item.file.original_name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>
+{% endif %}
+<script src="{% static 'notebook/editor.js' %}" defer></script>
+{% endblock %}

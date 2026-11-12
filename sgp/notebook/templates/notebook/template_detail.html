@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load sgp static %}
+{% block title %}Modelo de entrada – {{ template.name }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'notebook:templates' %}">← Modelos de entrada</a></p>
+<h1>{{ template.name }}</h1>
+<p class="descricao">Versão {{ template.version }} · {% if template.is_current %}vigente{% else %}substituída{% endif %} · {% if template.active %}ativo{% else %}desativado{% endif %} · {{ template.created_by.get_full_name|default:template.created_by.username }} em {{ template.created_at|datahora }}{% if template.change_reason %} · motivo: {{ template.change_reason }}{% endif %}</p>
+{% for text in texts %}<h2>{{ text.label }}</h2>{% if text.html %}<div class="texto-formatado">{{ text.html }}</div>{% else %}<p class="descricao">Sem texto padrão.</p>{% endif %}{% endfor %}
+<h2>Versões</h2>
+<ul>{% for item in versions %}<li><a href="{% url 'notebook:template_detail' item.pk %}">Versão {{ item.version }}</a> – {{ item.created_at|datahora }}{% if item.change_reason %}: {{ item.change_reason }}{% endif %}{% if item.is_current %} (vigente){% endif %}</li>{% endfor %}</ul>
+{% if can_manage %}
+<h2>Alterar (nova versão)</h2>
+<form method="post" class="painel">
+  {% csrf_token %}
+  {% for field in form %}<div class="campo"><label for="{{ field.id_for_label }}">{{ field.label }}</label><br>{{ field }}{{ field.errors }}</div>{% endfor %}
+  <div class="campo"><label for="motivo">Motivo da alteração</label><br><input id="motivo" name="motivo" maxlength="500" required size="80"></div>
+  <button type="submit" class="botao">Gravar nova versão</button>
+</form>
+{% if template.active %}
+<form method="post" action="{% url 'notebook:template_deactivate' template.pk %}" class="painel">
+  {% csrf_token %}
+  <p><label>Motivo da desativação <input name="motivo" maxlength="500" required></label></p>
+  <button type="submit" class="botao botao-perigo">Desativar o modelo</button>
+</form>
+{% endif %}
+<script src="{% static 'notebook/editor.js' %}" defer></script>
+{% endif %}
+{% endblock %}

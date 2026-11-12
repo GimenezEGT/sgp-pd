@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load sgp static %}
+{% block title %}Entrada {{ entry.number }} – {{ entry.project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'notebook:project' entry.project_id %}">← Caderno do {{ entry.project.code }}</a></p>
+<h1>Entrada {{ entry.number }} – {{ entry.title }}</h1>
+<p class="descricao">{{ entry.project }} · autor {{ entry.author.get_full_name|default:entry.author.username }} · criada em {{ entry.created_at|datahora }} (servidor){% if entry.template %} · modelo {{ entry.template.name }}, versão {{ entry.template.version }}{% endif %}</p>
+<p><span class="situacao situacao-{{ entry.status }}">{{ situation }}</span>{% if entry.relevant %} <span class="etiqueta">relevante – exige testemunha</span>{% endif %}</p>
+<div class="acoes">
+  {% if can_edit %}<a class="botao" href="{% url 'notebook:edit' entry.pk %}">Editar o registro</a>{% endif %}
+  {% if can_mark_relevant %}<form method="post" action="{% url 'notebook:relevance' entry.pk %}">{% csrf_token %}<input type="hidden" name="relevante" value="{% if entry.relevant %}0{% else %}1{% endif %}"><button type="submit" class="botao botao-secundario">{% if entry.relevant %}Desmarcar relevante{% else %}Marcar como relevante (pede testemunha){% endif %}</button></form>{% endif %}
+  {% if can_promote %}<a class="botao botao-secundario" href="{% url 'notebook:promote' entry.pk %}">Promover dados para estudo</a>{% endif %}
+</div>
+
+{% for text in texts %}
+<section class="texto-caderno" aria-label="{{ text.label }}">
+  <h2>{{ text.label }}</h2>
+  {% if text.html %}<div class="texto-formatado">{{ text.html }}</div>{% else %}<p class="descricao">Não preenchido.</p>{% endif %}
+</section>
+{% endfor %}
+
+<h2 id="materiais">Materiais</h2>
+{% if materials %}<ul>{% for item in materials %}<li>{{ item.get_kind_display }} <strong>{{ item.code }}</strong> (versão {{ item.version }} do cadastro){% if can_edit %} <form method="post" action="{% url 'notebook:material_remove' item.pk %}" class="form-linha">{% csrf_token %}<button type="submit" class="botao botao-discreto">Retirar</button></form>{% endif %}</li>{% endfor %}</ul>
+{% else %}<p class="descricao">Nenhum material ligado.</p>{% endif %}
+{% if removed_materials %}<details><summary>Retirados ({{ removed_materials|length }})</summary><ul>{% for item in removed_materials %}<li>{{ item.get_kind_display }} {{ item.code }} – retirado em {{ item.removed_at|datahora }}</li>{% endfor %}</ul></details>{% endif %}
+{% if can_edit %}
+<form method="post" action="{% url 'notebook:material_add' entry.pk %}" class="painel filtros">
+  {% csrf_token %}
+  <p><label for="material-tipo">Tipo</label><br><select id="material-tipo" name="tipo">{% for code, label in material_kinds %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></p>
+  <p><label for="material-codigo">Código no cadastro</label><br><input id="material-codigo" name="codigo" maxlength="100" required></p>
+  <p><button type="submit" class="botao botao-secundario">Ligar material</button></p>
+</form>
+{% endif %}
+
+<h2 id="anexos">Anexos</h2>
+{% if attachments %}<ul>{% for item in attachments %}<li><a href="{% url 'files:download' item.file_id %}">{{ item.file.original_name }}</a> ({{ item.file.size_display }}{% if item.inline %}, imagem no texto{% endif %}) <small>SHA-256 {{ item.file.sha256 }}</small>{% if can_edit %} <form method="post" action="{% url 'notebook:attachment_remove' item.pk %}" class="form-linha">{% csrf_token %}<button type="submit" class="botao botao-discreto">Retirar</button></form>{% endif %}</li>{% endfor %}</ul>
+{% else %}<p class="descricao">Nenhum anexo.</p>{% endif %}
+{% if removed_attachments %}<details><summary>Retirados ({{ removed_attachments|length }})</summary><ul>{% for item in removed_attachments %}<li>{{ item.file.original_name }} – retirado em {{ item.removed_at|datahora }}</li>{% endfor %}</ul></details>{% endif %}
+{% if can_edit %}
+<form method="post" action="{% url 'notebook:attachment_add' entry.pk %}" enctype="multipart/form-data" class="painel">
+  {% csrf_token %}
+  <p><label for="anexo-arquivo">Foto, laudo ou arquivo de equipamento (PDF, PNG, JPEG, CSV ou XLSX)</label><br><input id="anexo-arquivo" type="file" name="arquivo" accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx" required></p>
+  <button type="submit" class="botao botao-secundario">Anexar</button>
+</form>
+{% endif %}
+
+<section class="painel assinaturas" id="assinaturas" aria-label="Assinaturas">
+  <h2>Assinaturas</h2>
+  {% if author_signature %}<p><strong>Autor:</strong> {{ author_signature.signer.get_full_name|default:author_signature.signer.username }} em {{ author_signature.signed_at|datahora }}<br><small>Resumo assinado: {{ author_signature.content_hash }}</small></p>{% else %}<p class="descricao">Ainda sem assinatura do autor.</p>{% endif %}
+  {% if witness_signature %}<p><strong>Testemunha:</strong> {{ witness_signature.signer.get_full_name|default:witness_signature.signer.username }} em {{ witness_signature.signed_at|datahora }}<br><small>Resumo assinado: {{ witness_signature.content_hash }}</small></p>{% elif entry.relevant and author_signature %}<p class="descricao">Aguardando testemunha.</p>{% endif %}
+  {% if verification %}<p>{% if verification.entry_ok and verification.addenda_ok %}<span class="situacao situacao-ok">Conteúdo confere com as assinaturas</span>{% else %}<span class="situacao situacao-quebra">Conteúdo não confere com as assinaturas – avise a Qualidade</span>{% endif %}</p>{% endif %}
+  {% if can_sign %}
+  <form method="post" action="{% url 'notebook:sign' entry.pk %}">{% csrf_token %}
+    <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
+    <button type="submit" class="botao">Assinar e bloquear a entrada</button>
+    <p class="descricao">Depois de assinada, a entrada não muda; correções só por adendo assinado.</p>
+  </form>
+  {% endif %}
+  {% if can_witness %}
+  <form method="post" action="{% url 'notebook:witness' entry.pk %}">{% csrf_token %}
+    <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
+    <button type="submit" class="botao">Assinar como testemunha</button>
+  </form>
+  {% endif %}
+</section>
+
+<h2 id="adendos">Adendos</h2>
+{% for item in addenda %}
+<section class="painel adendo" aria-label="Adendo {{ item.obj.number }}">
+  <p><strong>Adendo {{ item.obj.number }}</strong> – {{ item.obj.author.get_full_name|default:item.obj.author.username }} em {{ item.obj.created_at|datahora }} (assinado)<br><small>Resumo assinado: {{ item.obj.content_hash }}</small></p>
+  <div class="texto-formatado">{{ item.html }}</div>
+</section>
+{% empty %}<p class="descricao">Nenhum adendo.</p>{% endfor %}
+{% if can_add_addendum %}
+<form method="post" action="{% url 'notebook:addendum_add' entry.pk %}" class="painel">
+  {% csrf_token %}
+  <p><label for="adendo-texto">Correção ou complemento (o original não muda)</label><br><textarea id="adendo-texto" name="texto" rows="5" data-rich="1" required></textarea></p>
+  <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
+  <button type="submit" class="botao">Assinar e incluir o adendo</button>
+</form>
+<script src="{% static 'notebook/editor.js' %}" defer></script>
+{% endif %}
+
+<h2 id="vinculos">Vínculos</h2>
+{% if links %}<ul>{% for item in links %}<li>{{ item.get_target_type_display }}:
+  {% if item.subdocument %}<a href="{% url 'subdocuments:detail' item.subdocument_id %}">{{ item.subdocument }}</a>{% elif item.study %}<a href="{% url 'studies:detail' item.study_id %}">{{ item.study }}</a>{% else %}<a href="{% url 'catalog:detail' 'lotes' item.lot_id %}">{{ item.lot }}</a>{% endif %}
+  · {{ item.get_kind_display }}{% if item.attachment %} (de {{ item.attachment.file.original_name }}){% endif %} · {{ item.created_at|datahora }}
+  {% if can_link and item.kind == "related" %}<details class="form-linha"><summary>Retirar</summary><form method="post" action="{% url 'notebook:link_remove' item.pk %}">{% csrf_token %}<label>Motivo <input name="motivo" maxlength="500" required></label> <button type="submit" class="botao botao-discreto">Retirar vínculo</button></form></details>{% endif %}
+</li>{% endfor %}</ul>
+{% else %}<p class="descricao">Nenhum vínculo.</p>{% endif %}
+{% if removed_links %}<details><summary>Retirados ({{ removed_links|length }})</summary><ul>{% for item in removed_links %}<li>{{ item.get_target_type_display }} {{ item.target }} – retirado em {{ item.removed_at|datahora }}: {{ item.removal_reason }}</li>{% endfor %}</ul></details>{% endif %}
+{% if can_link %}
+<form method="post" action="{% url 'notebook:link_add' entry.pk %}" class="painel filtros">
+  {% csrf_token %}
+  <p><label for="vinculo-alvo">Ligar a</label><br><select id="vinculo-alvo" name="alvo"><option value="subdocument">Subdocumento</option><option value="study">Estudo</option><option value="lot">Lote</option></select></p>
+  <p><label for="vinculo-subdocumento">Subdocumento</label><br><select id="vinculo-subdocumento" name="subdocumento"><option value="">—</option>{% for sub in subdocuments %}<option value="{{ sub.pk }}">{{ sub }}</option>{% endfor %}</select></p>
+  <p><label for="vinculo-estudo">Estudo</label><br><select id="vinculo-estudo" name="estudo"><option value="">—</option>{% for study in studies %}<option value="{{ study.pk }}">{{ study }}</option>{% endfor %}</select></p>
+  <p><label for="vinculo-lote">Código do lote</label><br><input id="vinculo-lote" name="lote" maxlength="100"></p>
+  <p><button type="submit" class="botao botao-secundario">Ligar</button></p>
+</form>
+{% endif %}
+{% endblock %}
