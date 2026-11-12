@@ -8,6 +8,16 @@
 
 **Input**: User description: "Documento completo do projeto, que é o registro histórico do projeto exigido pela RDC 665/2022 (art. 61), montado automaticamente. Leia docs/contexto/03-padroes-formatacao.md e 04-requisitos-regulatorios.md. Objetivo: gerar com um clique o documento consolidado que hoje é montado à mão, incluindo o histórico de experimentos do caderno de laboratório. Histórias: 1. Como líder ou gestor, gero o documento completo de um projeto com capa geral, sumário automático, TAP e Plano de Negócios, cada subdocumento aprovado na versão vigente (com sua capa), alterações de projeto, verificação final, saída, histórico do caderno e lista de anexos. 2. Escolho se o histórico do caderno entra completo ou resumido (título, data, autor, conclusão e vínculos). 3. O documento traz um quadro de versões (subdocumento, versão, data de aprovação, signatários) e um resumo da trilha de auditoria do projeto. 4. Versões substituídas aparecem só no quadro de versões, não no corpo, a menos que eu peça o histórico completo. 5. Antes de gerar, o sistema mostra o que falta para o documento estar completo (subdocumentos não aprovados, pendências da Verificação Final). Regras: só versões aprovadas entram no corpo; o documento gerado é arquivado com hash e versão; sumário e numeração de páginas são automáticos; dados financeiros do Plano de Negócios só entram para quem tem permissão."
 
+## Clarifications
+
+### Session 2026-11-11
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Qual a ordem oficial das partes? → A: A ordem da história 1: capa geral, sumário, pendências (só no rascunho), TAP, Plano de Negócios, subdocumentos na ordem do fluxo do PSG 20 (Entrada, Formulação, Lote Piloto, RAPD, Análise Crítica, Validação), Alterações de Projeto em ordem cronológica, Verificação Final, Saída, quadro de versões, resumo da trilha, histórico do caderno e lista de anexos; a variante observada no projeto DBS (Alteração logo após a capa da Entrada) fica registrada para a decisão (ratificar com a Garantia da Qualidade).
+- Q: O Plano de Negócios entra no documento completo ou fica num anexo restrito? → A: Entra no documento; os campos financeiros só aparecem quando quem gera tem permissão de dados financeiros; sem permissão, o Plano de Negócios sai sem esses campos, com a observação de acesso restrito, e o documento arquivado registra se contém dados financeiros; o documento com dados financeiros só é baixado por quem tem essa permissão (ratificar com o Gestor de P&D).
+- Q: Qual o formato do resumo da trilha de auditoria? → A: Período coberto, contagem de eventos por tipo e a lista dos eventos-chave (assinaturas, aprovações, devoluções, novas versões, alterações de projeto e documentos oficiais gerados) com data e hora, pessoa e registro; a lista completa continua na exportação da trilha (feature 001) (ratificar com a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Gerar o documento completo com um clique (Priority: P1)
@@ -102,16 +112,16 @@ Antes de gerar, o sistema mostra o que falta para o documento estar completo: su
 
 - **FR-001**: O líder do projeto e o Gestor de P&D DEVEM poder gerar o documento completo de um projeto a que têm acesso; quem acessa o projeto DEVE poder consultar e baixar os documentos gerados; tentativa sem permissão DEVE ser negada e registrada.
 - **FR-002**: O documento DEVE ter capa geral, sumário automático com a numeração real das páginas e numeração de páginas automática.
-- **FR-003**: As partes DEVEM seguir a ordem oficial [NEEDS CLARIFICATION: ordem oficial das partes; no projeto DBS a Alteração aparece logo após a capa da Entrada].
+- **FR-003**: As partes DEVEM seguir a ordem: capa geral, sumário, pendências (só no rascunho), TAP, Plano de Negócios, Entrada, Formulação, Lote Piloto, RAPD, Análise Crítica, Validação, Alterações de Projeto em ordem cronológica, Verificação Final, Saída, quadro de versões, resumo da trilha, histórico do caderno e lista de anexos.
 - **FR-004**: Só versões aprovadas DEVEM entrar no corpo: TAP, Plano de Negócios e cada subdocumento na versão vigente, com a sua capa, no padrão visual da feature 006.
-- **FR-005**: Os dados financeiros do Plano de Negócios só DEVEM entrar quando quem gera tem permissão de vê-los [NEEDS CLARIFICATION: o Plano de Negócios entra no documento completo ou fica num anexo restrito?].
+- **FR-005**: O Plano de Negócios DEVE entrar no documento, com os campos financeiros só quando quem gera tem permissão de vê-los (sem permissão, sai sem esses campos e com a observação de acesso restrito); o documento arquivado DEVE registrar se contém dados financeiros, e o que os contém só DEVE ser baixado por quem tem essa permissão.
 - **FR-006**: A geração DEVE ser assíncrona, com progresso visível e aviso ao terminar.
 
 **Conteúdo**
 
 - **FR-007**: O histórico do caderno DEVE entrar completo ou resumido (título, data, autor, conclusão e vínculos), conforme a escolha; só entradas assinadas entram.
 - **FR-008**: O documento DEVE trazer o quadro de versões (subdocumento, versão, data de aprovação, signatários) de todas as versões aprovadas.
-- **FR-009**: O documento DEVE trazer o resumo da trilha de auditoria do projeto [NEEDS CLARIFICATION: eventos por tipo ou lista completa?].
+- **FR-009**: O documento DEVE trazer o resumo da trilha de auditoria do projeto: período coberto, contagem de eventos por tipo e a lista dos eventos-chave (assinaturas, aprovações, devoluções, novas versões, alterações de projeto e documentos oficiais gerados) com data e hora, pessoa e registro.
 - **FR-010**: Versões substituídas só DEVEM entrar no corpo quando a pessoa pedir o histórico completo, marcadas como substituídas.
 - **FR-011**: O documento DEVE trazer a lista de anexos (nome, origem e resumo criptográfico).
 
@@ -141,3 +151,4 @@ Antes de gerar, o sistema mostra o que falta para o documento estar completo: su
 - O gerador, o layout, o selo e o código de verificação da feature 006 são reaproveitados.
 - O documento completo é gerado em PDF; DOCX do documento completo fica fora do escopo.
 - O caderno de laboratório da feature 008 fornece as entradas assinadas e os adendos.
+- Ordem das partes, Plano de Negócios e formato do resumo da trilha definidos nas respostas provisórias do esclarecimento (sessão 2026-11-11).
