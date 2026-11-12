@@ -82,7 +82,8 @@
   PostgreSQL 17 e fuso UTC, migrações aplicadas, `check --deploy`, depuração desligada, cookies
   seguros, `SITE_URL` em HTTPS, fuso de exibição, variáveis obrigatórias presentes, gatilhos de
   imutabilidade, privilégios do papel da aplicação, papel dono com criação de banco, certificado do
-  selo, destino de cópias gravável e em outro sistema de arquivos, ferramentas `pg_dump` 17, fontes,
+  selo, destino de cópias gravável e em outro sistema de arquivos, ferramentas `pg_dump` 17, fontes
+  Carlito e DejaVu da imagem e WeasyPrint,
   Redis, worker e beat, LDAP e SMTP acessíveis); OQ sem alterar dados (cadeia da trilha, UPDATE e
   DELETE recusados com ponto de salvamento desfeito, PDF de teste gerado e selado em memória com o
   selo validado, agendamentos, cópia nas últimas 26 horas, teste de restauração aprovado nos últimos

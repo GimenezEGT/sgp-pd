@@ -56,3 +56,4 @@ Saída com código 1 quando a cópia, o teste ou a qualificação reprova.
 `BACKUP_DIR`, `BACKUP_HOST_DIR` (Compose), `BACKUP_HOUR`, `BACKUP_MINUTE`, `BACKUP_KEEP_DAYS`
 (35), `RESTORE_TEST_DAY` (1), `RESTORE_TEST_HOUR` (3), `BACKUP_MAX_AGE_HOURS` (26),
 `DB_OWNER_USER` e `DB_OWNER_PASSWORD` (já usadas pelas migrações), `SGP_COMMIT` (build).
+A conferência de cópia em dia roda todo dia às 08:00 (horário fixo, America/Sao_Paulo).
