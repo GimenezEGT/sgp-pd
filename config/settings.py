@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "sgp.subdocuments",
     "sgp.signatures",
     "sgp.documents",
+    "sgp.revisions",
 ]
 
 MIDDLEWARE = [
@@ -220,6 +221,11 @@ CELERY_BEAT_SCHEDULE = {
     "verificacao-diaria-da-trilha": {
         "task": "sgp.audit.verify_chain_scheduled",
         "schedule": crontab(hour=AUDIT_VERIFY_HOUR, minute=AUDIT_VERIFY_MINUTE),
+    },
+    # Feature 013: registra a entrada em vigência das versões de modelo com data futura.
+    "vigencia-diaria-dos-modelos": {
+        "task": "sgp.revisions.record_due",
+        "schedule": crontab(hour=0, minute=5),
     },
 }
 

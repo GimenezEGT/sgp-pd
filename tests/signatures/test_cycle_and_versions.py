@@ -198,7 +198,9 @@ def test_ciclo_completo_passa_pelas_situacoes_e_gera_os_eventos(
 
 
 @pytest.mark.req("005:FR-009")
-def test_revisor_nao_aprova_a_mesma_versao(complete_formulation, analyst, manager, make_user, signing):
+def test_revisor_nao_aprova_a_mesma_versao(
+    complete_formulation, analyst, manager, make_user, signing
+):
     signing.submit(KIND, complete_formulation, analyst)
     signing.enable(manager)
     services.sign_review(KIND, complete_formulation, by=manager, password=signing.password)

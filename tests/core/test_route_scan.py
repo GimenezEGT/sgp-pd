@@ -73,7 +73,6 @@ ROUTE_CONTRACT = {
     "formtemplates:detail": ("GET", ANY_PROFILE),
     "formtemplates:new_version": ("POST", {Profile.QUALITY}),
     "formtemplates:edit": ("GET", {Profile.QUALITY}),
-    "formtemplates:publish": ("POST", {Profile.QUALITY}),
     "subdocuments:project_list": ("GET", PROJECT_ACCESS),
     "subdocuments:new": ("POST", PROJECT_ACCESS),
     "subdocuments:authorize": ("POST", {Profile.RD_MANAGER}),
@@ -106,7 +105,19 @@ ROUTE_CONTRACT = {
     "layouts:new_version": ("POST", {Profile.QUALITY}),
     "layouts:edit": ("GET", {Profile.QUALITY}),
     "layouts:preview": ("GET", {Profile.QUALITY}),
-    "layouts:publish": ("POST", {Profile.QUALITY}),
+    # Feature 013: revisão controlada de modelos (elaboração pela Qualidade/AR, decisão pelo
+    # Gestor de P&D; consulta por todos).
+    "revisions:list": ("GET", ANY_PROFILE),
+    "revisions:history": ("GET", ANY_PROFILE),
+    "revisions:compare": ("GET", ANY_PROFILE),
+    "revisions:submit": ("POST", {Profile.QUALITY}),
+    "revisions:discard": ("POST", {Profile.QUALITY}),
+    "revisions:retirement_request": ("POST", {Profile.QUALITY}),
+    "revisions:return": ("POST", {Profile.RD_MANAGER}),
+    "revisions:approve": ("GET", {Profile.RD_MANAGER}),
+    "revisions:retirement_approve": ("POST", {Profile.RD_MANAGER}),
+    "revisions:retirement_return": ("POST", {Profile.RD_MANAGER}),
+    "revisions:verify": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
 }
 
 

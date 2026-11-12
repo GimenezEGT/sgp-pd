@@ -7,6 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from sgp.core.models import AppendOnlyModel, ProtectedModel
+from sgp.revisions.models import RevisableTemplate
 from sgp.signatures.models import DocumentKind
 
 
@@ -19,9 +20,10 @@ class LayoutTarget(models.TextChoices):
 class LayoutStatus(models.TextChoices):
     DRAFT = "draft", "Rascunho"
     PUBLISHED = "published", "Publicado"
+    DISCARDED = "discarded", "Descartado"
 
 
-class LayoutTemplate(ProtectedModel):
+class LayoutTemplate(ProtectedModel, RevisableTemplate):
     target = models.CharField("alvo", max_length=20, choices=LayoutTarget.choices)
     version = models.PositiveSmallIntegerField("versão")
     valid_from = models.DateField("início de vigência")

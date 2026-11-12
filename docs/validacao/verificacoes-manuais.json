@@ -1,5 +1,6 @@
 {
   "001:SC-001": "Medição do tempo de login com o AD real na homologação (roteiro de OQ; quickstart da feature 001).",
   "006:SC-001": "Comparação da capa gerada da Entrada de Projeto com a planilha Capas Projeto pela Garantia da Qualidade (pendente de ratificação; evidência em docs/validacao/006-resultados-execucao.md).",
-  "006:SC-006": "Validação PDF/A-2b do PDF oficial selado no veraPDF (contêiner verapdf/cli; quickstart da feature 006 e docs/validacao/006-resultados-execucao.md); os testes conferem os marcadores estruturais."
+  "006:SC-006": "Validação PDF/A-2b do PDF oficial selado no veraPDF (contêiner verapdf/cli; quickstart da feature 006 e docs/validacao/006-resultados-execucao.md); os testes conferem os marcadores estruturais.",
+  "013:SC-005": "Ciclo completo (abrir revisão, alterar um rótulo, enviar, aprovar e publicar) cronometrado na pilha real por quem conhece a tela (docs/validacao/013-resultados-execucao.md); repetir na homologação."
 }

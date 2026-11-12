@@ -1,0 +1,12 @@
+{% if diff.added or diff.removed or diff.changed %}
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Mudança</th><th>Item</th><th>Antes</th><th>Depois</th></tr></thead>
+  <tbody>
+  {% for label, value in diff.added %}<tr><td>Incluído</td><td>{{ label }}</td><td>—</td><td>{{ value }}</td></tr>{% endfor %}
+  {% for label, value in diff.removed %}<tr><td>Retirado</td><td>{{ label }}</td><td>{{ value }}</td><td>—</td></tr>{% endfor %}
+  {% for label, before, after in diff.changed %}<tr><td>Alterado</td><td>{{ label }}</td><td>{{ before }}</td><td>{{ after }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}<p class="descricao">Nenhuma diferença.</p>{% endif %}

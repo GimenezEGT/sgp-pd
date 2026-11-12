@@ -15,12 +15,7 @@
     {{ form.as_p }}
     <button type="submit" class="botao">Salvar rascunho</button>
   </form>
-  {% if not problems %}
-  <form method="post" action="{% url 'formtemplates:publish' template.pk %}" class="acoes">
-    {% csrf_token %}
-    <button type="submit" class="botao botao-secundario">Publicar a versão {{ template.version_display }}</button>
-  </form>
-  {% endif %}
+  {% include "revisions/_draft_actions.html" with kind="form" obj=template %}
 </div>
 <h2>Pré-visualização</h2>
 {% include "formtemplates/_cover.html" %}

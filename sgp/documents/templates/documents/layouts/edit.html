@@ -25,13 +25,8 @@
   </form>
   <div class="acoes">
     <a class="botao botao-secundario" href="{% url 'layouts:preview' layout.pk %}" target="_blank" rel="noopener">Pré-visualizar (PDF de exemplo)</a>
-    {% if not problems %}
-    <form method="post" action="{% url 'layouts:publish' layout.pk %}">
-      {% csrf_token %}
-      <label for="observacao">Observação da publicação</label> <input id="observacao" name="observacao" maxlength="200">
-      <button type="submit" class="botao botao-secundario">Publicar a versão {{ layout.version_display }}</button>
-    </form>
-    {% endif %}
+
   </div>
 </div>
+{% include "revisions/_draft_actions.html" with kind="layout" obj=layout %}
 {% endblock %}

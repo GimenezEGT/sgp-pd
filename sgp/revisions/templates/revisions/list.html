@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Revisões de modelos{% endblock %}
+{% block content %}
+<h1>Revisões de modelos</h1>
+<p class="descricao">Revisões em andamento dos modelos de subdocumento e de layout. A Qualidade/AR elabora e envia; o Gestor de P&amp;D aprova com assinatura eletrônica ou devolve com comentário. Nada é publicado sem aprovação.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Modelo</th><th>Versão</th><th>Situação</th><th>Elaborado por</th><th>Motivo</th><th>Ações</th></tr></thead>
+  <tbody>
+  {% for row in reviews %}
+    <tr>
+      <td>{{ row.family }}</td>
+      <td>{{ row.obj.version_display }}</td>
+      <td>{{ row.situation }}</td>
+      <td>{{ row.obj.created_by.get_full_name|default:"—" }}</td>
+      <td>{{ row.obj.revision_reason|default:"—" }}</td>
+      <td>
+        {% if row.obj.review_status == "submitted" and is_manager %}<a href="{% url 'revisions:approve' row.kind row.obj.pk %}">Analisar e decidir</a> · {% endif %}
+        {% if row.obj.review_status == "editing" and is_quality %}<a href="{{ row.edit_url }}">Continuar a revisão</a> · {% endif %}
+        <a href="{% url 'revisions:history' row.kind row.obj.pk %}">Histórico</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="6">Nenhuma revisão em andamento.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<h2>Retiradas de uso pedidas</h2>
+{% for retirement in retirements %}
+<div class="painel">
+  <p><strong>{{ retirement.subdocument_type.label }}</strong> · pedida por {{ retirement.requested_by.get_full_name }} em {{ retirement.requested_at|datahora }} · motivo: {{ retirement.reason }}</p>
+  {% if is_manager %}
+  <form method="post" action="{% url 'revisions:retirement_approve' retirement.pk %}" class="acoes">
+    {% csrf_token %}
+    <label for="senha-{{ retirement.pk }}">Senha de rede</label> <input id="senha-{{ retirement.pk }}" type="password" name="senha" autocomplete="current-password" required>
+    <button type="submit" class="botao">Aprovar a retirada com assinatura</button>
+  </form>
+  <form method="post" action="{% url 'revisions:retirement_return' retirement.pk %}" class="acoes">
+    {% csrf_token %}
+    <label for="comentario-{{ retirement.pk }}">Comentário</label> <input id="comentario-{{ retirement.pk }}" name="comentario" maxlength="500">
+    <button type="submit" class="botao botao-secundario">Devolver</button>
+  </form>
+  {% endif %}
+</div>
+{% empty %}<p class="descricao">Nenhum pedido de retirada em andamento.</p>{% endfor %}
+{% endblock %}

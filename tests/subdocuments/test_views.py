@@ -49,7 +49,7 @@ def test_quem_nao_edita_nao_cria_pela_tela(client, project, approved_entry, make
 
 @pytest.mark.req("004:FR-015")
 def test_aprovar_e_migrar_pela_tela(
-    client, project, approved_entry, analyst, manager, make_subdocument, make_user
+    client, project, approved_entry, analyst, manager, make_subdocument, make_user, publish_revision
 ):
     from sgp.formtemplates import services as template_services
     from sgp.vocab.models import get_term
@@ -65,7 +65,13 @@ def test_aprovar_e_migrar_pela_tela(
     assert "obrigatório" in page
     quality = make_user(None, Profile.QUALITY)
     draft = template_services.create_draft(get_term("tipo-subdocumento", "formulacao"), by=quality)
-    template_services.publish(draft, by=quality)
+    template_services.update_draft(
+        draft,
+        by=quality,
+        data={"reference": draft.reference + " (revisada)"},
+        definition=draft.definition,
+    )
+    publish_revision("form", draft, quality)
     page = client.get(detail_url).content.decode()
     assert "Há versão mais nova do modelo (06)" in page and "Migrar para a versão vigente" in page
     client.post(

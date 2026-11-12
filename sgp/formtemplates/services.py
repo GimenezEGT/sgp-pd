@@ -1,6 +1,7 @@
-"""Rascunho, edição e publicação de modelos de formulário (FR-001 a FR-007 da feature 004).
+"""Rascunho e edição de modelos de formulário (FR-001 a FR-007 da feature 004).
 
-Só a Qualidade/AR cadastra e publica. Modelo publicado não muda: nova versão nasce como rascunho
+Só a Qualidade/AR cadastra; a publicação é efeito da aprovação assinada da revisão (feature
+013). Modelo publicado não muda: nova versão nasce como rascunho
 com o conteúdo da vigente. A vigente de um tipo é a publicada mais recente já em vigência.
 """
 
@@ -32,7 +33,11 @@ def _require_quality(by) -> None:
 
 def current_template(subdocument_type, on=None) -> FormTemplate | None:
     """Versão vigente do tipo na data (publicada mais recente com vigência iniciada)."""
+    from sgp.revisions.services import is_retired
+
     on = on or timezone.localdate()
+    if is_retired(subdocument_type):  # feature 013: modelo retirado de uso não serve a novos
+        return None
     return (
         FormTemplate.objects.filter(
             subdocument_type=subdocument_type, status=TemplateStatus.PUBLISHED, valid_from__lte=on
@@ -65,7 +70,12 @@ def _snapshot(template: FormTemplate) -> dict:
 
 
 def create_draft(subdocument_type, *, by, source: FormTemplate | None = None) -> FormTemplate:
+    from sgp.revisions import services as revisions
+
     _require_quality(by)
+    family = FormTemplate.objects.filter(subdocument_type=subdocument_type).first()
+    if family is not None:
+        revisions.ensure_can_open("form", family)
     with transaction.atomic():
         if FormTemplate.objects.filter(
             subdocument_type=subdocument_type, status=TemplateStatus.DRAFT
@@ -96,6 +106,7 @@ def create_draft(subdocument_type, *, by, source: FormTemplate | None = None) ->
             )
         except IntegrityError as exc:
             raise ValidationError("Já existe um rascunho deste modelo; continue nele.") from exc
+        revisions.opened("form", template, by)
         record_event(
             "formtemplates.draft_created",
             actor=by,
@@ -115,6 +126,9 @@ def update_draft(template: FormTemplate, *, by, data: dict, definition, row_vers
         template = FormTemplate.objects.select_for_update().get(pk=template.pk)
         if template.status != TemplateStatus.DRAFT:
             raise ValidationError(NOT_DRAFT)
+        from sgp.revisions.services import require_editing
+
+        require_editing(template)
         if row_version is not None and int(row_version) != template.row_version:
             raise ValidationError(STALE)
         errors = schema.schema_errors(definition)
@@ -133,32 +147,4 @@ def update_draft(template: FormTemplate, *, by, data: dict, definition, row_vers
             record_event(
                 "formtemplates.draft_updated", actor=by, obj=template, old_value=old, new_value=new
             )
-    return template
-
-
-def publish(template: FormTemplate, *, by) -> FormTemplate:
-    _require_quality(by)
-    with transaction.atomic():
-        template = FormTemplate.objects.select_for_update().get(pk=template.pk)
-        if template.status != TemplateStatus.DRAFT:
-            raise ValidationError(NOT_DRAFT)
-        errors = definition_errors(template, template.definition)
-        if not template.reference.strip():
-            errors.insert(0, "Informe a referência do formulário.")
-        if errors:
-            raise ValidationError(errors)
-        template.status = TemplateStatus.PUBLISHED
-        template.published_by = by
-        template.published_at = timezone.now()
-        template.save(update_fields=["status", "published_by", "published_at"])
-        record_event(
-            "formtemplates.published",
-            actor=by,
-            obj=template,
-            new_value={
-                "tipo": template.subdocument_type.label,
-                "versao": template.version_display,
-                "vigencia": template.valid_from,
-            },
-        )
     return template
