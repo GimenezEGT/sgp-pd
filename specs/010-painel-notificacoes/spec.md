@@ -8,6 +8,16 @@
 
 **Input**: User description: "Painel do Gestor de P&D e notificações. Leia docs/contexto/01-visao-geral.md. Objetivo: o gestor vê o andamento de todos os projetos sem pedir relatórios, e ninguém perde prazo de revisão ou assinatura. Histórias: 1. Como Gestor de P&D, vejo a carteira de projetos com etapa atual, percentual de subdocumentos aprovados, marcos planejados × realizados, atraso em dias e líder. 2. Abro um projeto e vejo a linha do tempo: marcos, subdocumentos e versões, assinaturas, alterações e atividade do caderno. 3. Vejo minha fila de pendências: documentos aguardando minha revisão ou assinatura, com o tempo de espera. 4. Como analista ou líder, vejo minhas pendências e recebo e-mail quando um documento é devolvido, aprovado ou fica parado além do prazo configurado. 5. Exporto a carteira em planilha. Regras: o painel respeita as permissões (quem não vê dados financeiros não vê custo nem retorno); notificações podem ser desligadas por tipo, exceto as de assinatura pendente."
 
+## Clarifications
+
+### Session 2026-11-11
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Quais indicadores o gestor quer na primeira tela? → A: Quatro totais no topo (projetos abertos por etapa, projetos com marco vencido não realizado, documentos aguardando a revisão ou assinatura do gestor com a espera mais longa em dias e entradas do caderno atrasadas) e, abaixo, a carteira da história 1 (ratificar com o Gestor de P&D).
+- Q: E-mail imediato ou resumo diário? → A: Devolução e aprovação de documento: e-mail imediato; prazos vencidos (documento em revisão além do prazo de revisão, entrada do caderno aberta além do prazo de assinatura e testemunha pendente além do mesmo prazo): resumo diário às 7h, um e-mail por pessoa com tudo o que venceu (ratificar com o Gestor de P&D).
+- Q: Haverá custo realizado (vindo do Sankhya) para comparar com o planejado? → A: Não nesta versão: o painel mostra o custo planejado e o retorno esperado do Plano de Negócios a quem tem permissão; o custo realizado depende de uma consulta do API Gateway do Sankhya ainda não definida e fica registrado como dependência (ratificar com o Gestor de P&D e a TI).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Carteira de projetos (Priority: P1)
@@ -96,8 +106,8 @@ O gestor exporta a carteira em planilha.
 
 **Painel**
 
-- **FR-001**: O painel DEVE mostrar, para cada projeto que a pessoa acessa, etapa atual, percentual de subdocumentos aprovados, marcos planejados e realizados, atraso em dias e líder [NEEDS CLARIFICATION: quais indicadores o gestor quer na primeira tela?].
-- **FR-002**: Custo e retorno só DEVEM aparecer para quem tem permissão de dados financeiros [NEEDS CLARIFICATION: haverá custo realizado (vindo do Sankhya) para comparar com o planejado?].
+- **FR-001**: O painel DEVE mostrar quatro totais (projetos abertos por etapa, projetos com marco vencido não realizado, documentos aguardando o gestor com a espera mais longa e entradas do caderno atrasadas) e, para cada projeto que a pessoa acessa, etapa atual, percentual de subdocumentos aprovados, marcos planejados e realizados, atraso em dias e líder.
+- **FR-002**: Custo planejado e retorno esperado do Plano de Negócios só DEVEM aparecer para quem tem permissão de dados financeiros; custo realizado não faz parte desta versão.
 - **FR-003**: A linha do tempo do projeto DEVE reunir marcos, subdocumentos e versões, assinaturas, alterações e atividade do caderno, em ordem de data.
 - **FR-004**: A fila do Gestor de P&D DEVE listar os documentos aguardando a sua revisão ou assinatura, com os dias de espera.
 - **FR-005**: Cada pessoa DEVE ver as suas pendências (documentos devolvidos, entradas do caderno a assinar ou testemunhar, documentos parados).
@@ -105,7 +115,7 @@ O gestor exporta a carteira em planilha.
 
 **Notificações**
 
-- **FR-007**: O sistema DEVE enviar e-mail quando um documento é devolvido ou aprovado e quando um documento ou entrada do caderno fica parado além do prazo configurado [NEEDS CLARIFICATION: e-mail imediato ou resumo diário?].
+- **FR-007**: O sistema DEVE enviar e-mail imediato quando um documento é devolvido ou aprovado e, num resumo diário às 7h, as pendências vencidas de cada pessoa (documento em revisão além do prazo de revisão, entrada do caderno aberta além do prazo de assinatura, testemunha pendente além do mesmo prazo).
 - **FR-008**: Cada pessoa DEVE poder desligar as notificações por tipo, exceto as de assinatura pendente.
 - **FR-009**: Envios, falhas e preferências DEVEM ser registrados na trilha de auditoria.
 
@@ -126,3 +136,4 @@ O gestor exporta a carteira em planilha.
 
 - O e-mail sai pelo SMTP interno da empresa, configurado por variáveis de ambiente.
 - Os prazos de revisão (feature 005) e de assinatura do caderno (feature 008) são os já configurados.
+- Indicadores da primeira tela, momento dos e-mails e ausência de custo realizado definidos nas respostas provisórias do esclarecimento (sessão 2026-11-11).
