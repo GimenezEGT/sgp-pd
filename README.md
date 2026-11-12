@@ -92,6 +92,12 @@ specs/         artefatos do spec-kit por feature
 prompts/       textos das etapas do plano
 ```
 
+## Relatório final da execução do plano
+
+[docs/relatorio-final.md](docs/relatorio-final.md): situação das features 001 a 014, decisões
+provisórias a ratificar, dependências de terceiros, verificações manuais e checklists pendentes e
+próximos passos da implantação.
+
 ## Kit de contexto
 
 O kit original (contexto da empresa, padrões e prompts) está em `docs/contexto/`, `docs/modelos/`
