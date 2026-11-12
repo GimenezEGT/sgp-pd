@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Documento completo – {{ project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
+<h1>Documento completo do projeto</h1>
+<p class="descricao">Registro histórico do projeto (RDC 665/2022, art. 61): capa geral, sumário, TAP, Plano de Negócios, subdocumentos aprovados na versão vigente, alterações, Verificação Final, Saída, quadro de versões, resumo da trilha, histórico do caderno e lista de anexos. Sem pendências, sai oficial com selo e código de verificação; com pendências, sai rascunho.</p>
+
+<section class="painel" aria-label="Pendências">
+  <h2>Pendências</h2>
+  {% if pending %}
+  <ul>{% for item in pending %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="descricao">Com pendências, o documento gerado é rascunho (marca d'água e lista de pendências).</p>
+  {% else %}
+  <p><span class="situacao situacao-ok">Sem pendências</span> O documento sai oficial.</p>
+  {% endif %}
+</section>
+
+{% if can_generate %}
+<form method="post" class="painel">
+  {% csrf_token %}
+  <fieldset><legend>Histórico do caderno de laboratório</legend>
+    <p><label><input type="radio" name="caderno" value="{{ summary }}" checked> Resumido (título, data, autor, conclusão e vínculos)</label></p>
+    <p><label><input type="radio" name="caderno" value="{{ full }}"> Completo (todos os campos, adendos e assinaturas)</label></p>
+  </fieldset>
+  <p><label><input type="checkbox" name="historico_versoes" value="1"> Incluir no corpo as versões substituídas (histórico completo)</label></p>
+  {% if financial %}<p><label><input type="checkbox" name="omitir_financeiro" value="1"> Omitir os dados financeiros do Plano de Negócios (versão para quem não tem essa permissão)</label></p>{% else %}<p class="descricao">Você não tem permissão de dados financeiros: o Plano de Negócios sai sem esses campos.</p>{% endif %}
+  <button type="submit" class="botao">Gerar o documento completo</button>
+</form>
+{% endif %}
+
+{% if request_obj %}{% include "fulldoc/_request.html" %}{% endif %}
+
+<h2>Documentos gerados</h2>
+<table>
+  <thead><tr><th>Gerado em</th><th>Versão do projeto</th><th>Situação</th><th>Caderno</th><th>Páginas</th><th>Código de verificação</th><th></th></tr></thead>
+  <tbody>
+  {% for item in documents %}<tr>
+    <td>{{ item.doc.generated_at|datahora }}</td>
+    <td>{{ item.doc.project_version|stringformat:"02d" }}</td>
+    <td>{% if item.doc.official %}Oficial{% else %}Rascunho ({{ item.doc.pending|length }} pendência(s)){% endif %}{% if item.doc.with_financials %} · com dados financeiros{% endif %}</td>
+    <td>{{ item.doc.notebook_label }}{% if item.doc.options.historico_versoes %} · com versões substituídas{% endif %}</td>
+    <td>{{ item.doc.pages }}</td>
+    <td>{{ item.doc.verification_code|default:"—" }}</td>
+    <td>{% if item.can_download %}<a href="{% url 'fulldoc:download' item.doc.pk %}">Baixar PDF</a>{% else %}<span class="descricao">restrito</span>{% endif %}</td>
+  </tr>{% empty %}<tr><td colspan="7">Nenhum documento gerado.</td></tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

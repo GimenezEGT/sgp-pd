@@ -146,6 +146,11 @@ ROUTE_CONTRACT = {
     "notebook:templates": ("GET", ANY_PROFILE),
     "notebook:template_detail": ("GET", ANY_PROFILE),
     "notebook:template_deactivate": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
+    # Feature 009: documento completo (acesso ao projeto; gerar: líder e Gestor, coberto em
+    # tests/fulldoc).
+    "fulldoc:project": ("GET", PROJECT_ACCESS),
+    "fulldoc:request_status": ("GET", PROJECT_ACCESS),
+    "fulldoc:download": ("GET", PROJECT_ACCESS),
 }
 
 

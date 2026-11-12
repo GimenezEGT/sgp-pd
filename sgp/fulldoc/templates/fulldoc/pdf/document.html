@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>{{ meta_title }}</title>
+<meta name="author" content="SGP-P&amp;D">
+<meta name="generator" content="SGP-P&amp;D">
+<meta name="dcterms.created" content="{{ created }}">
+<meta name="dcterms.modified" content="{{ created }}">
+<style>{{ css|safe }}</style>
+</head>
+<body>
+{% if watermark %}<div class="marca" aria-hidden="true">{{ watermark }}</div>{% endif %}
+<section class="capa-geral">
+  <img class="logo" src="{{ logo_uri }}" alt="Logotipo">
+  <p class="titulo">DOCUMENTO COMPLETO DO PROJETO</p>
+  <p class="produto">{{ project.product_name|upper }}</p>
+  <p class="versao">{{ project.code }} – {{ project.title }}</p>
+  <p class="versao">VERSÃO DO PROJETO<span class="num">{{ version }}</span></p>
+  <div class="recuo dados">
+    <p>Gerado em {{ generated_label }}.</p>
+    <p>{% if official %}Documento oficial: todas as partes aprovadas e sem pendências.{% else %}Rascunho: há pendências (lista depois do sumário); não vale como registro oficial.{% endif %}</p>
+    <p>Histórico do caderno: {% if options.caderno == "completo" %}completo{% else %}resumido{% endif %}. Versões substituídas: {% if options.historico_versoes %}no corpo e no quadro de versões{% else %}só no quadro de versões{% endif %}.</p>
+    {% if not with_financials %}<p>Dados financeiros do Plano de Negócios omitidos (acesso restrito).</p>{% endif %}
+  </div>
+</section>
+<nav class="sumario">
+  <h1>Sumário</h1>
+  <ol>{% for part in parts %}<li><a href="#{{ part.anchor }}">{{ part.toc }}</a></li>{% endfor %}</ol>
+</nav>
+{% for part in parts %}
+<section class="parte{% if part.type %} parte-{{ part.type }}{% endif %}" id="{{ part.anchor }}" data-titulo="{{ part.toc }}" data-cabecalho="{{ part.header }}">
+  {% if part.kind == "document" %}
+    {% if part.superseded %}<p class="substituida">Versão substituída – aprovada em {{ part.approved_on }}</p>{% endif %}
+    {% include "documents/pdf/_cover.html" with c=part.content cover_columns=part.cover_columns author=part.author approver=part.approver %}
+    {% include "documents/pdf/_sections.html" with c=part.content %}
+  {% elif part.kind == "pending" %}
+    <h1 class="parte-titulo">Pendências</h1>
+    <p>O documento só é oficial quando não há pendências. Itens encontrados na geração:</p>
+    <ul>{% for item in part.items %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% elif part.kind == "versions" %}
+    <h1 class="parte-titulo">Quadro de versões</h1>
+    <table class="dados">
+      <thead><tr><th>Documento</th><th>Versão</th><th>Aprovação</th><th>Signatários</th><th>Situação</th></tr></thead>
+      <tbody>{% for row in part.rows %}<tr><td>{{ row.document }}</td><td>{{ row.version }}</td><td>{{ row.approved_on }}</td><td>{% for signer in row.signers %}{{ signer }}{% if not forloop.last %}<br>{% endif %}{% empty %}—{% endfor %}</td><td>{{ row.situation }}</td></tr>{% empty %}<tr><td colspan="5">Nenhuma versão aprovada.</td></tr>{% endfor %}</tbody>
+    </table>
+  {% elif part.kind == "audit" %}
+    <h1 class="parte-titulo">Resumo da trilha de auditoria</h1>
+    <p>Período: {{ part.summary.first|default:"—" }} a {{ part.summary.last|default:"—" }} · {{ part.summary.total }} evento(s) do projeto até a geração. A trilha completa é consultada e exportada pela Qualidade no próprio sistema.</p>
+    <p class="tabela-titulo">Eventos por tipo</p>
+    <table class="dados"><thead><tr><th>Tipo de evento</th><th>Quantidade</th></tr></thead>
+      <tbody>{% for label, total in part.summary.by_type %}<tr><td>{{ label }}</td><td>{{ total }}</td></tr>{% empty %}<tr><td colspan="2">Nenhum evento.</td></tr>{% endfor %}</tbody></table>
+    <p class="tabela-titulo">Eventos-chave</p>
+    <table class="dados"><thead><tr><th>Data e hora</th><th>Pessoa</th><th>Evento</th><th>Registro</th></tr></thead>
+      <tbody>{% for row in part.summary.key_events %}<tr><td>{{ row.at }}</td><td>{{ row.who }}</td><td>{{ row.event }}</td><td>{{ row.record }}</td></tr>{% empty %}<tr><td colspan="4">Nenhum evento-chave.</td></tr>{% endfor %}</tbody></table>
+  {% elif part.kind == "notebook" %}
+    <h1 class="parte-titulo">Histórico do caderno de laboratório</h1>
+    <p>Entradas assinadas, {% if part.mode == "completo" %}completas{% else %}resumidas (título, data, autor, conclusão e vínculos){% endif %}.</p>
+    {% for entry in part.entries %}
+    <div class="entrada-caderno">
+      <h2>Entrada {{ entry.number }} – {{ entry.title }}</h2>
+      <p>{{ entry.date }} · {{ entry.author }} · {{ entry.status }}</p>
+      {% if part.mode == "completo" %}
+        {% for text in entry.texts %}<p class="rotulo">{{ text.label }}:</p><div class="texto-caderno">{{ text.html|safe }}</div>{% endfor %}
+        {% if entry.materials %}<p class="rotulo">Materiais:</p><ul>{% for item in entry.materials %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+        {% for addendum in entry.addenda %}<p class="rotulo">Adendo {{ addendum.number }} – {{ addendum.author }} em {{ addendum.at }}:</p><div class="texto-caderno">{{ addendum.html|safe }}</div>{% endfor %}
+      {% else %}
+        <p><strong>Conclusão:</strong> {{ entry.conclusion|default:"—" }}</p>
+      {% endif %}
+      {% if entry.links %}<p><strong>Vínculos:</strong> {{ entry.links|join:"; " }}</p>{% endif %}
+      <p class="nota">Assinaturas: {% for s in entry.signatures %}{{ s.role }} {{ s.name }} em {{ s.at }}{% if not forloop.last %}; {% endif %}{% endfor %}</p>
+    </div>
+    {% empty %}<p>Nenhuma entrada assinada.</p>{% endfor %}
+  {% elif part.kind == "attachments" %}
+    <h1 class="parte-titulo">Lista de anexos</h1>
+    <table class="dados"><thead><tr><th>Arquivo</th><th>Origem</th><th>SHA-256</th></tr></thead>
+      <tbody>{% for row in part.rows %}<tr><td>{{ row.name }}</td><td>{{ row.origin }}</td><td class="resumo">{{ row.sha256 }}</td></tr>{% empty %}<tr><td colspan="3">Nenhum anexo.</td></tr>{% endfor %}</tbody></table>
+  {% endif %}
+</section>
+{% endfor %}
+</body>
+</html>

@@ -11,67 +11,6 @@
 </head>
 <body>
 {% if watermark %}<div class="marca" aria-hidden="true">{{ watermark }}</div>{% endif %}
-<section class="capa">
-  <img class="logo" src="{{ logo_uri }}" alt="Logotipo">
-  <p class="titulo">{{ c.title }}</p>
-  <p class="produto">{{ c.product }}</p>
-  {% if c.changed_version %}<p class="versao">Versão alterada: {{ c.changed_version }}<span class="sep"></span>Nova Versão: {{ c.new_version }}</p>{% else %}<p class="versao">VERSÃO<span class="num">{{ c.version }}</span></p>{% endif %}
-  {% if c.cover.checklist %}
-  <table class="checklist">
-    <thead>
-      <tr><th colspan="{{ c.cover.checklist.columns|length }}">{{ c.cover.checklist.title }}</th></tr>
-      <tr>{% for column in c.cover.checklist.columns %}<th>{{ column }}</th>{% endfor %}</tr>
-    </thead>
-    <tbody>{% for row in c.cover.checklist.rows %}<tr>{% for cell in row %}<td>{{ cell|linebreaksbr }}</td>{% endfor %}</tr>{% endfor %}</tbody>
-  </table>
-  {% elif c.cover.topics %}
-  <div class="recuo">
-    <p class="conter">ESTE RELATÓRIO DEVE CONTER:</p>
-    <table class="colunas"><tr>{% for column in cover_columns %}<td class="{% if cover_columns|length > 1 %}col{{ forloop.counter }}{% else %}unica{% endif %}">{% for item in column %}<p>{{ item.0 }} - {{ item.1 }}</p>{% endfor %}</td>{% endfor %}</tr></table>
-  </div>
-  {% endif %}
-  {% if c.cover.sectors %}
-  <div class="recuo setores">
-    <table class="colunas"><tr>{% for column in c.cover.sectors.columns %}<td class="col{{ forloop.counter }}">{% for sector in column %}<p><span class="caixa">{% if sector.checked %}X{% endif %}</span>{{ sector.label }}</p>{% endfor %}</td>{% endfor %}</tr></table>
-  </div>
-  {% endif %}
-  <div class="recuo assinaturas">
-    <p class="rotulo">{{ c.cover.author_label }}</p>
-    <p class="linha">{% if author %}{{ author }}{% else %}{{ blank_line }}{% endif %}</p>
-    <p class="rotulo">{{ c.cover.approver_label }}</p>
-    <p class="linha">{% if approver %}{{ approver }}{% else %}{{ blank_line }}{% endif %}</p>
-    <p class="rotulo">Data: {% if c.approved_on %}{{ c.approved_on }}{% else %}{{ blank_date }}{% endif %}</p>
-  </div>
-</section>
-{% for section in c.sections %}
-<section class="topico">
-  <h2>{{ section.number }}. {{ section.label }}</h2>
-  {% if section.not_applicable %}<p>Não aplicável. {{ section.justification }}</p>{% endif %}
-  {% for b in section.blocks %}{% include "documents/pdf/_block.html" %}{% endfor %}
-</section>
-{% endfor %}
-{% if c.optional_form %}
-<section class="formulario-opcional">
-  <p class="faixa">{{ c.optional_form.title }}</p>
-  {% for line in c.optional_form.lines %}<p>{{ line }}</p>{% endfor %}
-  {% for group in c.optional_form.groups %}
-  <div class="grupo">
-    <p class="rotulo">{{ group.label }}</p>
-    <p>{% for option in group.options %}<span class="opcao"><span class="caixa">{% if option.checked %}X{% endif %}</span>{{ option.label }}</span>{% endfor %}</p>
-  </div>
-  {% endfor %}
-  {% if c.optional_form.note %}<p class="observacao">{{ c.optional_form.note }}</p>{% endif %}
-</section>
-{% endif %}
-{% if c.signatures %}
-<section class="registro">
-  <h2>Registro de assinaturas eletrônicas</h2>
-  <table class="dados">
-    <thead><tr><th>Significado</th><th>Nome</th><th>Função</th><th>Data e hora</th><th>Delegação</th></tr></thead>
-    <tbody>{% for s in c.signatures %}<tr><td>{{ s.meaning }}</td><td>{{ s.name }}</td><td>{{ s.title }}</td><td>{{ s.at }}</td><td>{{ s.delegation }}</td></tr>{% endfor %}</tbody>
-  </table>
-  {% if c.approved_hash %}<p class="resumo">Resumo do conteúdo aprovado (SHA-256): {{ c.approved_hash }}</p>{% endif %}
-</section>
-{% endif %}
-</body>
+{% include "documents/pdf/_cover.html" %}
+{% include "documents/pdf/_sections.html" %}</body>
 </html>

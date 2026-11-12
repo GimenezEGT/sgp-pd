@@ -32,6 +32,9 @@ from .models import (
 
 logger = logging.getLogger(__name__)
 CROCKFORD = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+# Consultas extras do código de verificação, registradas por outras apps (feature 009):
+# cada uma recebe (código, pessoa) e devolve os dados da tela ou None.
+EXTRA_LOOKUPS: list = []
 NO_ACCESS = "Você não tem acesso a este documento."
 KIND_LABELS = {
     DocumentKind.SUBDOCUMENT: "Subdocumento",
@@ -414,6 +417,15 @@ def lookup(code_text: str, *, user, request=None) -> dict:
             }
         )
         project_id = adapter.project(obj).pk if access else None
+    elif code:
+        for extra in EXTRA_LOOKUPS:
+            found = extra(code, user)
+            if found:
+                project_id = found.pop("project_id", None)
+                access = found["access"]
+                result.update(found)
+                result["found"] = True
+                break
     record_event(
         "documents.verification_lookup",
         actor=user,

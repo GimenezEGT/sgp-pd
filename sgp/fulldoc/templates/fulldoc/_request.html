@@ -1,0 +1,11 @@
+{% load sgp %}<section class="painel pedido" id="pedido-documento-completo" aria-live="polite"{% if request_obj.is_active %} hx-get="{% url 'fulldoc:request_status' request_obj.pk %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  <h2>Último pedido</h2>
+  <p>Pedido em {{ request_obj.requested_at|datahora }} · <span class="situacao situacao-{{ request_obj.status }}">{{ request_obj.get_status_display }}</span></p>
+  {% if request_obj.is_active %}
+  <p><progress max="100" value="{{ request_obj.progress }}">{{ request_obj.progress }}%</progress> {{ request_obj.progress }}% · {{ request_obj.step|default:"Na fila" }}</p>
+  {% elif request_obj.status == "done" and request_obj.result %}
+  <p>{% if request_obj.reused %}Nada mudou desde a geração anterior: o documento arquivado foi reaproveitado.{% else %}Documento gerado com {{ request_obj.result.pages }} página(s).{% endif %} <a href="{% url 'fulldoc:download' request_obj.result.pk %}">Baixar PDF</a></p>
+  {% elif request_obj.status == "failed" %}
+  <p class="mensagem mensagem-error">{{ request_obj.error }}</p>
+  {% endif %}
+</section>

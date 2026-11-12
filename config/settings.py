@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "sgp.revisions",
     "sgp.studies",
     "sgp.notebook",
+    "sgp.fulldoc",
 ]
 
 MIDDLEWARE = [
