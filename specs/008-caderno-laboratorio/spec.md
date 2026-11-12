@@ -8,6 +8,18 @@
 
 **Input**: User description: "Caderno de laboratório eletrônico por pesquisador e por projeto, para registrar experimentos e tentativas antes dos resultados oficiais do RAPD. Leia docs/contexto/01-visao-geral.md. Objetivo: guardar o histórico científico do desenvolvimento (o que foi tentado, o que falhou e por quê) com a mesma rastreabilidade dos documentos oficiais. Histórias: 1. Como pesquisador, crio uma entrada num projeto com título, data, objetivo, hipótese, materiais (ligando lotes, insumos e amostras cadastrados), procedimento, resultados (texto, tabelas, fotos, arquivos de equipamento) e conclusão. 2. Uso modelos de entrada por tipo de experimento (ex.: teste de formulação, estabilidade preliminar) para não começar do zero. 3. Ao terminar, assino a entrada e ela fica bloqueada. Correções viram adendos datados e assinados, sem apagar o original. 4. Peço a assinatura de uma testemunha quando o experimento for relevante para propriedade intelectual ou para uma decisão do projeto. 5. Ligo entradas a formulações, lotes piloto e estudos; a partir de uma entrada, promovo dados para um estudo oficial (feature 007), mantendo o vínculo. 6. Como gestor, vejo a linha do tempo do caderno de cada projeto, busco por palavra, amostra, lote ou pesquisador e vejo entradas abertas há mais de N dias. Regras: entradas não assinadas após o prazo configurado geram lembrete; data e hora vêm do servidor; anexos têm hash; o caderno do projeto é visível para a equipe do projeto, o Gestor de P&D e a Qualidade. Fora do escopo: integração direta com equipamentos; importar arquivos basta nesta fase."
 
+## Clarifications
+
+### Session 2026-11-11
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada para não bloquear o desenvolvimento e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Qual o prazo para assinar uma entrada? → A: 7 dias corridos depois da criação, configurável; depois disso a entrada aparece como atrasada (o e-mail vem na feature 010) (ratificar com o Gestor de P&D).
+- Q: Quando a testemunha é obrigatória? → A: Quando o autor marca a entrada como relevante para propriedade intelectual ou para uma decisão do projeto; o Gestor de P&D também pode marcar; a testemunha é qualquer pessoa com acesso ao projeto, diferente do autor (ratificar com o Gestor de P&D e o Jurídico).
+- Q: Tamanho máximo de anexos e tipos aceitos? → A: O mesmo limite configurável da feature 003 (20 MB) e os tipos PDF, PNG, JPEG, CSV e XLSX (fotos, laudos e arquivos exportados de equipamento) (ratificar com a TI).
+- Q: Existem entradas fora de projeto (pesquisa exploratória)? → A: Não nesta versão: toda entrada pertence a um projeto; pesquisa exploratória usa um projeto aberto para esse fim (ratificar com o Gestor de P&D).
+- Q: Quem mantém os modelos de entrada e eles passam pela revisão controlada da feature 013? → A: Qualidade/AR e Gestor de P&D mantêm os modelos; como são só textos de partida (a entrada copia o texto ao nascer e o registro é a entrada assinada), cada alteração gera nova versão sem o ciclo de aprovação da 013 (ratificar com a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Registrar a entrada do experimento (Priority: P1)
@@ -117,21 +129,21 @@ O Gestor de P&D vê a linha do tempo do caderno de cada projeto, busca por palav
 
 **Entrada**
 
-- **FR-001**: A entrada DEVE pertencer a um projeto [NEEDS CLARIFICATION: existem entradas fora de projeto, para pesquisa exploratória?] e guardar autor, data e hora do servidor, título, objetivo, hipótese, procedimento, resultados, conclusão e situação.
+- **FR-001**: A entrada DEVE pertencer a um projeto (não há entrada fora de projeto) e guardar autor, data e hora do servidor, título, objetivo, hipótese, procedimento, resultados, conclusão e situação.
 - **FR-002**: Materiais DEVEM ser ligados aos cadastros de lotes, insumos e amostras pela versão do registro; código inexistente DEVE ser recusado.
-- **FR-003**: Anexos (fotos e arquivos de equipamento) DEVEM ser guardados com resumo criptográfico conferido a cada leitura [NEEDS CLARIFICATION: tamanho máximo e tipos de arquivo aceitos?].
+- **FR-003**: Anexos (fotos e arquivos de equipamento) DEVEM ser guardados com resumo criptográfico conferido a cada leitura, no limite configurável da feature 003 e nos tipos PDF, PNG, JPEG, CSV e XLSX.
 - **FR-004**: Só membros do projeto com perfil Analista/Pesquisador ou Líder e o Gestor de P&D DEVEM criar entradas; o caderno é visível para a equipe do projeto, o Gestor de P&D e a Qualidade; tentativa sem permissão DEVE ser negada e registrada.
 
 **Modelos de entrada**
 
-- **FR-005**: Modelos de entrada por tipo de experimento DEVEM poder ser mantidos sem programação, com versões; a entrada copia os textos do modelo ao nascer e registra o modelo e a versão usados.
+- **FR-005**: Modelos de entrada por tipo de experimento DEVEM poder ser mantidos pela Qualidade/AR e pelo Gestor de P&D sem programação, com nova versão a cada alteração; a entrada copia os textos do modelo ao nascer e registra o modelo e a versão usados.
 
 **Assinatura e adendos**
 
 - **FR-006**: O autor DEVE assinar a entrada com reautenticação (regras da feature 005); a assinatura guarda pessoa, data e hora do servidor e resumo do conteúdo, e a entrada fica bloqueada.
 - **FR-007**: Entrada assinada NÃO DEVE ser editada; correção só por adendo datado, assinado e imutável, sem apagar o original.
-- **FR-008**: Entrada aberta além do prazo configurado [NEEDS CLARIFICATION: prazo para assinar: fim do dia, 24 h ou 7 dias?] DEVE aparecer como atrasada.
-- **FR-009**: Entrada marcada como relevante para propriedade intelectual ou decisão do projeto DEVE exigir a assinatura de uma testemunha com acesso ao projeto, diferente do autor.
+- **FR-008**: Entrada aberta além do prazo configurado (padrão 7 dias corridos) DEVE aparecer como atrasada.
+- **FR-009**: Entrada marcada como relevante para propriedade intelectual ou decisão do projeto (pelo autor ou pelo Gestor de P&D) DEVE exigir a assinatura de uma testemunha com acesso ao projeto, diferente do autor.
 
 **Vínculos e promoção**
 
@@ -166,3 +178,4 @@ O Gestor de P&D vê a linha do tempo do caderno de cada projeto, busca por palav
 - A assinatura reaproveita a reautenticação da feature 005 (tentativas e bloqueio).
 - O lembrete por e-mail fica para a feature 010; aqui a entrada aparece como atrasada.
 - Integração direta com equipamentos está fora do escopo; importar arquivos basta.
+- Prazo de assinatura, testemunha, anexos, entradas só em projeto e manutenção dos modelos definidos nas respostas provisórias do esclarecimento (sessão 2026-11-11).
