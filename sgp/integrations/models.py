@@ -34,6 +34,12 @@ class MessageStatus(models.TextChoices):
 class IntegrationMessage(ProtectedModel):
     record_type = models.CharField("registro", max_length=20)
     idempotency_key = models.CharField("chave de idempotência", max_length=120, unique=True)
+    record_key = models.CharField(
+        "chave do registro no Sankhya",
+        max_length=120,
+        blank=True,
+        help_text="Vazia: a própria chave de idempotência (uma mensagem por registro).",
+    )
     project = models.ForeignKey(
         "projects.Project", on_delete=models.PROTECT, null=True, blank=True, related_name="+"
     )
@@ -57,6 +63,11 @@ class IntegrationMessage(ProtectedModel):
             models.Index(fields=["status", "next_attempt_at"], name="integrations_due_idx"),
             models.Index(fields=["record_type", "-created_at"], name="integrations_type_idx"),
         ]
+
+    @property
+    def target_key(self) -> str:
+        """Chave do registro no Sankhya: a do registro atualizado ou a da própria mensagem."""
+        return self.record_key or self.idempotency_key
 
     def __str__(self) -> str:
         return f"{self.idempotency_key} ({self.get_status_display()})"

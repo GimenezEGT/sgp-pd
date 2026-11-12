@@ -8,15 +8,16 @@ Sankhya disponível; o gateway foi exercitado nos testes automatizados com um se
 
 | Item | Resultado |
 | --- | --- |
-| Testes (`pytest`) | 1.204 aprovados (todas as features até a 013), 0 falhas; cobertura `sgp/core` 93,5% e `sgp/audit` 97,1% |
-| Testes da feature (`tests/integrations`) | 15 aprovados, com servidor simulado do gateway (`/authenticate` e `service.sbr`) |
+| Testes (`pytest`) | 1.207 aprovados (todas as features até a 013), 0 falhas; cobertura `sgp/core` 93,5% e `sgp/audit` 97,1% |
+| Testes da feature (`tests/integrations`) | 18 aprovados, com servidor simulado do gateway (`/authenticate` e `service.sbr`) |
 | Matriz de rastreabilidade | 290 requisitos, 0 sem cobertura (a primeira rodada do portão apontou o 012:FR-009 sem marcação; os testes de envio, falha e exportação, que já conferiam os eventos, receberam o marcador) |
 | FR-001 gateway oficial | token OAuth 2.0 (client credentials) com `X-Token`, guardado em cache; renovação única depois de 401; erro 5xx e tempo esgotado tratados como indisponibilidade; recusa do serviço (`status` diferente de 1) vira erro com a mensagem do gateway |
 | FR-002 credenciais | só nas variáveis `SANKHYA_*`; nenhuma mensagem de erro inclui credencial ou token; `.env.example` sem valores |
 | SC-001 envio único | aprovação gera uma mensagem por chave de idempotência; reenvio da mesma mensagem atualiza o mesmo registro no gateway simulado; nova chamada de `enqueue` com a mesma chave não cria mensagem |
 | SC-004 falha do gateway | a aprovação conclui com o gateway falhando; a mensagem fica com erro, tentativas e próxima tentativa em espera crescente (1, 2, 4… minutos) até o limite; o reprocessamento pela TI envia; o gestor não reprocessa |
 | FR-006 insumo novo | Saída aprovada com matérias-primas e materiais de embalagem novos gera registros "Insumo novo" com situação "solicitado", fabricante e certificado |
-| SC-003 exportação | CSV (";", UTF-8), XLSX e JSON (envelope `entidade`, `gerado_em`, `registros`) reproduzem a fila; só a TI exporta |
+| SC-003 exportação | CSV (";", UTF-8), XLSX e JSON (envelope `entidade`, `gerado_em`, `registros`) reproduzem a fila, uma linha por registro com o conteúdo mais recente; só a TI exporta |
+| Convergência | o primeiro PDF oficial da versão aprovada atualiza o mesmo registro "documento" (`pdf_sha256` e `pdf_codigo_verificacao`), sem segundo registro no gateway; lote citado na Elaboração de Lote Piloto aprovada gera o registro "lote"; critérios e resultados de estudo com vírgula decimal |
 
 ## Roteiro do quickstart na pilha real
 
@@ -32,10 +33,19 @@ Sankhya disponível; o gateway foi exercitado nos testes automatizados com um se
 | Mapeamento: YAML com campo lógico inexistente e entidade sem chave recusado com as duas mensagens; o mapeamento padrão republicado vira a versão 2; `UPDATE` direto na versão 1 recusado pelo gatilho de imutabilidade; `gestor.pd` na tela do mapeamento: 403 | aprovado |
 | Fila para `ana.analista`, `gestor.pd`, `qualidade.ar` e `leitor.consulta`: 403; item "Integração com o Sankhya" só no menu da TI | aprovado |
 | Trilha: `integration.exported` 3, `integration.reprocessed` 1, `integration.mapping_published` 1 (envio e falha só com o gateway, cobertos pelos testes) | aprovado |
+| Convergência (migração `integrations.0003_record_key`): `ana.analista` pede o PDF oficial da Entrada versão 03; o worker gera o PDF (código GV9E-30CB-HS1N-2XJJ) e a mensagem `documento:1:3:pdf`, que atualiza o registro `documento:1:3` com o mesmo resumo e código do arquivo gerado; a fila mostra "atualiza o registro"; a exportação JSON traz uma linha para o registro, já com o PDF | aprovado |
 
 ## Convergência (`/speckit-converge`)
 
-Ver a seção ao fim deste arquivo, preenchida depois da avaliação.
+Primeira avaliação: três lacunas parciais, viradas nas tarefas T010 a T012 — o PDF oficial só é
+gerado depois da aprovação (feature 006), então a identificação do PDF nunca chegava ao registro
+do documento (FR-004); critérios e resultados de estudo saíam com ponto decimal (FR-008); o
+registro de lote não tinha teste. Implementadas com a migração `0003_record_key` (chave do
+registro separada da chave da mensagem) e testes em `tests/integrations/test_records.py`.
+
+Segunda avaliação: Converged — FR-001 a FR-009 e SC-001, SC-003 e SC-004 implementados e cobertos
+por testes (`req("012:…")`); SC-002 é a conferência manual em homologação; tarefas T001 a T012
+concluídas; nenhuma tarefa nova.
 
 ## Pendências a ratificar e dependências
 

@@ -13,6 +13,7 @@ campos lógicos e as entidades do Sankhya vazias.
 | --- | --- | --- |
 | record_type | `projeto`, `documento`, `lote`, `insumo_novo`, `resultado_estudo` | |
 | idempotency_key | texto, único | `<registro>:<id>:<versão>` |
+| record_key | texto, vazio por padrão | chave do registro no Sankhya quando a mensagem atualiza um registro de outra mensagem (PDF oficial do documento: mensagem `documento:<id>:<versão>:pdf`, registro `documento:<id>:<versão>`); vazia, vale a chave de idempotência (migração `0003_record_key`) |
 | project | FK projeto, nulo | |
 | object_type / object_id / object_repr | texto | registro de origem |
 | payload | JSON | campos lógicos (contrato registros.md) |

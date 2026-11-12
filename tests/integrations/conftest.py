@@ -7,7 +7,9 @@ from urllib.parse import parse_qs, urlparse
 
 import pytest
 
+from tests.catalog.conftest import lot_data, make_lot  # noqa: F401
 from tests.dashboard.conftest import submitted_entry  # noqa: F401
+from tests.documents.conftest import generate, seal_cert  # noqa: F401
 from tests.fulldoc.conftest import (  # noqa: F401
     create_sub,
     force_approve,
@@ -16,6 +18,7 @@ from tests.fulldoc.conftest import (  # noqa: F401
 )
 from tests.subdocuments.conftest import (  # noqa: F401
     analyst,
+    approved_entry,
     make_subdocument,
     manager,
     project,
@@ -34,7 +37,8 @@ registros:
   documento:
     entidade: TESTE_DOCUMENTO
     chave: CHAVE
-    campos: {codigo_projeto: CODPROJ, tipo_subdocumento: TIPO, versao_documento: VERSAO, elaborador: ELABORADOR, aprovador: APROVADOR, resumo_conteudo: RESUMO}
+    campos: {codigo_projeto: CODPROJ, tipo_subdocumento: TIPO, versao_documento: VERSAO, elaborador: ELABORADOR, aprovador: APROVADOR, resumo_conteudo: RESUMO,
+              pdf_sha256: PDFHASH, pdf_codigo_verificacao: PDFCOD}
   lote:
     entidade: TESTE_LOTE
     chave: CHAVE

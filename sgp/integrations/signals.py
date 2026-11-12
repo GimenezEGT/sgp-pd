@@ -5,7 +5,9 @@ from django.dispatch import receiver
 
 from sgp.audit.models import AuditEvent
 
-SOURCES = frozenset({"projects.approved", "signatures.approved", "studies.locked"})
+SOURCES = frozenset(
+    {"projects.approved", "signatures.approved", "studies.locked", "documents.generated"}
+)
 
 
 @receiver(post_save, sender=AuditEvent, dispatch_uid="integrations_from_audit")

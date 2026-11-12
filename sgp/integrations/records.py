@@ -17,6 +17,11 @@ def _date(value) -> str:
     return value.isoformat()
 
 
+def _br(value) -> str:
+    """Número como na tela do estudo (feature 007): vírgula decimal."""
+    return str(value).replace(".", ",")
+
+
 def _name(user) -> str:
     return (user.get_full_name() or user.username) if user else ""
 
@@ -60,7 +65,7 @@ def document(sub, approval: ApprovedVersion) -> tuple[str, str, dict]:
             official=True,
             format="pdf",
         )
-        .order_by("-generated_at", "-pk")
+        .order_by("generated_at", "pk")
         .first()
     )
     payload = {
@@ -113,11 +118,11 @@ def study_result(study) -> tuple[str, str, dict]:
     results = study.results or {}
     criteria = results.get("criterios", [])
     criterion_text = "; ".join(
-        f"{c['rotulo']} {profiles.COMPARISONS.get(c['comparacao'], c['comparacao'])} {c['limite']}"
+        f"{c['rotulo']} {profiles.COMPARISONS.get(c['comparacao'], c['comparacao'])} {_br(c['limite'])}"
         for c in criteria
     )
     result_text = "; ".join(
-        f"{c['rotulo']} = {c['valor'] if c['valor'] is not None else 'não calculável'}"
+        f"{c['rotulo']} = {_br(c['valor']) if c['valor'] is not None else 'não calculável'}"
         for c in criteria
     )
     if study.not_applicable:

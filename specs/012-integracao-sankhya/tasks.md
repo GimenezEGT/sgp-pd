@@ -31,7 +31,7 @@ description: "Task list for feature 012 — Integração com o Sankhya"
 
 - [X] T007 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 012); SC-002 em `docs/validacao/verificacoes-manuais.json`
 - [X] T008 Rodar `scripts/verificar.sh` (1204 testes, cobertura mínima e matriz com 290 requisitos cobertos)
-- [ ] T009 Executar o quickstart na pilha real e registrar em `docs/validacao/012-resultados-execucao.md`
+- [X] T009 Executar o quickstart na pilha real e registrar em `docs/validacao/012-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 
@@ -39,6 +39,6 @@ Setup → Foundational → US2/US4 → US1/US3/US5 → Polish.
 
 ## Phase 6: Convergence
 
-- [ ] T010 Atualizar o registro "documento" no Sankhya (mesma chave do registro, sem duplicar) quando o primeiro PDF oficial da versão aprovada for gerado, com `pdf_sha256` e `pdf_codigo_verificacao`, em `sgp/integrations/` com teste per FR-004 (partial)
-- [ ] T011 Escrever limites e valores dos critérios do registro "resultado_estudo" com vírgula decimal, como na tela do estudo, em `sgp/integrations/records.py` com teste per FR-008 (partial)
-- [ ] T012 Testar o registro "lote" gerado por lote citado em subdocumento aprovado em `tests/integrations/` per contrato registros.md (partial)
+- [X] T010 Atualizar o registro "documento" no Sankhya (mesma chave do registro, sem duplicar) quando o primeiro PDF oficial da versão aprovada for gerado, com `pdf_sha256` e `pdf_codigo_verificacao`, em `sgp/integrations/` com teste per FR-004 (partial)
+- [X] T011 Escrever limites e valores dos critérios do registro "resultado_estudo" com vírgula decimal, como na tela do estudo, em `sgp/integrations/records.py` com teste per FR-008 (partial)
+- [X] T012 Testar o registro "lote" gerado por lote citado em subdocumento aprovado em `tests/integrations/` per contrato registros.md (partial)

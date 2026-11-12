@@ -78,9 +78,13 @@ def publish_mapping(*, by, text: str, note: str = "") -> IntegrationMapping:
 
 
 def enqueue(
-    record_type: str, key: str, payload: dict, *, project=None, obj=None
+    record_type: str, key: str, payload: dict, *, project=None, obj=None, record_key: str = ""
 ) -> IntegrationMessage | None:
-    """Cria a mensagem na transação corrente (uma por chave) e agenda o envio depois do commit."""
+    """Cria a mensagem na transação corrente (uma por chave) e agenda o envio depois do commit.
+
+    `record_key` (opcional) é a chave do registro no Sankhya quando a mensagem atualiza um registro
+    já enviado por outra mensagem; sem ela, a chave do registro é a própria chave de idempotência.
+    """
     if IntegrationMessage.objects.filter(idempotency_key=key).exists():
         return None
     try:
@@ -88,6 +92,7 @@ def enqueue(
             message = IntegrationMessage.objects.create(
                 record_type=record_type,
                 idempotency_key=key,
+                record_key=record_key if record_key != key else "",
                 project=project,
                 object_type=f"{obj._meta.app_label}.{obj._meta.model_name}"
                 if obj is not None
@@ -132,7 +137,7 @@ def dispatch(message_id: int) -> IntegrationMessage:
     fields = {
         target: message.payload.get(logical) for logical, target in spec["campos"].items() if target
     }
-    body = payloads.save_record(spec["entidade"], spec["chave"], message.idempotency_key, fields)
+    body = payloads.save_record(spec["entidade"], spec["chave"], message.target_key, fields)
     attempts = message.attempts + 1
     try:
         sankhya.call(body)
@@ -267,8 +272,12 @@ def export(record_type: str, fmt: str, *, by, request=None) -> tuple[str, str, b
     messages = IntegrationMessage.objects.filter(record_type=record_type).order_by(
         "created_at", "pk"
     )
+    latest = {}
+    for message in messages:
+        latest[message.target_key] = message  # a atualização mais recente vale para o registro
     rows = [
-        {"chave": m.idempotency_key, **{f: m.payload.get(f, "") for f in fields}} for m in messages
+        {"chave": key, **{f: message.payload.get(f, "") for f in fields}}
+        for key, message in latest.items()
     ]
     columns = ["chave", *fields]
     stamp = timezone.localtime().strftime("%Y%m%d-%H%M%S")
@@ -329,6 +338,9 @@ def from_event(event) -> None:
             kind, key, payload = records.project(project)
             enqueue(kind, key, payload, project=project, obj=project)
         return
+    if event.event_type == "documents.generated":
+        _official_pdf(event)
+        return
     if event.event_type == "studies.locked":
         study = (
             Study.objects.select_related("project", "study_type", "subdocument")
@@ -368,6 +380,36 @@ def from_event(event) -> None:
         for material in Material.objects.select_related("certificate").filter(pk__in=material_ids):
             kind, key, payload = records.new_material(material, sub.project)
             enqueue(kind, key, payload, project=sub.project, obj=material)
+
+
+def _official_pdf(event) -> None:
+    """Primeiro PDF oficial da versão aprovada: atualiza o mesmo registro "documento" no Sankhya
+    com a identificação do PDF (FR-004), sem criar outro registro."""
+    from sgp.signatures.models import ApprovedVersion
+    from sgp.subdocuments.models import Subdocument
+
+    info = event.new_value or {}
+    if event.object_type != "documents.subdocument" or not info.get("oficial"):
+        return
+    if info.get("formato") != "pdf" or not str(info.get("versao") or "").isdigit():
+        return
+    sub = (
+        Subdocument.objects.select_related("project", "subdocument_type", "template")
+        .filter(pk=event.object_id)
+        .first()
+    )
+    approval = (
+        ApprovedVersion.objects.filter(
+            kind="subdocument", object_id=sub.pk, version=int(info["versao"])
+        ).first()
+        if sub
+        else None
+    )
+    if approval is None:
+        return
+    kind, key, payload = records.document(sub, approval)
+    if payload["pdf_sha256"]:
+        enqueue(kind, f"{key}:pdf", payload, project=sub.project, obj=sub, record_key=key)
 
 
 def _latest_approval(sub):

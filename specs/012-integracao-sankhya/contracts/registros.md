@@ -15,5 +15,10 @@ de idempotência vai no campo indicado como `chave`.
 Chave de idempotência: `<registro>:<id do registro de origem>:<versão>`; o reenvio grava o mesmo
 registro (o `saveRecord` inclui ou altera pela chave primária).
 
+PDF oficial do documento: o PDF oficial só é gerado depois da aprovação (feature 006); o primeiro
+PDF oficial da versão aprovada gera a mensagem `documento:<id>:<versão>:pdf`, que grava o mesmo
+registro `documento:<id>:<versão>` com `pdf_sha256` e `pdf_codigo_verificacao`. Na exportação de
+contingência sai uma linha por registro, com o conteúdo mais recente.
+
 Consulta de produto: entidade e campos (código, descrição, unidade, situação) também vêm do
 mapeamento.
