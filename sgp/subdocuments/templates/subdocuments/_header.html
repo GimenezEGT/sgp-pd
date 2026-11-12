@@ -1,0 +1,7 @@
+{% load sgp %}
+<p><a href="{% url 'subdocuments:project_list' project.pk %}">← Subdocumentos de {{ project.code|default:project.title }}</a></p>
+<h1>{{ subdocument.subdocument_type.label }}{% if subdocument.subdocument_type.code == "alteracao" %} {{ subdocument.sequence }}{% endif %}</h1>
+<p class="descricao">{{ project.product_name|upper }} · {% if subdocument.subdocument_type.code == "alteracao" %}Versão alterada: {{ subdocument.changed_version|stringformat:"02d" }} · Nova Versão: {{ subdocument.new_version|stringformat:"02d" }}{% else %}VERSÃO {{ subdocument.version_display }}{% endif %} · {{ subdocument.get_status_display }} · {{ subdocument.template.footer }}</p>
+{% if current_template and current_template.pk != subdocument.template_id %}<div class="mensagem mensagem-warning" role="status">Há versão mais nova do modelo ({{ current_template.version_display }}); este documento continua na {{ subdocument.template.version_display }}.</div>{% endif %}
+{% if subdocument.review_requested_by %}<div class="marca-revisao" role="status">Marcado para revisão pela {{ subdocument.review_requested_by }} em {{ subdocument.review_requested_at|datahora }}.</div>{% endif %}
+{% if subdocument.unmapped_data %}<details class="mensagem mensagem-warning"><summary>Dados guardados que não couberam na migração de modelo</summary><pre class="json">{{ subdocument.unmapped_data|json_compacto }}</pre></details>{% endif %}

@@ -83,6 +83,17 @@ def _require_leader(project: Project, by) -> None:
         raise ValidationError("Só o líder do projeto pode alterar este conteúdo.")
 
 
+def _require_document_editable(project: Project, document) -> None:
+    """TAP e Plano: editáveis em rascunho/devolvido do projeto ou em nova versão já aberto."""
+    if project.status == ProjectStatus.OPEN:
+        if document.doc_status not in ("draft", "returned"):
+            raise ValidationError(
+                "Documento aprovado não muda; crie uma nova versão com motivo para corrigir."
+            )
+        return
+    _require_editable(project)
+
+
 def _require_editable(project: Project) -> None:
     if project.status not in EDITABLE_STATUSES:
         raise ValidationError(
@@ -120,8 +131,12 @@ def create_project(*, by, data: dict, leader=None) -> Project:
     data = _normalize_product(data)
     with transaction.atomic():
         project = Project.objects.create(leader=leader, created_by=by, **data)
-        ProjectCharter.objects.create(project=project)
+        charter = ProjectCharter.objects.create(project=project)
         plan = BusinessPlan.objects.create(project=project)
+        from sgp.documents.layouts import bind_current
+
+        bind_current("charter", charter.pk, charter.doc_version)
+        bind_current("business_plan", plan.pk, plan.doc_version)
         AnnualForecast.objects.bulk_create(
             [AnnualForecast(business_plan=plan, year_index=year) for year in range(1, 6)]
         )
@@ -167,8 +182,8 @@ def update_charter(project: Project, *, by, data: dict, row_version=None) -> Pro
     with transaction.atomic():
         project = Project.objects.select_for_update().get(pk=project.pk)
         _require_leader(project, by)
-        _require_editable(project)
         charter = ProjectCharter.objects.select_for_update().get(project=project)
+        _require_document_editable(project, charter)
         _check_version(charter.row_version, row_version)
         before = _charter_snapshot(charter)
         for field in CHARTER_FIELDS:
@@ -220,8 +235,8 @@ def update_business_plan(
     with transaction.atomic():
         project = Project.objects.select_for_update().get(pk=project.pk)
         _require_leader(project, by)
-        _require_editable(project)
         plan = BusinessPlan.objects.select_for_update().get(project=project)
+        _require_document_editable(project, plan)
         _check_version(plan.row_version, row_version)
         before = _plan_snapshot(plan)
         for field in PLAN_FIELDS:
@@ -404,3 +419,26 @@ def cancel_milestone(milestone: Milestone, *, by, reason: str) -> Milestone:
         milestone.save(update_fields=["canceled_at", "canceled_by", "cancel_reason"])
         _event("projects.milestone_canceled", project, by, obj=milestone, reason=reason)
     return milestone
+
+
+# ------------------------------------------------------------- versão do projeto
+
+
+def bump_version(project: Project, *, by, reason: str) -> Project:
+    """Alteração de Projeto aprovada (feature 004): a versão do projeto sobe, com evento."""
+    with transaction.atomic():
+        project = Project.objects.select_for_update().get(pk=project.pk)
+        before = project.version_display
+        project.version = (project.version or 0) + 1
+        project.row_version += 1
+        project.save(update_fields=["version", "row_version", "updated_at"])
+        _event(
+            "projects.version_changed",
+            project,
+            by,
+            obj=project,
+            old_value={"versao": before},
+            new_value={"versao": project.version_display},
+            reason=reason,
+        )
+    return project

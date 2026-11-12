@@ -9,7 +9,15 @@ from sgp.accounts.profiles import Profile, active_profiles
 from sgp.audit.services import record_event
 
 from .completeness import pending_items
-from .models import DecisionAction, Project, ProjectDecision, ProjectStatus
+from .models import (
+    BusinessPlan,
+    DecisionAction,
+    DocumentStatus,
+    Project,
+    ProjectCharter,
+    ProjectDecision,
+    ProjectStatus,
+)
 
 SUBMIT, APPROVE, RETURN = "submit", "approve", "return"
 
@@ -72,6 +80,7 @@ def submit(project: Project, *, by) -> Project:
         project.status = target
         project.submitted_at = timezone.now()
         project.save(update_fields=["status", "submitted_at", "updated_at"])
+        _set_documents(project, DocumentStatus.IN_REVIEW)
         _decide(project, DecisionAction.SUBMITTED, by)
         record_event(
             "projects.submitted",
@@ -84,8 +93,16 @@ def submit(project: Project, *, by) -> Project:
     return project
 
 
+def _set_documents(project: Project, status: str) -> None:
+    """TAP e Plano de Negócios acompanham a situação do projeto em abertura (feature 005)."""
+    ProjectCharter.objects.filter(project=project).update(doc_status=status)
+    BusinessPlan.objects.filter(project=project).update(doc_status=status)
+
+
 def _check_decider(project: Project, by) -> None:
-    if Profile.RD_MANAGER not in active_profiles(by):
+    from sgp.signatures.services import active_delegation
+
+    if Profile.RD_MANAGER not in active_profiles(by) and active_delegation(by) is None:
         raise ValidationError("Só o Gestor de P&D aprova ou devolve projetos.")
     if project.leader_id == by.pk:
         raise ValidationError("O líder do projeto não pode aprovar nem devolver o próprio projeto.")
@@ -101,6 +118,7 @@ def return_project(project: Project, *, by, comment: str) -> Project:
         target = target_status(RETURN, project.status)
         project.status = target
         project.save(update_fields=["status", "updated_at"])
+        _set_documents(project, DocumentStatus.RETURNED)
         _decide(project, DecisionAction.RETURNED, by, comment)
         record_event(
             "projects.returned",
@@ -127,6 +145,7 @@ def approve(project: Project, *, by) -> Project:
         project.save(
             update_fields=["code", "version", "status", "approved_at", "approved_by", "updated_at"]
         )
+        _set_documents(project, DocumentStatus.APPROVED)
         _decide(project, DecisionAction.APPROVED, by)
         record_event(
             "projects.approved",

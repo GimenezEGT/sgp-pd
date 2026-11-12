@@ -27,6 +27,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DJANGO_SETTINGS_MODULE=config.settings
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libldap-2.5-0 libsasl2-2 tzdata \
+       libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fontconfig \
+       fonts-crosextra-carlito fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --system --uid 1000 --create-home --home-dir /home/sgp sgp
 WORKDIR /app

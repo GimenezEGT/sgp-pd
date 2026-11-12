@@ -59,6 +59,10 @@ INSTALLED_APPS = [
     "sgp.projects",
     "sgp.files",
     "sgp.catalog",
+    "sgp.formtemplates",
+    "sgp.subdocuments",
+    "sgp.signatures",
+    "sgp.documents",
 ]
 
 MIDDLEWARE = [
@@ -172,6 +176,17 @@ FILE_MAX_MB = env_int("FILE_MAX_MB", 20)
 FILE_DOCUMENT_TYPES = env_list("FILE_DOCUMENT_TYPES", "pdf,png,jpeg")
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
+# Assinatura eletrônica (feature 005)
+SIGNATURE_MAX_FAILURES = env_int("SIGNATURE_MAX_FAILURES", 3)
+SIGNATURE_LOCK_MINUTES = env_int("SIGNATURE_LOCK_MINUTES", 15)
+REVIEW_ALERT_DAYS = env_int("REVIEW_ALERT_DAYS", 5)
+
+# Geração de documentos (feature 006): certificado do selo (PKCS#12) e senha só em variáveis de
+# ambiente; sem certificado, o PDF oficial não é emitido.
+DOCUMENT_SEAL_PKCS12 = env_str("DOCUMENT_SEAL_PKCS12", "")
+DOCUMENT_SEAL_PASSWORD = env_str("DOCUMENT_SEAL_PASSWORD", "")
+DOCUMENT_GENERATION_TIME_LIMIT = env_int("DOCUMENT_GENERATION_TIME_LIMIT", 120)
+
 # Internacionalização: interface em português; datas gravadas em UTC, exibidas em Brasília.
 LANGUAGE_CODE = "pt-br"
 TIME_ZONE = "America/Sao_Paulo"
@@ -220,5 +235,8 @@ LOGGING = {
     "root": {"handlers": ["console"], "level": env_str("LOG_LEVEL", "INFO")},
     "loggers": {
         "django_auth_ldap": {"level": env_str("LDAP_LOG_LEVEL", "WARNING")},
+        # Geração de documentos (feature 006): só avisos e erros do WeasyPrint e do fontTools.
+        "weasyprint": {"level": "WARNING"},
+        "fontTools": {"level": "WARNING"},
     },
 }

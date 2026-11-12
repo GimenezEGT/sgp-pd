@@ -1,0 +1,10 @@
+{% if b.kind == "values" %}{% if b.label and b.lines|length == 1 %}<p><strong>{{ b.label }}:</strong> {{ b.lines.0 }}</p>{% else %}{% if b.label %}<p class="rotulo">{{ b.label }}:</p>{% endif %}{% if b.lines|length == 1 %}<p>{{ b.lines.0 }}</p>{% elif b.lines %}<ul>{% for line in b.lines %}<li>{{ line }}</li>{% endfor %}</ul>{% else %}<p>—</p>{% endif %}{% endif %}
+{% elif b.kind == "rich" %}{% if b.label %}<p class="rotulo">{{ b.label }}:</p>{% endif %}{% for item in b.items %}{% if item.ul %}<ul>{% for li in item.ul %}<li>{{ li }}</li>{% endfor %}</ul>{% else %}<p>{{ item.p|linebreaksbr }}</p>{% endif %}{% empty %}<p>—</p>{% endfor %}
+{% elif b.kind == "table" %}{% if b.rows %}<p class="tabela-titulo">{{ b.number }} – {{ b.label }}</p>
+<table class="dados"><thead><tr>{% for column in b.columns %}<th>{{ column }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in b.rows %}<tr>{% for cell in row %}<td>{{ cell|linebreaksbr }}</td>{% endfor %}</tr>{% endfor %}{% if b.totals %}<tr class="total">{% for total in b.totals %}<td>{{ total }}</td>{% endfor %}</tr>{% endif %}</tbody></table>
+{% for note in b.notes %}<p class="nota">{{ note }}</p>{% endfor %}{% else %}<p><strong>{{ b.label }}:</strong> —</p>{% endif %}
+{% elif b.kind == "files" %}<p class="rotulo">{{ b.label }}:</p><ul>{% for file in b.files %}<li>{{ file.name }} <span class="resumo">(SHA-256: {{ file.sha256 }})</span></li>{% endfor %}</ul>
+{% elif b.kind == "note" %}<p class="observacao">{{ b.text }}</p>
+{% elif b.kind == "empty" %}<p><strong>{{ b.label }}:</strong> <em>{{ b.text }}</em></p>
+{% endif %}

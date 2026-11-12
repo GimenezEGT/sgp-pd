@@ -70,13 +70,15 @@ def test_pendencia_de_classe_so_em_anvisa(make_project, fill_project):
 @pytest.mark.req("002:FR-016")
 @pytest.mark.req("002:SC-001")
 def test_fluxo_completo_com_devolucao_e_aprovacao(
-    client, make_project, fill_project, manager, make_user
+    client, make_project, fill_project, manager, make_user, signing
 ):
     project = fill_project(make_project())
+    signing.enable(project.leader, manager)
+    password = {"senha": signing.password}
     analyst = make_user("ana", Profile.ANALYST)
     project.members.create(user=analyst, role="Formulação", added_by=project.leader)
     client.force_login(project.leader)
-    client.post(reverse("projects:submit", args=[project.pk]))
+    client.post(reverse("projects:submit", args=[project.pk]), password)
     project.refresh_from_db()
     assert project.status == ProjectStatus.SUBMITTED
 
@@ -89,10 +91,10 @@ def test_fluxo_completo_com_devolucao_e_aprovacao(
     assert project.status == ProjectStatus.RETURNED
 
     client.force_login(project.leader)
-    client.post(reverse("projects:submit", args=[project.pk]))
+    client.post(reverse("projects:submit", args=[project.pk]), password)
     client.force_login(manager)
     assert not can_access_project(analyst, project)
-    client.post(reverse("projects:approve", args=[project.pk]))
+    client.post(reverse("projects:approve", args=[project.pk]), password)
     project.refresh_from_db()
     assert project.status == ProjectStatus.OPEN and project.version_display == "01"
     assert project.code.startswith("PD-") and project.approved_by == manager

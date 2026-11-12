@@ -1,0 +1,13 @@
+<div class="capa-previa" aria-label="Pré-visualização da capa">
+  <p class="capa-titulo">{{ template.cover.title }}</p>
+  <p class="capa-produto">NOME DO PRODUTO</p>
+  {% if template.cover.change_versions %}<p class="capa-versao">Versão alterada: 01 · Nova Versão: 02</p>{% else %}<p class="capa-versao">VERSÃO 01</p>{% endif %}
+  <p class="capa-conter">ESTE RELATÓRIO DEVE CONTER:</p>
+  <div class="capa-colunas">
+    {% for column in cover_columns %}<ol class="capa-topicos">{% for number, topic in column %}<li value="{{ number }}">{{ number }} - {{ topic.label }}{% if topic.regulatory_body %} <small>(só {{ topic.regulatory_body }})</small>{% endif %}</li>{% endfor %}</ol>{% endfor %}
+  </div>
+  <p><strong>Analista Responsável (Nome/Função):</strong> ____________________</p>
+  <p><strong>{{ template.cover.approver_label|default:"Gestor de P&D:" }}</strong> ____________________</p>
+  <p><strong>Data: ____</strong></p>
+  <p class="capa-rodape">{{ template.footer }}</p>
+</div>

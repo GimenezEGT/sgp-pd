@@ -128,10 +128,22 @@ PLAN_COMPLETE = {
 def vocab_seed(db):
     """Garante a carga inicial das listas (testes transacionais esvaziam o banco)."""
     from django.apps import apps as django_apps
+    from django.utils import timezone
 
+    from sgp.formtemplates import seed_v05
     from sgp.vocab.seed import ALL_SEEDS, load
 
     load(django_apps, ALL_SEEDS)
+    # Modelos versão 05 (feature 004); vigência retroativa para os testes com datas fixas.
+    seed_v05.load(
+        django_apps, valid_from=timezone.localdate().replace(year=2020), published_at=timezone.now()
+    )
+    # Layouts versão 01 (feature 006).
+    from sgp.documents import seed as layout_seed
+
+    layout_seed.load(
+        django_apps, valid_from=timezone.localdate().replace(year=2020), published_at=timezone.now()
+    )
 
 
 @pytest.fixture
@@ -242,3 +254,39 @@ def bare_project(make_user, vocab_seed):
         )
 
     return _bare
+
+
+SIGNING_PASSWORD = "Senha#Assina1"
+
+
+@pytest.fixture
+def signing(directory):
+    """Assinatura nos testes: cadastra a pessoa no diretório falso e roda o ciclo real (005)."""
+    from types import SimpleNamespace
+
+    from sgp.signatures import services
+
+    def enable(*users):
+        for user in users:
+            directory.add_person(user.username, password=SIGNING_PASSWORD)
+        return users[0] if len(users) == 1 else users
+
+    def submit(kind, obj, by):
+        enable(by)
+        return services.submit(kind, obj, by=by, password=SIGNING_PASSWORD)
+
+    def approve(kind, obj, by):
+        enable(by)
+        return services.approve(kind, obj, by=by, password=SIGNING_PASSWORD)
+
+    def submit_and_approve(kind, obj, elaborator, approver):
+        submit(kind, obj, elaborator)
+        return approve(kind, obj, approver)
+
+    return SimpleNamespace(
+        password=SIGNING_PASSWORD,
+        enable=enable,
+        submit=submit,
+        approve=approve,
+        submit_and_approve=submit_and_approve,
+    )

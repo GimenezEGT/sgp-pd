@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}{% if action == "aprovar" %}Aprovar{% else %}Enviar para revisão{% endif %} – {{ title }}{% endblock %}
+{% block content %}
+<p><a href="{{ back_url }}">← {{ title }}</a></p>
+<h1>{% if action == "aprovar" %}Aprovar ou devolver{% else %}Enviar para revisão{% endif %}</h1>
+<div class="painel">
+  <p><strong>{{ title }}</strong> · versão {{ version|stringformat:"02d" }} · situação {{ status }}</p>
+  <p>Resumo do conteúdo que será assinado (SHA-256): <code>{{ digest }}</code></p>
+  {% if missing %}<div class="mensagem mensagem-warning" role="status"><p>Falta para enviar:</p><ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <p>Significado: <strong>{% if action == "aprovar" %}Aprovado{% else %}Elaborado{% endif %}</strong>. A assinatura registra seu nome, sua função, a data e a hora do servidor e o resumo acima.</p>
+    <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
+    <button type="submit" class="botao">{% if action == "aprovar" %}Aprovar e assinar{% else %}Enviar e assinar{% endif %}</button>
+  </form>
+  {% if action == "aprovar" %}
+  <form method="post" action="{% url 'signatures:return' kind obj.pk %}">
+    {% csrf_token %}
+    <p><label>Comentário da devolução <textarea name="comentario" rows="3" required></textarea></label></p>
+    <button type="submit" class="botao botao-perigo">Devolver</button>
+  </form>
+  {% endif %}
+</div>
+{% if comments %}
+<h2>Comentários de revisão</h2>
+<ul>{% for comment in comments %}<li>Versão {{ comment.version|stringformat:"02d" }} – {{ comment.author.get_full_name }} em {{ comment.created_at|datahora }}: {{ comment.text }}</li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

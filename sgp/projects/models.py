@@ -113,6 +113,15 @@ class Project(ProtectedModel):
         return self.members.active().filter(user_id=user.pk).exists()
 
 
+class DocumentStatus(models.TextChoices):
+    """Situação do TAP e do Plano de Negócios como documentos assinados (feature 005)."""
+
+    DRAFT = "draft", "Rascunho"
+    IN_REVIEW = "in_review", "Em revisão"
+    RETURNED = "returned", "Devolvido"
+    APPROVED = "approved", "Aprovado"
+
+
 class ProjectCharter(ProtectedModel):
     """Termo de Abertura de Projeto (TAP); listas e tabelas em JSONB (sem exclusão de linhas)."""
 
@@ -130,6 +139,13 @@ class ProjectCharter(ProtectedModel):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
     )
+    doc_status = models.CharField(
+        "situação do documento",
+        max_length=20,
+        choices=DocumentStatus.choices,
+        default=DocumentStatus.DRAFT,
+    )
+    doc_version = models.PositiveSmallIntegerField("versão do documento", default=1)
     row_version = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -192,6 +208,13 @@ class BusinessPlan(ProtectedModel):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
     )
+    doc_status = models.CharField(
+        "situação do documento",
+        max_length=20,
+        choices=DocumentStatus.choices,
+        default=DocumentStatus.DRAFT,
+    )
+    doc_version = models.PositiveSmallIntegerField("versão do documento", default=1)
     row_version = models.PositiveIntegerField(default=0)
 
     class Meta:

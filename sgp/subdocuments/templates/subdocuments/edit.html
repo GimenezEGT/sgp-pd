@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ subdocument }}{% endblock %}
+{% block content %}
+{% include "subdocuments/_header.html" %}
+<p><a href="{% url 'subdocuments:detail' subdocument.pk %}">Ver o documento</a></p>
+{% if has_derived %}
+<form method="post" action="{% url 'subdocuments:refresh' subdocument.pk %}" class="acoes">
+  {% csrf_token %}<button type="submit" class="botao botao-discreto">Atualizar a partir da Entrada aprovada</button>
+</form>
+{% endif %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="row_version" value="{{ subdocument.row_version }}">
+  {% for topic in topics %}
+  <fieldset class="topico" id="topico-{{ topic.key }}">
+    <legend><h2>{% if topic.number %}{{ topic.number }}. {% endif %}{{ topic.label }}</h2></legend>
+    {% for line in topic.context_lines %}<p><strong>{{ line }}</strong></p>{% endfor %}
+    {% if topic.help %}<p class="helptext">{{ topic.help }}</p>{% endif %}
+    {% if topic.inherited %}<p class="helptext">Conteúdo herdado do subdocumento anterior aprovado; as alterações ficam na trilha.</p>{% endif %}
+    {% if topic.allow_na %}
+    <p><label><input type="checkbox" name="{{ topic.prefix }}__na" value="1"{% if topic.na %} checked{% endif %}> Não aplicável</label></p>
+    <p><label>Justificativa (se não aplicável) <textarea name="{{ topic.prefix }}__justificativa" rows="2">{{ topic.justification }}</textarea></label></p>
+    {% endif %}
+    {% for field in topic.fields %}{% include "subdocuments/_field_edit.html" %}{% endfor %}
+  </fieldset>
+  {% endfor %}
+  <button type="submit" class="botao">Salvar</button>
+</form>
+{% endblock %}
