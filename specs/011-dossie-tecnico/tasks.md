@@ -35,8 +35,8 @@ description: "Task list for feature 011 — Dossiê técnico para a ANVISA"
 ## Phase 6: Polish
 
 - [X] T009 Rotas no contrato de `tests/core/test_route_scan.py`; `README.md` (feature 011); SC-004 em `docs/validacao/verificacoes-manuais.json`
-- [ ] T010 Rodar `scripts/verificar.sh`
-- [ ] T011 Executar o quickstart na pilha real e registrar em `docs/validacao/011-resultados-execucao.md`
+- [X] T010 Rodar `scripts/verificar.sh`
+- [X] T011 Executar o quickstart na pilha real e registrar em `docs/validacao/011-resultados-execucao.md`
 
 ## Dependencies & Execution Order
 
