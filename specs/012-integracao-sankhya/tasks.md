@@ -36,3 +36,9 @@ description: "Task list for feature 012 — Integração com o Sankhya"
 ## Dependencies & Execution Order
 
 Setup → Foundational → US2/US4 → US1/US3/US5 → Polish.
+
+## Phase 6: Convergence
+
+- [ ] T010 Atualizar o registro "documento" no Sankhya (mesma chave do registro, sem duplicar) quando o primeiro PDF oficial da versão aprovada for gerado, com `pdf_sha256` e `pdf_codigo_verificacao`, em `sgp/integrations/` com teste per FR-004 (partial)
+- [ ] T011 Escrever limites e valores dos critérios do registro "resultado_estudo" com vírgula decimal, como na tela do estudo, em `sgp/integrations/records.py` com teste per FR-008 (partial)
+- [ ] T012 Testar o registro "lote" gerado por lote citado em subdocumento aprovado em `tests/integrations/` per contrato registros.md (partial)
