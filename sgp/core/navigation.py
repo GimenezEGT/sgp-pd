@@ -36,6 +36,13 @@ NAV_ITEMS: list[NavItem] = [
         "Conferir pelo código de verificação um documento oficial gerado pelo sistema.",
     ),
     NavItem(
+        "Caderno de laboratório",
+        "notebook:search",
+        frozenset(Profile),
+        "Projetos",
+        "Entradas de experimentos dos projetos, com busca, pendências de assinatura e testemunha.",
+    ),
+    NavItem(
         "Fila de revisão",
         "signatures:queue",
         frozenset({Profile.RD_MANAGER}),
@@ -62,6 +69,13 @@ NAV_ITEMS: list[NavItem] = [
         frozenset(Profile),
         "Cadastros",
         "Capa, cabeçalho, rodapé e estilos dos documentos gerados, com versões e vigência.",
+    ),
+    NavItem(
+        "Modelos de entrada do caderno",
+        "notebook:templates",
+        frozenset(Profile),
+        "Cadastros",
+        "Textos de partida por tipo de experimento, mantidos pela Qualidade/AR e pelo Gestor.",
     ),
     NavItem(
         "Cadastros",

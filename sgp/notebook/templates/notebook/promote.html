@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Promover dados – entrada {{ entry.number }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'notebook:detail' entry.pk %}">← Entrada {{ entry.number }}</a></p>
+<h1>Promover dados para um estudo</h1>
+<p class="descricao">As linhas do anexo entram no estudo pela importação dos estudos (com a mesma validação) e o vínculo de promoção fica registrado na entrada e no estudo.</p>
+<form method="get" class="painel filtros">
+  <p><label for="anexo">Anexo CSV ou XLSX</label><br><select id="anexo" name="anexo" required><option value="">—</option>{% for item in sheets %}<option value="{{ item.pk }}"{% if attachment and item.pk == attachment.pk %} selected{% endif %}>{{ item.file.original_name }}</option>{% endfor %}</select></p>
+  <p><label for="estudo">Estudo em elaboração</label><br><select id="estudo" name="estudo" required><option value="">—</option>{% for item in studies %}<option value="{{ item.pk }}"{% if study and item.pk == study.pk %} selected{% endif %}>{{ item }}</option>{% endfor %}</select></p>
+  <p><label for="equipamento">Equipamento (mapeamento salvo)</label><br><input id="equipamento" name="equipamento" value="{{ equipment }}" list="equipamentos" maxlength="120">
+  <datalist id="equipamentos">{% for m in mappings %}<option value="{{ m.equipment }}">{% endfor %}</datalist></p>
+  <p><button type="submit" class="botao botao-secundario">Escolher</button></p>
+</form>
+{% if not studies %}<p class="mensagem mensagem-warning">Nenhum estudo em elaboração neste projeto; crie o estudo antes de promover os dados.</p>{% endif %}
+{% if attachment and study %}
+<form method="post" class="painel">
+  {% csrf_token %}
+  <input type="hidden" name="anexo" value="{{ attachment.pk }}"><input type="hidden" name="estudo" value="{{ study.pk }}"><input type="hidden" name="equipamento" value="{{ equipment }}">
+  <fieldset><legend>Coluna do arquivo para cada campo do estudo</legend>
+  {% for code, label, column in columns %}<p><label for="col-{{ code }}">{{ label }}</label> <input id="col-{{ code }}" name="col__{{ code }}" value="{{ column }}" maxlength="120"></p>{% endfor %}
+  </fieldset>
+  <button type="submit" class="botao">Pré-visualizar</button>
+</form>
+{% endif %}
+{% if preview %}
+<section class="painel">
+  <h2>Pré-visualização</h2>
+  <p>Colunas do arquivo: {{ preview.headers|join:", " }}</p>
+  <p>{{ preview.total }} linha(s) no arquivo · {{ preview.accepted }} aceita(s) · {{ preview.errors|length }} recusada(s)</p>
+  {% if preview.errors %}<ul class="mensagem mensagem-warning">{% for e in preview.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  {% if preview.accepted %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="acao" value="confirmar"><input type="hidden" name="token" value="{{ preview.token }}">
+    <input type="hidden" name="anexo" value="{{ attachment.pk }}"><input type="hidden" name="estudo" value="{{ study.pk }}"><input type="hidden" name="equipamento" value="{{ equipment }}">
+    {% for code, label, column in columns %}<input type="hidden" name="col__{{ code }}" value="{{ column }}">{% endfor %}
+    <button type="submit" class="botao">Confirmar a promoção das linhas aceitas</button>
+  </form>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

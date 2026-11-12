@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Nova entrada – {{ project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'notebook:project' project.pk %}">← Caderno do {{ project.code }}</a></p>
+<h1>Nova entrada do caderno</h1>
+<p class="descricao">A data, a hora e o número da entrada vêm do servidor. Depois de criar, preencha objetivo, hipótese, procedimento, resultados e conclusão, ligue os materiais e anexe fotos e arquivos de equipamento.</p>
+<form method="post" class="painel painel-estreito">
+  {% csrf_token %}
+  {% for field in form %}<div class="campo">{% if field.field.widget.input_type == "checkbox" %}{{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label><br>{{ field }}{% endif %}{{ field.errors }}</div>{% endfor %}
+  <button type="submit" class="botao">Criar entrada</button>
+</form>
+{% endblock %}

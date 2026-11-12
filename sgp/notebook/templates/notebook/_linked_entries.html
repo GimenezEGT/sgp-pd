@@ -1,0 +1,5 @@
+{% load sgp %}<section class="painel" aria-label="Entradas do caderno de laboratório">
+  <h2>Caderno de laboratório</h2>
+  {% if items %}<ul>{% for item in items %}<li><a href="{% url 'notebook:detail' item.entry.pk %}">{{ item.entry.project.code }} · Entrada {{ item.entry.number }} – {{ item.entry.title }}</a> · {{ item.kind }}{% if item.link.attachment %} (de {{ item.link.attachment.file.original_name }}){% endif %} · {{ item.entry.created_at|datahora }}</li>{% endfor %}</ul>
+  {% else %}<p class="descricao">Nenhuma entrada do caderno ligada.</p>{% endif %}
+</section>

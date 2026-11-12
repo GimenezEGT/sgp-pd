@@ -1,0 +1,7 @@
+{% load sgp %}{% for row in rows %}<li class="entrada-caderno">
+  <p><a href="{% url 'notebook:detail' row.entry.pk %}"><strong>{{ row.entry.project.code }} · Entrada {{ row.entry.number }}</strong> – {{ row.entry.title }}</a>
+    <span class="situacao situacao-{{ row.situation }}">{{ row.situation_label }}</span>{% if row.entry.relevant %} <span class="etiqueta">relevante</span>{% endif %}</p>
+  <p class="descricao">{{ row.entry.created_at|datahora }} · {{ row.entry.author.get_full_name|default:row.entry.author.username }}{% if row.days_open is not None %} · aberta há {{ row.days_open }} dia(s){% endif %}</p>
+  {% if row.excerpt %}<p>{{ row.excerpt }}</p>{% endif %}
+</li>{% empty %}{% if not page.number or page.number == 1 %}<li class="descricao">Nenhuma entrada encontrada.</li>{% endif %}{% endfor %}
+{% if page.has_next %}<li class="carregar-mais"><a class="botao botao-secundario" href="{% querystring pagina=page.next_page_number %}" hx-get="{% querystring pagina=page.next_page_number %}" hx-target="closest li" hx-swap="outerHTML">Carregar mais</a></li>{% endif %}

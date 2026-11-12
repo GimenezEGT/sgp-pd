@@ -88,7 +88,8 @@ def _accepted(raw, errors) -> list[dict]:
     return [row for line, row in enumerate(raw, start=1) if line not in bad]
 
 
-def confirm(study, *, by, token: str, equipment: str, mapping: dict) -> int:
+def confirm(study, *, by, token: str, equipment: str, mapping: dict, origin=None) -> int:
+    """Grava as linhas aceitas; `origin` identifica a entrada do caderno promovida (feature 008)."""
     try:
         payload = signing.loads(token, salt=SALT, max_age=MAX_AGE)
     except signing.BadSignature as exc:
@@ -117,7 +118,11 @@ def confirm(study, *, by, token: str, equipment: str, mapping: dict) -> int:
             actor=by,
             obj=study,
             project_id=study.project_id,
-            new_value={"linhas_importadas": len(payload["rows"]), "equipamento": equipment},
+            new_value={
+                "linhas_importadas": len(payload["rows"]),
+                "equipamento": equipment,
+                **({"origem_caderno": origin} if origin else {}),
+            },
         )
     return len(payload["rows"])
 

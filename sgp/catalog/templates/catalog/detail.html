@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp %}
+{% load sgp notebook %}
 {% block title %}{{ kind.label }} {{ record }}{% endblock %}
 {% block content %}
 <p><a href="{% url 'catalog:list' kind.slug %}">← {{ kind.label_plural }}</a></p>
@@ -103,4 +103,5 @@
   </form>
 </div>
 {% endif %}
+{% if kind.slug == 'lotes' or kind.slug == 'insumos' or kind.slug == 'amostras' %}{% notebook_links record %}{% endif %}
 {% endblock %}

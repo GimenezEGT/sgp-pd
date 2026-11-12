@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp %}
+{% load sgp notebook %}
 {% block title %}{{ study }}{% endblock %}
 {% block content %}
 <p><a href="{% url 'studies:project_list' study.project_id %}">← Estudos do projeto</a>{% if study.subdocument %} · <a href="{% url 'subdocuments:detail' study.subdocument_id %}">{{ study.subdocument }}</a>{% endif %}</p>
@@ -67,6 +67,7 @@
   <label for="motivo">Motivo</label> <input id="motivo" name="motivo" maxlength="500" required> <button type="submit" class="botao">Criar nova versão</button>
 </form>
 {% endif %}
+{% notebook_links study %}
 <h2>Versões</h2>
 <ul>{% for v in versions %}<li><a href="{% url 'studies:detail' v.pk %}">Versão {{ v.version_display }}</a> – {{ v.get_status_display }}{% if v.version_reason %} – {{ v.version_reason }}{% endif %}</li>{% endfor %}</ul>
 {% endblock %}
