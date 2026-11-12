@@ -118,6 +118,13 @@ ROUTE_CONTRACT = {
     "revisions:retirement_approve": ("POST", {Profile.RD_MANAGER}),
     "revisions:retirement_return": ("POST", {Profile.RD_MANAGER}),
     "revisions:verify": ("POST", {Profile.QUALITY, Profile.RD_MANAGER}),
+    # Feature 007: estudos (acesso ao projeto; edição pelos editores, coberto em tests/studies).
+    "studies:project_list": ("GET", PROJECT_ACCESS),
+    "studies:detail": ("GET", PROJECT_ACCESS),
+    "studies:edit": ("POST", PROJECT_ACCESS),
+    "studies:not_applicable": ("POST", PROJECT_ACCESS),
+    "studies:import": ("GET", PROJECT_ACCESS),
+    "studies:new_version": ("POST", PROJECT_ACCESS),
 }
 
 

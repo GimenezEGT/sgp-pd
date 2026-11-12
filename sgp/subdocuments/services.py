@@ -481,6 +481,9 @@ def finalize_approval(subdocument: Subdocument, *, by) -> Subdocument:
     """Efeitos da aprovação com assinatura (feature 005): registra quem aprovou, bloqueia os
     cadastros referenciados e aplica a Alteração de Projeto. A situação já foi mudada pelo serviço
     de assinatura, que conferiu permissões, completude e assinaturas."""
+    from sgp.studies.services import lock_for
+
+    lock_for(subdocument, by=by)
     from sgp.projects.services import bump_version
 
     subdocument.approved_by = by

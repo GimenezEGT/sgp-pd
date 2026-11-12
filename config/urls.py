@@ -16,4 +16,5 @@ urlpatterns = [
     path("documentos/", include("sgp.documents.urls")),
     path("modelos-layout/", include("sgp.documents.layout_urls")),
     path("revisoes-modelos/", include("sgp.revisions.urls")),
+    path("", include("sgp.studies.urls")),
 ]

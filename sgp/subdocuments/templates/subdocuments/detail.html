@@ -7,6 +7,13 @@
   {% if can_edit %}<a class="botao" href="{% url 'subdocuments:edit' subdocument.pk %}">Editar</a>{% endif %}
   <a class="botao botao-secundario" href="{% url 'documents:history' 'subdocument' subdocument.pk %}">Documentos gerados (PDF e DOCX)</a>
 </div>
+{% if studies or subdocument.subdocument_type.code == "rapd" or subdocument.subdocument_type.code == "validacao" %}
+<section class="painel" aria-label="Estudos vinculados">
+  <h2>Estudos vinculados</h2>
+  {% for study in studies %}<p><a href="{% url 'studies:detail' study.pk %}">{{ study }}</a> · {{ study.study_type.label }} · tópico {{ study.topic_key }}{% if study.not_applicable %} · não aplicável{% endif %}</p>{% empty %}<p class="descricao">Nenhum estudo vinculado.</p>{% endfor %}
+  <p><a href="{% url 'studies:project_list' subdocument.project_id %}">Estudos do projeto</a></p>
+</section>
+{% endif %}
 {% if subdocument.is_draft and missing %}
 <div class="mensagem mensagem-warning" role="status"><p>Falta para aprovar:</p><ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul></div>
 {% endif %}

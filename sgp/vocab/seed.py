@@ -145,7 +145,30 @@ SUBDOCUMENT_SEED = {
     ),
 }
 
-ALL_SEEDS = {**SEED, **SAMPLE_SEED, **SUBDOCUMENT_SEED}
+# Feature 007: tipos de estudo (docs/contexto/05-vocabularios.md, os 14 tipos da história 1).
+STUDY_SEED = {
+    "tipo-estudo": (
+        "Tipos de estudo de desempenho e estabilidade",
+        [
+            ("comparacao-metodos", "Comparação de métodos (exatidão)"),
+            ("repetibilidade", "Repetibilidade"),
+            ("reprodutibilidade", "Reprodutibilidade entre dias"),
+            ("entre-lotes", "Entre lotes"),
+            ("sensibilidade-analitica", "Sensibilidade analítica / limite de detecção"),
+            ("linearidade", "Linearidade / faixa de medição"),
+            ("interferentes", "Interferentes"),
+            ("reatividade-cruzada", "Reatividade cruzada"),
+            ("efeito-prozona", "Efeito prozona de alta dose"),
+            ("cut-off", "Cut-off"),
+            ("sensibilidade-especificidade", "Sensibilidade e especificidade clínicas"),
+            ("estabilidade-longa", "Estabilidade de longa duração"),
+            ("estabilidade-aberto", "Estabilidade após aberto / on board"),
+            ("estabilidade-transporte", "Estabilidade de transporte"),
+        ],
+    ),
+}
+
+ALL_SEEDS = {**SEED, **SAMPLE_SEED, **SUBDOCUMENT_SEED, **STUDY_SEED}
 
 
 def load(apps, seed: dict) -> None:

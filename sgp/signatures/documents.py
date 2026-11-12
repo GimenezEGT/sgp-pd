@@ -67,7 +67,7 @@ class SubdocumentAdapter:
 
     def snapshot(self, obj) -> dict:
         template = obj.template
-        return {
+        content = {
             "documento": "subdocumento",
             "tipo": obj.subdocument_type.code,
             "numero": obj.sequence,
@@ -85,6 +85,12 @@ class SubdocumentAdapter:
                 for item in self.attachments(obj)
             ],
         }
+        from sgp.studies.services import canonical, linked_studies
+
+        studies = linked_studies(obj)
+        if studies:  # feature 007: só quando há estudo, para não mudar resumos já assinados
+            content["estudos"] = [canonical(study) for study in studies]
+        return content
 
     def completeness(self, obj) -> list[str]:
         from sgp.subdocuments.services import completeness
