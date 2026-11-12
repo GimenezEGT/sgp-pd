@@ -331,6 +331,9 @@ class Milestone(ProtectedModel):
         verbose_name = "marco"
         verbose_name_plural = "marcos"
         ordering = ["planned_date", "id"]
+        indexes = [
+            models.Index(fields=["project", "planned_date"], name="projects_milestone_plan_idx")
+        ]
 
     def __str__(self) -> str:
         label = self.subdocument_type.label

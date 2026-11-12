@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Painel de projetos{% endblock %}
+{% block content %}
+<h1>Painel de projetos</h1>
+<p class="descricao">Projetos a que você tem acesso. Dados de {{ data.built_at|datahora }} (atualizados a cada 5 minutos). <a href="?atualizar=1">Atualizar agora</a> · <a href="{% url 'dashboard:export' %}">Exportar planilha (XLSX)</a> · <a href="{% url 'dashboard:pending' %}">Minhas pendências</a></p>
+
+<div class="cartoes" aria-label="Totais">
+  <div class="cartao"><strong>{{ totals.open }}</strong><span>projetos abertos{% for stage, total in totals.by_stage %}{% if forloop.first %}: {% endif %}{{ stage }} {{ total }}{% if not forloop.last %}; {% endif %}{% endfor %}</span></div>
+  <div class="cartao"><strong>{{ totals.late }}</strong><span>projetos com marco vencido não realizado</span></div>
+  {% if totals.approver %}<a class="cartao" href="{% url 'signatures:queue' %}"><strong>{{ totals.waiting }}</strong><span>documentos aguardando a sua revisão ou assinatura{% if totals.waiting %}; o mais antigo há {{ totals.longest_wait }} dia(s){% endif %}</span></a>{% endif %}
+  <a class="cartao" href="{% url 'notebook:search' %}?situacao=overdue"><strong>{{ totals.notebook_overdue }}</strong><span>entradas do caderno atrasadas</span></a>
+</div>
+
+<h2>Carteira</h2>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Projeto</th><th>Líder</th><th>Etapa atual</th><th>Subdocumentos aprovados</th><th>Marcos (realizados/planejados)</th><th>Atraso</th>{% if financial %}<th>Custo planejado</th><th>Retorno esperado</th>{% endif %}<th></th></tr></thead>
+  <tbody>
+  {% for row in data.rows %}<tr>
+    <td><a href="{% url 'projects:detail' row.id %}">{{ row.code|default:"(sem código)" }}</a> – {{ row.title }}</td>
+    <td>{{ row.leader }}</td>
+    <td>{{ row.stage }}</td>
+    <td><svg width="100" height="10" role="img" aria-label="{{ row.percent }}% aprovado" focusable="false"><rect width="100" height="10" fill="#e1e5ea"></rect><rect width="{{ row.percent }}" height="10" fill="#2f5d8a"></rect></svg> {{ row.percent }}% ({{ row.approved }} de 8)</td>
+    <td>{{ row.milestones_done }}/{{ row.milestones_planned }}</td>
+    <td>{% if row.delay is None %}sem marcos{% elif row.delay %}<span class="situacao situacao-overdue">{{ row.delay }} dia(s)</span>{% else %}em dia{% endif %}</td>
+    {% if financial %}<td>{{ row.cost|default:"—" }}</td><td>{{ row.return|default:"—" }}</td>{% endif %}
+    <td><a href="{% url 'dashboard:timeline' row.id %}">Linha do tempo</a></td>
+  </tr>{% empty %}<tr><td colspan="9">Nenhum projeto.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

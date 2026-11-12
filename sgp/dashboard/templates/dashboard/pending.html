@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Minhas pendências{% endblock %}
+{% block content %}
+<h1>Minhas pendências</h1>
+<p class="descricao">{{ data.total }} pendência(s). <a href="{% url 'notifications:preferences' %}">Notificações por e-mail</a></p>
+{% if data.approvals %}
+<h2>Aguardando a sua revisão ou assinatura</h2>
+<ul>{% for row in data.approvals %}<li><a href="{% if row.kind == 'subdocument' %}{% url 'subdocuments:detail' row.obj.pk %}{% else %}{% url 'projects:detail' row.project.pk %}{% endif %}">{{ row.title }}</a> – {{ row.project }} · há {{ row.days }} dia(s){% if row.overdue %} <span class="situacao situacao-overdue">além do prazo</span>{% endif %}</li>{% endfor %}</ul>
+{% endif %}
+{% if data.returned or data.returned_projects %}
+<h2>Devolvidos para você corrigir</h2>
+<ul>
+{% for sub in data.returned %}<li><a href="{% url 'subdocuments:detail' sub.pk %}">{{ sub }}</a> – {{ sub.project }}</li>{% endfor %}
+{% for project in data.returned_projects %}<li><a href="{% url 'projects:detail' project.pk %}">Projeto {{ project }}</a> devolvido</li>{% endfor %}
+</ul>
+{% endif %}
+{% if data.entries %}
+<h2>Entradas do caderno para assinar</h2>
+<ul>{% for item in data.entries %}<li><a href="{% url 'notebook:detail' item.entry.pk %}">{{ item.entry.project.code }} · Entrada {{ item.entry.number }} – {{ item.entry.title }}</a> · criada em {{ item.entry.created_at|datahora }}{% if item.overdue %} <span class="situacao situacao-overdue">atrasada</span>{% endif %}</li>{% endfor %}</ul>
+{% endif %}
+{% if data.witness %}
+<h2>Entradas aguardando testemunha</h2>
+<ul>{% for entry in data.witness %}<li><a href="{% url 'notebook:detail' entry.pk %}">{{ entry.project.code }} · Entrada {{ entry.number }} – {{ entry.title }}</a> · autor {{ entry.author.get_full_name|default:entry.author.username }}</li>{% endfor %}</ul>
+{% endif %}
+{% if not data.total %}<p>Nada pendente com você.</p>{% endif %}
+{% endblock %}

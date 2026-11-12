@@ -40,6 +40,7 @@ class ApprovedVersion(AppendOnlyModel):
                 fields=["kind", "object_id", "version"], name="signatures_unique_approved_version"
             )
         ]
+        indexes = [models.Index(fields=["kind", "project"], name="signatures_approved_proj_idx")]
 
     @property
     def version_display(self) -> str:

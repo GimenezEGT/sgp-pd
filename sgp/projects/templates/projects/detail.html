@@ -38,7 +38,7 @@
 {% endif %}
 
 <h2>Termo de Abertura de Projeto (TAP)</h2>
-<p><a class="botao botao-secundario" href="{% url 'documents:history' 'charter' charter.pk %}">Documentos gerados do TAP (PDF e DOCX)</a> <a class="botao botao-secundario" href="{% url 'studies:project_list' project.pk %}">Estudos de desempenho e estabilidade</a> <a class="botao botao-secundario" href="{% url 'notebook:project' project.pk %}">Caderno de laboratório</a> <a class="botao botao-secundario" href="{% url 'fulldoc:project' project.pk %}">Documento completo do projeto</a></p>
+<p><a class="botao botao-secundario" href="{% url 'documents:history' 'charter' charter.pk %}">Documentos gerados do TAP (PDF e DOCX)</a> <a class="botao botao-secundario" href="{% url 'studies:project_list' project.pk %}">Estudos de desempenho e estabilidade</a> <a class="botao botao-secundario" href="{% url 'notebook:project' project.pk %}">Caderno de laboratório</a> <a class="botao botao-secundario" href="{% url 'fulldoc:project' project.pk %}">Documento completo do projeto</a> <a class="botao botao-secundario" href="{% url 'dashboard:timeline' project.pk %}">Linha do tempo</a></p>
 <div class="painel">
   <p><strong>Justificativa:</strong><br>{{ charter.justification|linebreaksbr|default:"—" }}</p>
   <p><strong>Objetivo:</strong><br>{{ charter.objective|linebreaksbr|default:"—" }}</p>

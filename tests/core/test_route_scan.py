@@ -151,6 +151,12 @@ ROUTE_CONTRACT = {
     "fulldoc:project": ("GET", PROJECT_ACCESS),
     "fulldoc:request_status": ("GET", PROJECT_ACCESS),
     "fulldoc:download": ("GET", PROJECT_ACCESS),
+    # Feature 010: painel, pendências e notificações (projetos pela regra única de acesso).
+    "dashboard:portfolio": ("GET", ANY_PROFILE),
+    "dashboard:export": ("GET", ANY_PROFILE),
+    "dashboard:timeline": ("GET", PROJECT_ACCESS),
+    "dashboard:pending": ("GET", ANY_PROFILE),
+    "notifications:preferences": ("GET", ANY_PROFILE),
 }
 
 

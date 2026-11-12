@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Notificações por e-mail{% endblock %}
+{% block content %}
+<h1>Notificações por e-mail</h1>
+<p class="descricao">E-mails enviados para {{ email|default:"(sem e-mail cadastrado no diretório: as pendências continuam na tela)" }}. Devolução e aprovação chegam na hora; prazos vencidos chegam num resumo diário. Assinatura pendente não pode ser desligada.</p>
+<form method="post" class="painel">
+  {% csrf_token %}
+  {% for row in rows %}
+  <p><label><input type="checkbox" name="ligadas" value="{{ row.kind }}"{% if row.enabled %} checked{% endif %}{% if row.locked %} disabled{% endif %}> {{ row.label }}{% if row.locked %} (sempre ligada){% endif %}</label></p>
+  {% endfor %}
+  <button type="submit" class="botao">Gravar preferências</button>
+</form>
+<h2>Últimas notificações</h2>
+<table>
+  <thead><tr><th>Data e hora</th><th>Tipo</th><th>Assunto</th><th>Situação</th></tr></thead>
+  <tbody>{% for item in recent %}<tr><td>{{ item.created_at|datahora }}</td><td>{{ item.get_kind_display }}</td><td>{{ item.subject }}</td><td>{{ item.get_status_display }}{% if item.error %} – {{ item.error }}{% endif %}</td></tr>{% empty %}<tr><td colspan="4">Nenhuma notificação.</td></tr>{% endfor %}</tbody>
+</table>
+{% endblock %}

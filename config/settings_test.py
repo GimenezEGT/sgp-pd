@@ -40,3 +40,6 @@ CELERY_BROKER_URL = "memory://"
 LOGIN_MAX_FAILURES = 5
 LOGIN_LOCKOUT_MINUTES = 15
 SESSION_IDLE_TIMEOUT_MINUTES = 30
+
+# Feature 010: cache do painel sempre em memória nos testes (nada vaza para o Redis).
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}

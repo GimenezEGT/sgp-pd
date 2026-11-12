@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load sgp %}
+{% block title %}Linha do tempo – {{ project.code }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
+<h1>Linha do tempo do projeto</h1>
+{% if milestones %}
+<section class="painel" aria-label="Marcos planejados">
+  <h2>Marcos planejados</h2>
+  <ul>{% for item in milestones %}<li>{{ item.planned_date|data }} – {{ item }}{% if item.planned_date < today %} <span class="situacao situacao-overdue">vencido</span>{% endif %}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+<form method="get" class="filtros painel">
+  <p><label for="categoria">Categoria</label><br><select id="categoria" name="categoria"><option value="">Todas</option>{% for code, label in categories %}<option value="{{ code }}"{% if code == category %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></p>
+  <p><button type="submit" class="botao">Filtrar</button></p>
+</form>
+<ol class="linha-tempo">
+{% for row in rows %}<li class="entrada-caderno"><p><strong>{{ row.event }}</strong> – {{ row.record }}</p><p class="descricao">{{ row.at|datahora }} · {{ row.who }}{% if row.reason %} · {{ row.reason }}{% endif %}</p></li>{% empty %}<li class="descricao">Nenhum evento.</li>{% endfor %}
+</ol>
+<p class="paginacao">{% if page.has_previous %}<a href="{% querystring pagina=page.previous_page_number %}">← Mais recentes</a>{% endif %} Página {{ page.number }} de {{ page.paginator.num_pages }} {% if page.has_next %}<a href="{% querystring pagina=page.next_page_number %}">Mais antigos →</a>{% endif %}</p>
+{% endblock %}
