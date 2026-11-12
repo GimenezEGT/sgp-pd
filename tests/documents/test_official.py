@@ -172,3 +172,39 @@ def test_certificado_de_teste_so_em_desenvolvimento(settings, tmp_path):
     settings.DOCUMENT_SEAL_PASSWORD = ""
     with pytest.raises(CommandError, match="Defina"):
         call_command("selo_teste", "--forcar")
+
+
+@pytest.mark.req("006:FR-013")
+def test_aprovado_sem_versao_assinada_falha_com_mensagem(project, generate):
+    from sgp.projects.models import ProjectCharter
+
+    charter = project.charter
+    ProjectCharter.objects.filter(pk=charter.pk).update(doc_status="approved")
+    pending = generate("charter", charter, "pdf", project.leader)
+    assert pending.status == "failed" and "sem a assinatura eletrônica" in pending.error
+
+
+@pytest.mark.req("006:FR-012")
+def test_assinatura_revisado_aparece_na_relacao_final(
+    complete_entry, analyst, manager, make_user, signing, generate, file_bytes, seal_cert
+):
+    from sgp.projects import services as projects
+    from sgp.signatures import services as signatures
+
+    reviewer = make_user(None, Profile.ANALYST)
+    project = complete_entry.project
+    projects.add_member(project, by=project.leader, user=reviewer, role="Revisor")
+    signing.submit("subdocument", complete_entry, analyst)
+    signing.enable(reviewer)
+    signatures.sign_review("subdocument", complete_entry, by=reviewer, password=signing.password)
+    signing.approve("subdocument", complete_entry, manager)
+    pages = [
+        flat(p)
+        for p in pdf_pages(
+            file_bytes(generate("subdocument", complete_entry, "pdf", analyst).result)
+        )
+    ]
+    assert (
+        "assinatura eletrônica (Revisado)" not in pages[0]
+    )  # o bloco da capa tem só elaborado e aprovado
+    assert "Revisado" in pages[-1] and reviewer.full_name in pages[-1]

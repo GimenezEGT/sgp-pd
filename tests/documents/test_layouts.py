@@ -194,3 +194,22 @@ def test_previa_gera_pdf_de_exemplo_sem_arquivar(seeded, client, quality):
     assert GeneratedDocument.objects.count() == 0
     charter = layouts.current_layout("charter")
     assert client.get(reverse("layouts:preview", args=[charter.pk])).status_code == 200
+
+
+@pytest.mark.req("006:FR-025")
+def test_logotipo_corrompido_faz_a_geracao_falhar_com_registro(
+    seeded, quality, project, approved_entry, make_subdocument, analyst, generate, events
+):
+    from sgp.documents.layouts import DEFAULT_LOGO
+    from sgp.files.storage import media_root
+
+    draft = layouts.create_draft("subdocument", by=quality)
+    logo = SimpleUploadedFile("logo.png", DEFAULT_LOGO.read_bytes(), content_type="image/png")
+    draft = layouts.update_draft(draft, by=quality, definition=draft.definition, logo_upload=logo)
+    layouts.publish(draft, by=quality)
+    sub = make_subdocument(project, "formulacao")
+    assert layouts.layout_for("subdocument", sub.pk, 1).logo_id == draft.logo_id
+    (media_root() / draft.logo.storage_name).write_bytes(b"corrompido")
+    pending = generate("subdocument", sub, "pdf", analyst)
+    assert pending.status == "failed" and "integridade" in pending.error
+    assert events("files.integrity_failed") and events("documents.generation_failed")

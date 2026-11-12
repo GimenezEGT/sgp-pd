@@ -63,7 +63,7 @@ description: "Task list for feature 006 — Geração de documentos no padrão d
 - [X] T023 Incluir as rotas no contrato de `tests/core/test_route_scan.py` e conferir as permissões de cada uma
 - [X] T024 [P] Atualizar `README.md` (feature 006)
 - [X] T025 Rodar `scripts/verificar.sh` e corrigir o que faltar
-- [ ] T026 Executar o quickstart na pilha real (incluindo veraPDF e `pdfsig`), comparar a capa gerada com a da planilha e registrar em `docs/validacao/006-resultados-execucao.md`, com a comparação da Qualidade como pendência de ratificação (SC-001, SC-003, SC-006)
+- [X] T026 Executar o quickstart na pilha real (incluindo veraPDF e `pdfsig`), comparar a capa gerada com a da planilha e registrar em `docs/validacao/006-resultados-execucao.md`, com a comparação da Qualidade como pendência de ratificação (SC-001, SC-003, SC-006)
 
 ## Dependencies & Execution Order
 
@@ -73,3 +73,11 @@ Setup → Foundational (T002 antes de T003 a T006) → US1/US2/US3 (T007/T008 e 
 
 MVP = PDF e DOCX de rascunho dos subdocumentos com capa, corpo e marca d'água (US1 a US3); depois o
 PDF oficial com selo e código, o congelamento, os modelos de layout pela tela e o TAP e o Plano.
+
+---
+
+## Phase 9: Convergence
+
+- [X] T027 Mensagem clara para versão aprovada sem assinatura eletrônica (anterior à 005) ao pedir o PDF oficial, em `sgp/documents/services.py`, com teste em `tests/documents/test_official.py` per FR-013 (partial)
+- [X] T028 Teste da assinatura "Revisado" na relação final do PDF oficial (e fora do bloco da capa) em `tests/documents/test_official.py` per FR-012 (partial)
+- [X] T029 Teste do logotipo corrompido derrubando a geração com o registro de integridade em `tests/documents/test_layouts.py` per FR-025 (partial)

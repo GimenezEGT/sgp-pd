@@ -149,7 +149,13 @@ def request_generation(kind: str, obj, fmt: str, *, by, request=None) -> Generat
 
 
 def _approved(kind: str, object_id: int, version: int) -> ApprovedVersion:
-    return ApprovedVersion.objects.get(kind=kind, object_id=object_id, version=version)
+    try:
+        return ApprovedVersion.objects.get(kind=kind, object_id=object_id, version=version)
+    except ApprovedVersion.DoesNotExist:
+        raise ValidationError(
+            "Esta versão foi aprovada sem a assinatura eletrônica (antes da feature 005); "
+            "o PDF oficial não pode ser emitido. Crie nova versão e aprove com assinatura."
+        ) from None
 
 
 def _frozen_content(kind: str, obj, version: int):
