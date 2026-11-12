@@ -1,0 +1,32 @@
+<section class="capa">
+  <img class="logo" src="{{ logo_uri }}" alt="Logotipo">
+  <p class="titulo">{{ c.title }}</p>
+  <p class="produto">{{ c.product }}</p>
+  {% if c.changed_version %}<p class="versao">Versão alterada: {{ c.changed_version }}<span class="sep"></span>Nova Versão: {{ c.new_version }}</p>{% else %}<p class="versao">VERSÃO<span class="num">{{ c.version }}</span></p>{% endif %}
+  {% if c.cover.checklist %}
+  <table class="checklist">
+    <thead>
+      <tr><th colspan="{{ c.cover.checklist.columns|length }}">{{ c.cover.checklist.title }}</th></tr>
+      <tr>{% for column in c.cover.checklist.columns %}<th>{{ column }}</th>{% endfor %}</tr>
+    </thead>
+    <tbody>{% for row in c.cover.checklist.rows %}<tr>{% for cell in row %}<td>{{ cell|linebreaksbr }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+  </table>
+  {% elif c.cover.topics %}
+  <div class="recuo">
+    <p class="conter">ESTE RELATÓRIO DEVE CONTER:</p>
+    <table class="colunas"><tr>{% for column in cover_columns %}<td class="{% if cover_columns|length > 1 %}col{{ forloop.counter }}{% else %}unica{% endif %}">{% for item in column %}<p>{{ item.0 }} - {{ item.1 }}</p>{% endfor %}</td>{% endfor %}</tr></table>
+  </div>
+  {% endif %}
+  {% if c.cover.sectors %}
+  <div class="recuo setores">
+    <table class="colunas"><tr>{% for column in c.cover.sectors.columns %}<td class="col{{ forloop.counter }}">{% for sector in column %}<p><span class="caixa">{% if sector.checked %}X{% endif %}</span>{{ sector.label }}</p>{% endfor %}</td>{% endfor %}</tr></table>
+  </div>
+  {% endif %}
+  <div class="recuo assinaturas">
+    <p class="rotulo">{{ c.cover.author_label }}</p>
+    <p class="linha">{% if author %}{{ author }}{% else %}{{ blank_line }}{% endif %}</p>
+    <p class="rotulo">{{ c.cover.approver_label }}</p>
+    <p class="linha">{% if approver %}{{ approver }}{% else %}{{ blank_line }}{% endif %}</p>
+    <p class="rotulo">Data: {% if c.approved_on %}{{ c.approved_on }}{% else %}{{ blank_date }}{% endif %}</p>
+  </div>
+</section>

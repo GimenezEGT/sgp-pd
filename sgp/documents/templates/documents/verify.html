@@ -25,7 +25,7 @@
     {% endif %}
     <h2>Arquivos arquivados</h2>
     <table><thead><tr><th>Gerado em</th><th>Resumo do arquivo (SHA-256)</th><th></th></tr></thead>
-    <tbody>{% for doc in result.files %}<tr><td>{{ doc.generated_at|datahora }}</td><td><code>{{ doc.file_hash }}</code></td><td>{% if result.access %}<a href="{% url 'documents:download' doc.pk %}">Baixar</a>{% endif %}</td></tr>{% endfor %}</tbody></table>
+    <tbody>{% for doc in result.files %}<tr><td>{{ doc.generated_at|datahora }}</td><td><code>{{ doc.file_hash }}</code></td><td>{% if result.access %}{% if result.fulldoc %}<a href="{% url 'fulldoc:download' doc.pk %}">Baixar</a>{% else %}<a href="{% url 'documents:download' doc.pk %}">Baixar</a>{% endif %}{% endif %}</td></tr>{% endfor %}</tbody></table>
     {% if not result.access %}<p class="descricao">Você não tem acesso ao projeto deste documento; por isso só a validade e os resumos aparecem.</p>{% endif %}
   </div>
   {% else %}

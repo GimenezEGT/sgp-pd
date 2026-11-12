@@ -18,4 +18,5 @@ urlpatterns = [
     path("revisoes-modelos/", include("sgp.revisions.urls")),
     path("", include("sgp.studies.urls")),
     path("", include("sgp.notebook.urls")),
+    path("", include("sgp.fulldoc.urls")),
 ]
