@@ -17,6 +17,15 @@ aprovada vigente (as "partes"). Cada parte já tem numeração de versão própr
 projeto, que só muda com Alteração de Projeto aprovada, e nada registra quais versões das partes
 formavam o documento final em cada momento.
 
+## Clarifications
+
+### Session 2026-11-13
+
+Respostas do usuário (não provisórias).
+
+- Q: Quando a versão do documento final sobe: na aprovação de uma nova versão de parte ou já na abertura da nova versão em rascunho? → A: Na aprovação, quando a nova versão da parte passa a valer; abrir uma versão em rascunho não muda o documento final.
+- Q: Como fica o histórico dos projetos que já têm aprovações? → A: É reconstruído a partir das aprovações já registradas, em ordem de data, com as versões marcadas como reconstruídas.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Versão própria do documento final, que acompanha as partes (Priority: P1)
@@ -34,7 +43,7 @@ versão seguinte, com a mudança e a composição registradas.
 
 1. **Given** um projeto com o documento final na versão N, **When** a versão 02 da Formulação é aprovada, **Then** o documento final passa à versão N+1, que registra "Formulação: 01 → 02", quem aprovou, quando, e a composição com todas as partes.
 2. **Given** a aprovação do projeto (TAP e Plano de Negócios aprovados juntos), **When** ela é registrada, **Then** nasce uma única versão do documento final com as duas partes.
-3. **Given** uma devolução ou um envio para revisão, **When** registrados, **Then** a versão do documento final não muda.
+3. **Given** uma devolução, um envio para revisão ou a abertura de nova versão em rascunho, **When** registrados, **Then** a versão do documento final não muda.
 
 ---
 
@@ -101,13 +110,13 @@ histórico.
 
 - **FR-001**: Cada subdocumento, o TAP e o Plano de Negócios DEVEM manter numeração de versão própria, independente da versão do projeto e das demais partes, com as regras da feature 005 (nova versão com motivo; versão aprovada congelada).
 - **FR-002**: O documento final de cada projeto DEVE ter numeração de versão própria (01, 02, …), independente da versão do projeto.
-- **FR-003**: A versão do documento final DEVE subir automaticamente, na mesma operação, quando muda a versão de uma parte [NEEDS CLARIFICATION: sobe quando a nova versão da parte é aprovada (passa a valer no documento) ou já quando a nova versão é aberta em rascunho?]; uma aprovação que alcança mais de uma parte ao mesmo tempo gera uma única versão.
+- **FR-003**: A versão do documento final DEVE subir automaticamente, na mesma operação da aprovação, quando uma nova versão de qualquer parte é aprovada e passa a valer; abrir uma versão em rascunho, enviar para revisão ou devolver não muda o documento final; uma aprovação que alcança mais de uma parte ao mesmo tempo gera uma única versão.
 - **FR-004**: Cada versão do documento final DEVE registrar número, data e hora, quem aprovou, o que mudou (parte, versão anterior e nova) e a composição completa (cada parte com versão vigente, data de aprovação e resumo criptográfico do conteúdo aprovado), com o resumo criptográfico da composição; o registro é imutável.
 - **FR-005**: Cada nova versão do documento final DEVE gerar evento na trilha de auditoria com a mudança e o resumo da composição.
 - **FR-006**: A tela do projeto DEVE mostrar o histórico das versões do documento final e a composição de qualquer versão.
 - **FR-007**: O documento completo gerado DEVE indicar a versão do documento final que representa (capa, nome do arquivo e registro arquivado) e trazer o quadro das versões do documento final; a versão do projeto continua indicada à parte.
 - **FR-008**: A tela de cada parte DEVE mostrar o histórico de versões da parte: número, situação, motivo da abertura, quem abriu e quando, quem aprovou e quando, e as versões do documento final em que cada versão entrou.
-- **FR-009**: Projetos com aprovações anteriores a esta funcionalidade [NEEDS CLARIFICATION: têm o histórico das versões do documento final reconstruído a partir das aprovações já registradas, ou começam na versão 01 com a situação atual?].
+- **FR-009**: Projetos com aprovações anteriores a esta funcionalidade DEVEM ter o histórico das versões do documento final reconstruído a partir das aprovações já registradas, em ordem de data (aprovações do mesmo instante numa só versão), com as versões marcadas como reconstruídas.
 - **FR-010**: O documento completo DEVE sempre corresponder a uma versão registrada do documento final: se a composição vigente não estiver registrada, o sistema registra a versão antes de gerar, com o motivo "recomposição".
 
 ### Key Entities *(include if feature involves data)*
