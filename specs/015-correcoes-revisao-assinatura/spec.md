@@ -16,6 +16,15 @@ local: a Entrada de um projeto foi enviada para revisão pelo próprio Gestor de
 quem elaborou não aprova a mesma versão; quem assinou como revisor não aprova a mesma versão; a
 devolução exige comentário; assinaturas gravadas nunca são alteradas nem apagadas.
 
+## Clarifications
+
+### Session 2026-11-13
+
+Respostas provisórias: a recomendação de cada pergunta foi adotada e precisa ser ratificada pelo responsável indicado antes do uso oficial.
+
+- Q: Quem elaborou o documento e tem poder de aprovação pode devolver a própria versão? → A: Sim, com comentário obrigatório; o documento volta a ser editável e a devolução vai para a trilha, como qualquer devolução (ratificar com a Garantia da Qualidade).
+- Q: No envio para revisão pelo Gestor de P&D, o sistema só avisa ou bloqueia? → A: Só avisa, com o caminho para a delegação; a aprovação dessa versão fica com outro Gestor ou com quem tem delegação vigente (ratificar com a Garantia da Qualidade).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Gestor que elaborou entende e destrava o documento (Priority: P1)
@@ -85,9 +94,9 @@ As telas de envio para revisão e de aprovação mostram a situação do documen
 ### Functional Requirements
 
 - **FR-001**: Na tela de um documento em revisão cuja assinatura "Elaborado" é da própria pessoa, que tem poder de aprovação (Gestor de P&D ou delegação vigente), o sistema DEVE mostrar o aviso de que a aprovação precisa de outro aprovador e, para quem tem o perfil Gestor de P&D, o caminho para criar delegação.
-- **FR-002**: A pessoa do FR-001 DEVE poder devolver o documento, com comentário obrigatório, a partir da tela do documento [NEEDS CLARIFICATION: quem elaborou e tem poder de aprovação pode devolver a própria versão, ou só outro aprovador devolve?].
+- **FR-002**: A pessoa do FR-001 DEVE poder devolver o documento, com comentário obrigatório, a partir da tela do documento; o documento volta a ser editável e a devolução vai para a trilha.
 - **FR-003**: A Fila de revisão DEVE mostrar, numa seção própria, os documentos em revisão elaborados pela própria pessoa (com poder de aprovação), com projeto, data do envio e dias de espera, sem ação de aprovação.
-- **FR-004**: A tela de envio para revisão DEVE avisar quem tem poder de aprovação que, ao assinar como Elaborado, não poderá aprovar a mesma versão [NEEDS CLARIFICATION: o envio pelo Gestor fica só com aviso ou é bloqueado quando não há outro aprovador?].
+- **FR-004**: A tela de envio para revisão DEVE avisar quem tem poder de aprovação que, ao assinar como Elaborado, não poderá aprovar a mesma versão e que a aprovação ficará com outro Gestor de P&D ou com quem tem delegação vigente; o envio não é bloqueado.
 - **FR-005**: A assinatura "Revisado" DEVE ser única por pessoa em cada versão do documento: a opção não aparece para quem já assinou e o sistema recusa nova tentativa com mensagem, sem gravar assinatura.
 - **FR-006**: As telas de envio para revisão e de aprovação DEVEM mostrar a situação pelo nome (Rascunho, Em revisão, Devolvido, Aprovado), nunca pelo código interno.
 - **FR-007**: As regras da feature 005 DEVEM continuar valendo: quem elaborou não aprova a mesma versão; quem assinou como revisor não aprova a mesma versão; devolução com comentário obrigatório e registrada na trilha; assinaturas gravadas nunca são alteradas nem apagadas.
@@ -108,3 +117,4 @@ As telas de envio para revisão e de aprovação mostram a situação do documen
 
 - Correção de telas e de regra de assinatura; sem mudança de modelo de dados.
 - O teste do usuário na pilha local (13/11/2026) é a origem; os registros já gravados ficam como estão.
+- Devolução pela própria pessoa que elaborou e aviso (sem bloqueio) no envio pelo Gestor definidos nas respostas provisórias do esclarecimento (sessão 2026-11-13).
