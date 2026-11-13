@@ -331,7 +331,9 @@ def attachment_rows(parts, entries) -> list[dict]:
 # ------------------------------------------------------------------ composição
 
 
-def compose(project, *, options: dict, with_financials: bool, pending: list[str], until) -> dict:
+def compose(
+    project, *, options: dict, with_financials: bool, pending: list[str], until, final=None
+) -> dict:
     history = bool(options.get("historico_versoes"))
     documents = documents_in_order(project)
     parts = []
@@ -349,6 +351,13 @@ def compose(project, *, options: dict, with_financials: bool, pending: list[str]
         )
     entries = notebook(project, options.get("caderno"))
     parts.append({"kind": "versions", "toc": "Quadro de versões", "rows": version_rows(documents)})
+    parts.append(
+        {
+            "kind": "final_versions",
+            "toc": "Versões do documento final",
+            "rows": final_version_rows(project, final),
+        }
+    )
     parts.append(
         {
             "kind": "audit",
@@ -369,12 +378,43 @@ def compose(project, *, options: dict, with_financials: bool, pending: list[str]
     )
     for number, part in enumerate(parts, start=1):
         part["anchor"] = f"parte-{number}"
-    return {"parts": parts, "options": options, "with_financials": with_financials}
+    return {
+        "parts": parts,
+        "options": options,
+        "with_financials": with_financials,
+        "final_number": final.number if final else 0,
+    }
+
+
+def final_version_rows(project, final) -> list[dict]:
+    """Quadro das versões do documento final até a representada (feature 016)."""
+    from .models import FinalDocumentVersion
+
+    if final is None:
+        return []
+    rows = []
+    for version in (
+        FinalDocumentVersion.objects.filter(project=project, number__lte=final.number)
+        .select_related("registered_by")
+        .order_by("number")
+    ):
+        rows.append(
+            {
+                "version": version.number_display,
+                "date": datetime_br(version.created_at),
+                "by": (version.registered_by.get_full_name() or version.registered_by.username)
+                if version.registered_by
+                else "—",
+                "changes": version.changes_text or "—",
+                "reason": version.get_reason_display(),
+            }
+        )
+    return rows
 
 
 def composition_digest(project, composition: dict, *, layout_id: int, pending: list[str]) -> str:
     """Resumo do que muda o conteúdo (research R10); a trilha resumida não entra."""
-    parts = []
+    parts = [["documento_final", composition.get("final_number", 0)]]
     for part in composition["parts"]:
         if part["kind"] == "document":
             parts.append(

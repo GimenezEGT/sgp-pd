@@ -266,7 +266,7 @@ def approve(kind: str, obj, *, by, password: str, request=None):
                 "O conteúdo mudou depois da assinatura de quem elaborou; devolva para nova assinatura."
             )
         _sign(adapter, obj, by, Meaning.APPROVED, digest, delegation=_approval_delegation(by))
-        _freeze(adapter, obj, by, content, digest)
+        approved = _freeze(adapter, obj, by, content, digest)
         adapter.set_status(obj, APPROVED)
         adapter.on_approved(obj, by)
         _event(
@@ -276,7 +276,15 @@ def approve(kind: str, obj, *, by, password: str, request=None):
             by,
             new_value={"versao": adapter.version(obj), "resumo": digest},
         )
+        _register_final_version(adapter.project(obj), by, [approved])
     return obj
+
+
+def _register_final_version(project, by, approvals) -> None:
+    """Feature 016: a aprovação de parte gera a versão seguinte do documento final."""
+    from sgp.fulldoc import versioning
+
+    versioning.register(project, by=by, approvals=approvals)
 
 
 def new_version(kind: str, obj, *, by, reason: str):
@@ -566,9 +574,10 @@ def approve_project(project, *, by, password: str, request=None):
                 )
             checked.append((adapter, obj, content, digest))
         project = workflow.approve(project, by=by)
+        approvals = []
         for adapter, obj, content, digest in checked:
             _sign(adapter, obj, by, Meaning.APPROVED, digest, delegation=_approval_delegation(by))
-            _freeze(adapter, obj, by, content, digest)
+            approvals.append(_freeze(adapter, obj, by, content, digest))
             _event(
                 "signatures.approved",
                 adapter,
@@ -576,6 +585,7 @@ def approve_project(project, *, by, password: str, request=None):
                 by,
                 new_value={"versao": adapter.version(obj), "resumo": digest},
             )
+        _register_final_version(project, by, approvals)
     return project
 
 

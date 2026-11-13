@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp notebook %}
+{% load sgp notebook fulldoc_versions %}
 {% block title %}{{ subdocument }}{% endblock %}
 {% block content %}
 {% include "subdocuments/_header.html" %}
@@ -26,6 +26,7 @@
 </section>
 {% endfor %}
 {% include "signatures/_block.html" with sig=signature_actions %}
+{% historico_de_versoes "subdocument" subdocument %}
 {% if is_manager and subdocument.is_draft and current_template and current_template.pk != subdocument.template_id %}
 <div class="painel painel-estreito">
   <form method="post" action="{% url 'subdocuments:migrate' subdocument.pk %}">

@@ -16,6 +16,7 @@
   <p class="titulo">DOCUMENTO COMPLETO DO PROJETO</p>
   <p class="produto">{{ project.product_name|upper }}</p>
   <p class="versao">{{ project.code }} – {{ project.title }}</p>
+  <p class="versao">VERSÃO DO DOCUMENTO FINAL<span class="num">{{ final_version }}</span></p>
   <p class="versao">VERSÃO DO PROJETO<span class="num">{{ version }}</span></p>
   <div class="recuo dados">
     <p>Gerado em {{ generated_label }}.</p>
@@ -38,6 +39,13 @@
     <h1 class="parte-titulo">Pendências</h1>
     <p>O documento só é oficial quando não há pendências. Itens encontrados na geração:</p>
     <ul>{% for item in part.items %}<li>{{ item }}</li>{% endfor %}</ul>
+  {% elif part.kind == "final_versions" %}
+    <h1 class="parte-titulo">Versões do documento final</h1>
+    <p>Cada versão do documento final nasce com a aprovação de uma nova versão de uma parte (TAP, Plano de Negócios ou subdocumento) e registra a mudança e a composição.</p>
+    <table class="dados">
+      <thead><tr><th>Versão</th><th>Registrada em</th><th>Aprovada ou registrada por</th><th>O que mudou</th><th>Motivo</th></tr></thead>
+      <tbody>{% for row in part.rows %}<tr><td>{{ row.version }}</td><td>{{ row.date }}</td><td>{{ row.by }}</td><td>{{ row.changes }}</td><td>{{ row.reason }}</td></tr>{% empty %}<tr><td colspan="5">Ainda não há versão do documento final: nenhuma parte aprovada.</td></tr>{% endfor %}</tbody>
+    </table>
   {% elif part.kind == "versions" %}
     <h1 class="parte-titulo">Quadro de versões</h1>
     <table class="dados">

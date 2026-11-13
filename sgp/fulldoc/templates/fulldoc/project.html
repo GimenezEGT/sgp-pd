@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp %}
+{% load sgp fulldoc_versions %}
 {% block title %}Documento completo – {{ project.code }}{% endblock %}
 {% block content %}
 <p><a href="{% url 'projects:detail' project.pk %}">← {{ project }}</a></p>
@@ -31,19 +31,34 @@
 
 {% if request_obj %}{% include "fulldoc/_request.html" %}{% endif %}
 
+<h2>Versões do documento final</h2>
+<p class="descricao">A versão do documento final sobe a cada aprovação de nova versão de uma parte (TAP, Plano de Negócios ou subdocumento) e guarda o que mudou e a composição. Versão do projeto (Alterações de Projeto): {{ project.version_display }}.</p>
+<div class="tabela-rolagem"><table>
+  <thead><tr><th>Versão</th><th>Registrada em</th><th>Aprovada ou registrada por</th><th>O que mudou</th><th>Motivo</th><th>Composição</th></tr></thead>
+  <tbody>
+  {% for version in final_versions %}<tr>
+    <td>{{ version.number_display }}</td><td>{{ version.created_at|datahora }}</td>
+    <td>{% if version.registered_by %}{{ version.registered_by.get_full_name|default:version.registered_by.username }}{% else %}—{% endif %}</td>
+    <td>{{ version.changes_text|default:"—" }}</td><td>{{ version.get_reason_display }}</td>
+    <td><details><summary>{{ version.composition|length }} parte(s)</summary><ul>{% for part in version.composition %}<li>{{ part.parte }} – versão {{ part.versao|stringformat:"02d" }}, aprovada em {{ part.aprovada_em|iso_datahora }} · resumo <code>{{ part.resumo|slice:":12" }}…</code></li>{% endfor %}</ul></details></td>
+  </tr>{% empty %}<tr><td colspan="6">Ainda não há versão do documento final: nenhuma parte aprovada.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+
 <h2>Documentos gerados</h2>
 <table>
-  <thead><tr><th>Gerado em</th><th>Versão do projeto</th><th>Situação</th><th>Caderno</th><th>Páginas</th><th>Código de verificação</th><th></th></tr></thead>
+  <thead><tr><th>Gerado em</th><th>Versão do documento final</th><th>Versão do projeto</th><th>Situação</th><th>Caderno</th><th>Páginas</th><th>Código de verificação</th><th></th></tr></thead>
   <tbody>
   {% for item in documents %}<tr>
     <td>{{ item.doc.generated_at|datahora }}</td>
+    <td>{% if item.doc.final_version %}{{ item.doc.final_version.number_display }}{% else %}—{% endif %}</td>
     <td>{{ item.doc.project_version|stringformat:"02d" }}</td>
     <td>{% if item.doc.official %}Oficial{% else %}Rascunho ({{ item.doc.pending|length }} pendência(s)){% endif %}{% if item.doc.with_financials %} · com dados financeiros{% endif %}</td>
     <td>{{ item.doc.notebook_label }}{% if item.doc.options.historico_versoes %} · com versões substituídas{% endif %}</td>
     <td>{{ item.doc.pages }}</td>
     <td>{{ item.doc.verification_code|default:"—" }}</td>
     <td>{% if item.can_download %}<a href="{% url 'fulldoc:download' item.doc.pk %}">Baixar PDF</a>{% else %}<span class="descricao">restrito</span>{% endif %}</td>
-  </tr>{% empty %}<tr><td colspan="7">Nenhum documento gerado.</td></tr>{% endfor %}
+  </tr>{% empty %}<tr><td colspan="8">Nenhum documento gerado.</td></tr>{% endfor %}
   </tbody>
 </table>
 {% endblock %}
