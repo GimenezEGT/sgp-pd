@@ -1,14 +1,15 @@
 # Relatório final da execução do plano (SGP-P&D)
 
-Data: 12/11/2026. Plano executado: `docs/plano-implementacao.md` ("Plano de Implementação com
+Data: 13/11/2026. Plano executado: `docs/plano-implementacao.md` ("Plano de Implementação com
 Spec-Driven Development"), features 001 a 012 na ordem de `prompts/`, mais a feature 013 pedida
-pelo usuário e a feature 014 com os entregáveis de operação e validação. Repositório local, privado,
-sem remoto (regra do plano: na rede da empresa).
+pelo usuário, a feature 014 com os entregáveis de operação e validação e a feature 015 com as
+correções vindas do teste do usuário (13/11/2026). Repositório local, privado, sem remoto (regra do
+plano: na rede da empresa).
 
 ## Situação
 
-- Portão de qualidade (`scripts/verificar.sh`) no `main`: ruff sem erros, 1.255 testes aprovados,
-  cobertura mínima atendida e matriz de rastreabilidade com 309 requisitos, nenhum sem cobertura
+- Portão de qualidade (`scripts/verificar.sh`) no `main`: ruff sem erros, 1.263 testes aprovados,
+  cobertura mínima atendida e matriz de rastreabilidade com 319 requisitos, nenhum sem cobertura
   ([docs/validacao/matriz-rastreabilidade.md](validacao/matriz-rastreabilidade.md)).
 - Cada feature passou pelo ciclo do spec-kit (especificar, esclarecer, planejar, checklist, tarefas,
   analisar, implementar, convergir até "Converged"), com commit a cada etapa, roteiro executado na
@@ -33,6 +34,7 @@ sem remoto (regra do plano: na rede da empresa).
 | 012 | Integração com o Sankhya pelo API Gateway oficial, fila com reprocessamento e contingência em arquivo | [012-resultados-execucao.md](validacao/012-resultados-execucao.md) |
 | 013 | Revisão controlada dos modelos de subdocumento e de layout (pedido do usuário) | [013-resultados-execucao.md](validacao/013-resultados-execucao.md) |
 | 014 | Operação e validação: cópia diária e teste de restauração, IQ, OQ e revisão de acessos | [014-resultados-execucao.md](validacao/014-resultados-execucao.md) |
+| 015 | Correções do ciclo de revisão e assinatura vindas do teste do usuário: revisão única por versão, Gestor que elaborou com aviso, devolução e seção própria na fila, situação pelo nome | [015-resultados-execucao.md](validacao/015-resultados-execucao.md) |
 
 ## Como as paradas de revisão foram tratadas
 
@@ -43,9 +45,9 @@ requisitos (de quem revisa) ficaram sem marcação; nenhum campo de formulário,
 texto regulatório foi inventado (o que faltou virou pendência). Por isso, antes do uso oficial, as
 decisões abaixo precisam ser ratificadas e os checklists revisados.
 
-## Decisões provisórias a ratificar (60)
+## Decisões provisórias a ratificar (62)
 
-### Garantia da Qualidade (31)
+### Garantia da Qualidade (33)
 
 | Feature | Pergunta | Resposta provisória | Ratificar com |
 | --- | --- | --- | --- |
@@ -80,6 +82,8 @@ decisões abaixo precisam ser ratificadas e os checklists revisados.
 | 014 | Por quanto tempo ficam as cópias diárias e as mensais? | As diárias por 35 dias; a primeira cópia bem-sucedida de cada mês fica sem remoção automática | a TI e a Garantia da Qualidade |
 | 014 | O sistema cifra as cópias ou o controle de acesso do destino protege o conteúdo? | O sistema não cifra; o destino tem acesso restrito à TI e cifragem do armazenamento feita pela infraestrutura | a TI e a Garantia da Qualidade |
 | 014 | Quem executa as qualificações de instalação e de operação, e por onde? | A de instalação só a TI, pela linha de comando no servidor ou pela tela de operação; a de operação a TI (linha de comando ou tela) e a Garantia da Qualidade (tela) | a TI e a Garantia da Qualidade |
+| 015 | Quem elaborou o documento e tem poder de aprovação pode devolver a própria versão? | Sim, com comentário obrigatório; o documento volta a ser editável e a devolução vai para a trilha, como qualquer devolução | a Garantia da Qualidade |
+| 015 | No envio para revisão pelo Gestor de P&D, o sistema só avisa ou bloqueia? | Só avisa, com o caminho para a delegação; a aprovação dessa versão fica com outro Gestor ou com quem tem delegação vigente | a Garantia da Qualidade |
 
 ### Gestor de P&D (19)
 
@@ -189,7 +193,7 @@ Requisitos sem teste automatizado possível no desenvolvimento, registrados em
 | 013:SC-005 | Ciclo completo (abrir revisão, alterar um rótulo, enviar, aprovar e publicar) cronometrado na pilha real por quem conhece a tela (docs/validacao/013-resultados-execucao.md); repetir na homologação. |
 | 014:SC-004 | IQ e OQ executadas no servidor de homologação, com os relatórios guardados no painel Operação e validação e os roteiros docs/validacao/iq-roteiro.md e docs/validacao/oq-roteiro.md executados e assinados pela Garantia da Qualidade. |
 
-## Checklists de requisitos aguardando revisão (24 checklists, 290 itens)
+## Checklists de requisitos aguardando revisão (25 checklists, 302 itens)
 
 | Feature | Checklist | Revisados | Público |
 | --- | --- | --- | --- |
@@ -217,6 +221,7 @@ Requisitos sem teste automatizado possível no desenvolvimento, registrados em
 | 013 | `controle-mudancas.md` | 0/12 | Garantia da Qualidade e Gestor de P&D |
 | 014 | `evidencias-validacao.md` | 0/20 | Garantia da Qualidade e TI |
 | 014 | `recuperacao-integridade.md` | 0/22 | TI e Garantia da Qualidade |
+| 015 | `segregacao-assinatura.md` | 0/12 | Garantia da Qualidade |
 
 ## Observações sobre o ambiente de desenvolvimento
 
