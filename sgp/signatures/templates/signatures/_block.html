@@ -13,6 +13,17 @@
     {% for item in sig.versions %}<a href="{% url 'signatures:version' sig.kind sig.obj.pk item.version %}">{{ item.version_display }}</a> ({% if item.superseded %}Substituída{% else %}Vigente{% endif %}, {{ item.approved_at|data }}){% if not forloop.last %}; {% endif %}{% endfor %}
   </p>
   {% endif %}
+  {% if sig.own_submission %}
+  <div class="mensagem mensagem-warning" role="status">
+    <p>Você assinou esta versão como Elaborado; a aprovação precisa de outro Gestor de P&amp;D ou de quem tem delegação vigente.{% if sig.can_delegate %} <a href="{% url 'signatures:delegations' %}">Delegações de aprovação</a>{% endif %}</p>
+    {% if sig.can_return_own %}
+    <form method="post" action="{% url 'signatures:return' sig.kind sig.obj.pk %}">{% csrf_token %}
+      <p><label>Comentário da devolução <textarea name="comentario" rows="2" required></textarea></label></p>
+      <button type="submit" class="botao botao-perigo">Devolver</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
   <div class="acoes">
     {% if sig.can_submit %}<a class="botao" href="{% url 'signatures:submit' sig.kind sig.obj.pk %}">Enviar para revisão (assinar)</a>{% endif %}
     {% if sig.can_approve %}<a class="botao" href="{% url 'signatures:approve' sig.kind sig.obj.pk %}">Aprovar ou devolver</a>{% endif %}

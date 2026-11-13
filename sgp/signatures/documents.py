@@ -13,6 +13,13 @@ from sgp.files.models import StoredFile
 from .models import DocumentKind
 
 DRAFT, IN_REVIEW, RETURNED, APPROVED = "draft", "in_review", "returned", "approved"
+# Nomes das situações nas telas (feature 015): nunca o código interno.
+STATUS_LABELS = {
+    DRAFT: "Rascunho",
+    IN_REVIEW: "Em revisão",
+    RETURNED: "Devolvido",
+    APPROVED: "Aprovado",
+}
 EDITABLE = (DRAFT, RETURNED)
 
 

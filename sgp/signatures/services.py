@@ -17,7 +17,7 @@ from sgp.core.access import can_access_project
 from sgp.files.storage import IntegrityFailure, read_verified
 
 from .canonical import content_hash, normalized
-from .documents import APPROVED, EDITABLE, IN_REVIEW, RETURNED, get_adapter
+from .documents import APPROVED, EDITABLE, IN_REVIEW, RETURNED, STATUS_LABELS, get_adapter
 from .models import (
     ApprovalDelegation,
     ApprovedVersion,
@@ -161,11 +161,28 @@ def sign_review(kind: str, obj, *, by, password: str, request=None) -> Signature
     elaborated = elaborated_signature(adapter, obj)
     if elaborated is not None and elaborated.signer_id == by.pk:
         raise ValidationError("Quem elaborou não assina como revisor.")
+    if already_reviewed(adapter, obj, by):
+        raise ValidationError("Você já assinou como revisor esta versão.")
     reauthenticate(request, by, password)
     with transaction.atomic():
         obj = adapter.lock(obj)
+        if already_reviewed(adapter, obj, by):  # envio repetido do formulário (FR-005, 015)
+            raise ValidationError("Você já assinou como revisor esta versão.")
         digest = content_hash(adapter.snapshot(obj))
         return _sign(adapter, obj, by, Meaning.REVIEWED, digest)
+
+
+def already_reviewed(adapter, obj, user) -> bool:
+    """A pessoa já assinou "Revisado" na versão corrente (revisão única por versão, 015)."""
+    return signatures_of(adapter, obj).filter(meaning=Meaning.REVIEWED, signer=user).exists()
+
+
+def own_submission(user, adapter, obj) -> bool:
+    """Documento em revisão cuja assinatura "Elaborado" da versão corrente é da pessoa."""
+    if adapter.status(obj) != IN_REVIEW:
+        return False
+    elaborated = elaborated_signature(adapter, obj)
+    return elaborated is not None and elaborated.signer_id == user.pk
 
 
 def return_document(kind: str, obj, *, by, comment: str):
@@ -427,8 +444,9 @@ def end_delegation(delegation: ApprovalDelegation, *, by, reason: str) -> Approv
 # ----------------------------------------------------------------------- fila
 
 
-def review_queue(user) -> list[dict]:
-    """Documentos em revisão que a pessoa pode aprovar, com os dias de espera (FR-014)."""
+def review_queue(user, *, own: bool = False) -> list[dict]:
+    """Documentos em revisão que a pessoa pode aprovar, com os dias de espera (FR-014 da 005);
+    com `own`, os que ela mesma elaborou e aguardam outro aprovador (FR-003 da 015)."""
     from sgp.projects.models import BusinessPlan, ProjectCharter
     from sgp.subdocuments.models import Subdocument
 
@@ -453,7 +471,14 @@ def review_queue(user) -> list[dict]:
     for kind, queryset in sources:
         adapter = get_adapter(kind)
         for obj in queryset:
-            if not can_approve(user, adapter, obj):
+            if own:
+                if not (
+                    is_approver(user)
+                    and can_access_project(user, adapter.project(obj))
+                    and own_submission(user, adapter, obj)
+                ):
+                    continue
+            elif not can_approve(user, adapter, obj):
                 continue
             elaborated = elaborated_signature(adapter, obj)
             since = elaborated.signed_at if elaborated else timezone.now()
@@ -467,6 +492,7 @@ def review_queue(user) -> list[dict]:
                     "project": adapter.project(obj),
                     "since": since,
                     "days": days,
+                    "url": adapter.url(obj),
                     "overdue": days > settings.REVIEW_ALERT_DAYS,
                 }
             )
@@ -560,9 +586,18 @@ def block_context(user, kind: str, obj) -> dict:
     project_open = adapter.project(obj).status == "open"
     in_cycle = kind == DocumentKind.SUBDOCUMENT or project_open
     elaborated = elaborated_signature(adapter, obj)
+    mine = own_submission(user, adapter, obj)
+    approver = is_approver(user)
     return {
         "kind": kind,
         "obj": obj,
+        "status_label": STATUS_LABELS.get(status, status),
+        "own_submission": in_cycle and mine and approver,
+        "can_return_own": in_cycle
+        and mine
+        and approver
+        and can_access_project(user, adapter.project(obj)),
+        "can_delegate": Profile.RD_MANAGER in active_profiles(user),
         "version": adapter.version(obj),
         "status": status,
         "signatures": signatures_of(adapter, obj),
@@ -572,7 +607,8 @@ def block_context(user, kind: str, obj) -> dict:
         "can_approve": in_cycle and status == IN_REVIEW and can_approve(user, adapter, obj),
         "can_review": status == IN_REVIEW
         and (elaborated is None or elaborated.signer_id != user.pk)
-        and can_access_project(user, adapter.project(obj)),
+        and can_access_project(user, adapter.project(obj))
+        and not already_reviewed(adapter, obj, user),
         "can_new_version": in_cycle
         and status == APPROVED
         and adapter.can_create_version(user, obj),

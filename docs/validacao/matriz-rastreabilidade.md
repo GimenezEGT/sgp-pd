@@ -1,8 +1,8 @@
 # Matriz de rastreabilidade requisito → teste
 
-Gerada por `scripts/rastreabilidade.py` em 12/11/2026. Não edite à mão.
+Gerada por `scripts/rastreabilidade.py` em 13/11/2026. Não edite à mão.
 
-Requisitos: 309 · com teste automatizado: 302 · só verificação manual: 7 · sem cobertura: 0
+Requisitos: 319 · com teste automatizado: 312 · só verificação manual: 7 · sem cobertura: 0
 
 ## 001-fundacao-acesso-auditoria
 
@@ -382,3 +382,18 @@ Requisitos: 309 · com teste automatizado: 302 · só verificação manual: 7 ·
 | SC-002 | Em 100% dos testes de dano (banco copiado ou arquivo alterado ou ausente), o teste de restauração reprova apo… | `tests/operations/test_restore.py::test_danos_reprovam_e_avisam`<br>`tests/operations/test_restore.py::test_trilha_adulterada_reprova_c5_e_aponta_incidente_existente` |
 | SC-003 | Em 100% dos testes com configuração inválida, a qualificação de instalação reprova o item com o motivo. | `tests/operations/test_qualification.py::test_configuracao_invalida_reprova_o_item_com_motivo` |
 | SC-004 | IQ e OQ executadas no servidor de homologação, com relatórios guardados no sistema e roteiros manuais executa… | Manual: IQ e OQ executadas no servidor de homologação, com os relatórios guardados no painel Operação e validação e os roteiros docs/validacao/iq-roteiro.md e docs/validacao/oq-roteiro.md executados e assinados pela Garantia da Qualidade. |
+
+## 015-correcoes-revisao-assinatura
+
+| Requisito | Descrição | Evidência |
+| --- | --- | --- |
+| FR-001 | Na tela de um documento em revisão cuja assinatura "Elaborado" é da própria pessoa, que tem poder de aprovaçã… | `tests/signatures/test_correcoes_015.py::test_analista_que_elaborou_nao_ve_devolucao`<br>`tests/signatures/test_correcoes_015.py::test_delegado_que_elaborou_nao_aprova_e_nao_ve_delegacoes`<br>`tests/signatures/test_correcoes_015.py::test_gestor_que_elaborou_ve_aviso_e_devolve` |
+| FR-002 | A pessoa do FR-001 DEVE poder devolver o documento, com comentário obrigatório, a partir da tela do documento… | `tests/signatures/test_correcoes_015.py::test_analista_que_elaborou_nao_ve_devolucao`<br>`tests/signatures/test_correcoes_015.py::test_gestor_que_elaborou_ve_aviso_e_devolve` |
+| FR-003 | A Fila de revisão DEVE mostrar, numa seção própria, os documentos em revisão elaborados pela própria pessoa (… | `tests/signatures/test_correcoes_015.py::test_fila_mostra_os_elaborados_pela_pessoa_a_parte` |
+| FR-004 | A tela de envio para revisão DEVE avisar quem tem poder de aprovação que, ao assinar como Elaborado, não pode… | `tests/signatures/test_correcoes_015.py::test_aprovacao_pelo_endereco_direto_por_quem_elaborou`<br>`tests/signatures/test_correcoes_015.py::test_envio_avisa_quem_pode_aprovar` |
+| FR-005 | A assinatura "Revisado" DEVE ser única por pessoa em cada versão do documento: a opção não aparece para quem… | `tests/signatures/test_correcoes_015.py::test_revisao_unica_por_pessoa_e_versao` |
+| FR-006 | As telas de envio para revisão e de aprovação DEVEM mostrar a situação pelo nome (Rascunho, Em revisão, Devol… | `tests/signatures/test_correcoes_015.py::test_situacao_pelo_nome_nas_telas` |
+| FR-007 | As regras da feature 005 DEVEM continuar valendo: quem elaborou não aprova a mesma versão; quem assinou como… | `tests/signatures/test_correcoes_015.py::test_aprovacao_pelo_endereco_direto_por_quem_elaborou`<br>`tests/signatures/test_correcoes_015.py::test_delegado_que_elaborou_nao_aprova_e_nao_ve_delegacoes`<br>`tests/signatures/test_correcoes_015.py::test_gestor_que_elaborou_ve_aviso_e_devolve` |
+| SC-001 | Em 100% dos testes, uma segunda assinatura "Revisado" da mesma pessoa na mesma versão é recusada e não grava… | `tests/signatures/test_correcoes_015.py::test_revisao_unica_por_pessoa_e_versao` |
+| SC-002 | Em 100% dos testes, o Gestor que elaborou vê o aviso e a devolução na tela do documento e encontra o document… | `tests/signatures/test_correcoes_015.py::test_fila_mostra_os_elaborados_pela_pessoa_a_parte`<br>`tests/signatures/test_correcoes_015.py::test_gestor_que_elaborou_ve_aviso_e_devolve` |
+| SC-003 | Nenhuma das telas de envio e aprovação exibe código interno de situação. | `tests/signatures/test_correcoes_015.py::test_situacao_pelo_nome_nas_telas` |

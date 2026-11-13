@@ -5,15 +5,19 @@
 <p><a href="{{ back_url }}">← {{ title }}</a></p>
 <h1>{% if action == "aprovar" %}Aprovar ou devolver{% else %}Enviar para revisão{% endif %}</h1>
 <div class="painel">
-  <p><strong>{{ title }}</strong> · versão {{ version|stringformat:"02d" }} · situação {{ status }}</p>
+  <p><strong>{{ title }}</strong> · versão {{ version|stringformat:"02d" }} · situação {{ status_label }}</p>
   <p>Resumo do conteúdo que será assinado (SHA-256): <code>{{ digest }}</code></p>
   {% if missing %}<div class="mensagem mensagem-warning" role="status"><p>Falta para enviar:</p><ul>{% for item in missing %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+  {% if action == "enviar" and approver %}<p class="mensagem mensagem-warning" role="status">Ao enviar, você assina como Elaborado e não poderá aprovar esta versão: a aprovação ficará com outro Gestor de P&amp;D ou com quem tem delegação vigente.{% if can_delegate %} <a href="{% url 'signatures:delegations' %}">Delegações de aprovação</a>{% endif %}</p>{% endif %}
+  {% if action == "aprovar" and own_submission %}<p class="mensagem mensagem-warning" role="status">Você assinou esta versão como Elaborado; a aprovação precisa de outro Gestor de P&amp;D ou de quem tem delegação vigente.{% if can_delegate %} <a href="{% url 'signatures:delegations' %}">Delegações de aprovação</a>{% endif %}</p>{% endif %}
+  {% if not own_submission or action != "aprovar" %}
   <form method="post">
     {% csrf_token %}
     <p>Significado: <strong>{% if action == "aprovar" %}Aprovado{% else %}Elaborado{% endif %}</strong>. A assinatura registra seu nome, sua função, a data e a hora do servidor e o resumo acima.</p>
     <p><label>Sua senha de rede <input type="password" name="senha" autocomplete="current-password" required></label></p>
     <button type="submit" class="botao">{% if action == "aprovar" %}Aprovar e assinar{% else %}Enviar e assinar{% endif %}</button>
   </form>
+  {% endif %}
   {% if action == "aprovar" %}
   <form method="post" action="{% url 'signatures:return' kind obj.pk %}">
     {% csrf_token %}
