@@ -22,6 +22,60 @@ class RequestStatus(models.TextChoices):
 ACTIVE_STATUSES = (RequestStatus.QUEUED, RequestStatus.RUNNING)
 
 
+class FinalVersionReason(models.TextChoices):
+    APPROVAL = "approval", "Aprovação"
+    RECOMPOSITION = "recomposition", "Recomposição"
+    RECONSTRUCTION = "reconstruction", "Reconstruída"
+
+
+class FinalDocumentVersion(AppendOnlyModel):
+    """Versão do documento final do projeto (feature 016): nasce com cada aprovação de parte e
+    guarda a mudança e a composição completa; nada é alterado nem apagado."""
+
+    project = models.ForeignKey("projects.Project", on_delete=models.PROTECT, related_name="+")
+    number = models.PositiveIntegerField("número")
+    created_at = models.DateTimeField("registrada em", default=timezone.now)
+    registered_by = models.ForeignKey(
+        USER,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="aprovada ou registrada por",
+    )
+    reason = models.CharField("motivo", max_length=20, choices=FinalVersionReason.choices)
+    changes = models.JSONField("mudanças", default=list)
+    composition = models.JSONField("composição", default=list)
+    composition_hash = models.CharField("resumo da composição", max_length=64)
+
+    class Meta:
+        verbose_name = "versão do documento final"
+        verbose_name_plural = "versões do documento final"
+        ordering = ["project", "number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["project", "number"], name="fulldoc_final_version_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        code = self.project.code or self.project.title
+        return f"Documento final {code} – versão {self.number:02d}"
+
+    @property
+    def number_display(self) -> str:
+        return f"{self.number:02d}"
+
+    @property
+    def changes_text(self) -> str:
+        return "; ".join(change_text(change) for change in self.changes)
+
+
+def change_text(change: dict) -> str:
+    before = f"{change['de']:02d}" if change.get("de") else "—"
+    return f"{change['parte']}: {before} → {change['para']:02d}"
+
+
 class FullDocument(AppendOnlyModel):
     """Documento completo gerado e arquivado: nada é apagado nem alterado."""
 
@@ -42,6 +96,14 @@ class FullDocument(AppendOnlyModel):
     pages = models.PositiveIntegerField("páginas", default=0)
     generated_by = models.ForeignKey(USER, on_delete=models.PROTECT, related_name="+")
     generated_at = models.DateTimeField("gerado em", default=timezone.now)
+    final_version = models.ForeignKey(
+        FinalDocumentVersion,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name="versão do documento final",
+    )
 
     class Meta:
         verbose_name = "documento completo do projeto"
@@ -51,6 +113,11 @@ class FullDocument(AppendOnlyModel):
     def __str__(self) -> str:
         situation = "oficial" if self.official else "rascunho"
         code = self.project.code or self.project.title
+        if self.final_version_id:
+            return (
+                f"Documento completo {code} – versão {self.final_version.number:02d} "
+                f"do documento final ({situation})"
+            )
         return f"Documento completo {code} – versão {self.project_version:02d} ({situation})"
 
     @property

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load sgp %}
+{% load sgp fulldoc_versions %}
 {% block title %}{{ project }}{% endblock %}
 {% block content %}
 <p><a href="{% url 'projects:list' %}">← Projetos</a></p>
@@ -113,6 +113,7 @@
 {% endif %}
 
 {% include "signatures/_block.html" with sig=charter_sig %}
+{% historico_de_versoes "charter" charter_sig.obj %}
 <h2>Plano de Negócios</h2>
 <div class="painel">
   <p><strong>Data:</strong> {{ plan.plan_date|data|default:"—" }} · <strong>Prazo de execução:</strong> {% if plan.execution_months %}{{ plan.execution_months }} meses{% endif %}{% if plan.execution_end_date %} · término {{ plan.execution_end_date|data }}{% endif %}</p>
@@ -159,5 +160,6 @@
 </table>
 </div>
 {% if can_view_financials %}{% include "signatures/_block.html" with sig=plan_sig %}
+{% historico_de_versoes "business_plan" plan %}
 <p><a class="botao botao-secundario" href="{% url 'documents:history' 'business_plan' plan.pk %}">Documentos gerados do Plano de Negócios (PDF e DOCX)</a></p>{% endif %}
 {% endblock %}

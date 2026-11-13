@@ -17,7 +17,7 @@ from sgp.documents.services import verification_code
 from sgp.files.storage import IntegrityFailure, read_verified, record_integrity_failure, store_bytes
 from sgp.projects.permissions import can_view_financials
 
-from . import compose, pending
+from . import compose, pending, versioning
 from . import render as renderer
 from .models import (
     NOTEBOOK_FULL,
@@ -124,6 +124,7 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
     items = pending.pending_items(project)
     official = not items
     _progress(pending_request, 15, "Montando as partes")
+    final_version = versioning.ensure_current(project, by=pending_request.requested_by)
     now = timezone.now()
     composition = compose.compose(
         project,
@@ -131,8 +132,10 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
         with_financials=pending_request.with_financials,
         pending=items,
         until=now,
+        final=final_version,
     )
     digest = compose.composition_digest(project, composition, layout_id=layout.pk, pending=items)
+    final_number = final_version.number if final_version else 0
     existing = (
         FullDocument.objects.filter(project=project, composition_hash=digest, official=official)
         .order_by("generated_at", "pk")
@@ -141,11 +144,7 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
     if existing is not None:
         return existing, True
     _progress(pending_request, 30, "Renderizando o PDF")
-    code = (
-        verification_code(KIND, project.pk, project.version or 0, digest, layout.pk)
-        if official
-        else ""
-    )
+    code = verification_code(KIND, project.pk, final_number, digest, layout.pk) if official else ""
     local = timezone.localtime(now)
     by_name = pending_request.requested_by.get_full_name() or pending_request.requested_by.username
     pdf, pages = renderer.render(
@@ -159,11 +158,12 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
             KIND, project.pk, project.version or 0, digest, layout.pk
         ),
         verification_code=code,
+        final_version=final_version,
     )
     content_digest = hashlib.sha256(pdf).hexdigest()
     _progress(pending_request, 80, "Aplicando o selo" if official else "Arquivando")
     final = seal.seal(pdf) if official else pdf
-    name = f"Documento completo {project.code or project.pk} v{project.version or 0:02d}.pdf"
+    name = f"Documento completo {project.code or project.pk} v{final_number:02d}.pdf"
     with transaction.atomic():
         stored = store_bytes(final, name=name, kind="pdf", by=pending_request.requested_by)
         document = FullDocument.objects.create(
@@ -181,6 +181,7 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
             verification_code=code,
             pages=pages,
             generated_by=pending_request.requested_by,
+            final_version=final_version,
         )
         _event(
             "fulldoc.generated",
@@ -195,6 +196,7 @@ def generate(pending_request: FullDocumentRequest) -> tuple[FullDocument, bool]:
                 "sha256": stored.sha256,
                 "codigo": code,
                 "dados_financeiros": pending_request.with_financials,
+                "versao_documento_final": final_number or None,
                 **pending_request.options,
             },
         )
@@ -261,7 +263,9 @@ def run_request(request_id: int) -> FullDocumentRequest:
 
 
 def history(project):
-    return FullDocument.objects.filter(project=project).select_related("generated_by")
+    return FullDocument.objects.filter(project=project).select_related(
+        "generated_by", "final_version"
+    )
 
 
 def download(document: FullDocument, *, by, request=None) -> bytes:
@@ -284,11 +288,21 @@ def download(document: FullDocument, *, by, request=None) -> bytes:
     return data
 
 
+def _version_label(document) -> str:
+    """Versão mostrada na verificação: a do documento final (016) e a do projeto."""
+    if document.final_version_id:
+        return (
+            f"{document.final_version.number:02d} do documento final "
+            f"(projeto {document.project_version:02d})"
+        )
+    return f"{document.project_version:02d}"
+
+
 def lookup_code(code: str, user) -> dict | None:
     """Consulta extra da tela de verificação da 006 (research R11)."""
     documents = list(
         FullDocument.objects.filter(verification_code=code, official=True)
-        .select_related("project")
+        .select_related("project", "final_version")
         .order_by("generated_at", "pk")
     )
     if not documents:
@@ -299,7 +313,7 @@ def lookup_code(code: str, user) -> dict | None:
     return {
         "kind_label": "Documento completo do projeto",
         "title": f"{project.code or ''} {project.title}".strip(),
-        "version": f"{first.project_version:02d}",
+        "version": _version_label(first),
         "situation": f"{first.pages} página(s); gerado em "
         + timezone.localtime(first.generated_at).strftime("%d/%m/%Y %H:%M"),
         "approved_on": "todas as partes aprovadas na geração",

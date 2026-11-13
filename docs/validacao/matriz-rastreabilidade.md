@@ -2,7 +2,7 @@
 
 Gerada por `scripts/rastreabilidade.py` em 13/11/2026. Não edite à mão.
 
-Requisitos: 319 · com teste automatizado: 312 · só verificação manual: 7 · sem cobertura: 0
+Requisitos: 332 · com teste automatizado: 325 · só verificação manual: 7 · sem cobertura: 0
 
 ## 001-fundacao-acesso-auditoria
 
@@ -397,3 +397,21 @@ Requisitos: 319 · com teste automatizado: 312 · só verificação manual: 7 ·
 | SC-001 | Em 100% dos testes, uma segunda assinatura "Revisado" da mesma pessoa na mesma versão é recusada e não grava… | `tests/signatures/test_correcoes_015.py::test_revisao_unica_por_pessoa_e_versao` |
 | SC-002 | Em 100% dos testes, o Gestor que elaborou vê o aviso e a devolução na tela do documento e encontra o document… | `tests/signatures/test_correcoes_015.py::test_fila_mostra_os_elaborados_pela_pessoa_a_parte`<br>`tests/signatures/test_correcoes_015.py::test_gestor_que_elaborou_ve_aviso_e_devolve` |
 | SC-003 | Nenhuma das telas de envio e aprovação exibe código interno de situação. | `tests/signatures/test_correcoes_015.py::test_situacao_pelo_nome_nas_telas` |
+
+## 016-versao-documento-final
+
+| Requisito | Descrição | Evidência |
+| --- | --- | --- |
+| FR-001 | Cada subdocumento, o TAP e o Plano de Negócios DEVEM manter numeração de versão própria, independente da vers… | `tests/fulldoc/test_final_versions.py::test_aprovacao_de_parte_sobe_a_versao_e_rascunho_nao` |
+| FR-002 | O documento final de cada projeto DEVE ter numeração de versão própria (01, 02, …), independente da versão do… | `tests/fulldoc/test_final_versions.py::test_aprovacao_do_projeto_gera_a_versao_01` |
+| FR-003 | A versão do documento final DEVE subir automaticamente, na mesma operação da aprovação, quando uma nova versã… | `tests/fulldoc/test_final_versions.py::test_alteracao_de_projeto_tambem_gera_versao`<br>`tests/fulldoc/test_final_versions.py::test_aprovacao_de_parte_sobe_a_versao_e_rascunho_nao` |
+| FR-004 | Cada versão do documento final DEVE registrar número, data e hora, quem aprovou, o que mudou (parte, versão a… | `tests/fulldoc/test_final_versions.py::test_aprovacao_do_projeto_gera_a_versao_01`<br>`tests/fulldoc/test_final_versions.py::test_versao_do_documento_final_e_imutavel` |
+| FR-005 | Cada nova versão do documento final DEVE gerar evento na trilha de auditoria com a mudança e o resumo da comp… | `tests/fulldoc/test_final_versions.py::test_aprovacao_do_projeto_gera_a_versao_01`<br>`tests/fulldoc/test_final_versions.py::test_versoes_reconstruidas_entram_na_trilha` |
+| FR-006 | A tela do projeto DEVE mostrar o histórico das versões do documento final e a composição de qualquer versão. | `tests/fulldoc/test_final_versions.py::test_tela_do_projeto_mostra_o_historico` |
+| FR-007 | O documento completo gerado DEVE indicar a versão do documento final que representa (capa, nome do arquivo e… | `tests/fulldoc/test_final_versions.py::test_documento_gerado_traz_a_versao_e_o_quadro`<br>`tests/fulldoc/test_final_versions.py::test_resumo_de_reaproveitamento_inclui_a_versao` |
+| FR-008 | A tela de cada parte DEVE mostrar o histórico de versões da parte: número, situação, motivo da abertura, quem… | `tests/fulldoc/test_final_versions.py::test_historico_de_versoes_da_parte`<br>`tests/fulldoc/test_final_versions.py::test_historico_do_tap_e_do_plano_na_tela_do_projeto` |
+| FR-009 | Projetos com aprovações anteriores a esta funcionalidade DEVEM ter o histórico das versões do documento final… | `tests/fulldoc/test_final_versions.py::test_reconstrucao_a_partir_das_aprovacoes`<br>`tests/fulldoc/test_final_versions.py::test_versoes_reconstruidas_entram_na_trilha` |
+| FR-010 | O documento completo DEVE sempre corresponder a uma versão registrada do documento final: se a composição vig… | `tests/fulldoc/test_final_versions.py::test_documento_gerado_traz_a_versao_e_o_quadro` |
+| SC-001 | Em 100% dos testes, cada aprovação de nova versão de parte gera exatamente uma nova versão do documento final… | `tests/fulldoc/test_final_versions.py::test_aprovacao_de_parte_sobe_a_versao_e_rascunho_nao` |
+| SC-002 | Em 100% dos testes, o documento completo gerado indica a versão vigente do documento final e traz o quadro da… | `tests/fulldoc/test_final_versions.py::test_documento_gerado_traz_a_versao_e_o_quadro` |
+| SC-003 | Para qualquer versão do documento final, quem consulta descobre pela tela, em menos de 1 minuto, as versões d… | `tests/fulldoc/test_final_versions.py::test_tela_do_projeto_mostra_o_historico` |

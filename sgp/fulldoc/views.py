@@ -13,7 +13,7 @@ from sgp.files.storage import IntegrityFailure, record_integrity_failure
 from sgp.projects.models import Project
 from sgp.projects.permissions import can_view_financials
 
-from . import pending, services
+from . import pending, services, versioning
 from .models import NOTEBOOK_FULL, NOTEBOOK_SUMMARY, FullDocument, FullDocumentRequest
 
 
@@ -59,6 +59,7 @@ def project_document(request, project_id):
         "financial": can_view_financials(request.user, project),
         "request_obj": latest,
         "documents": documents,
+        "final_versions": versioning.history(project),
         "summary": NOTEBOOK_SUMMARY,
         "full": NOTEBOOK_FULL,
     }

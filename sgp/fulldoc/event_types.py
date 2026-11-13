@@ -9,5 +9,6 @@ register_many(
         "fulldoc.reused": "Documento completo do projeto reaproveitado (nada mudou)",
         "fulldoc.failed": "Falha na geração do documento completo do projeto (alerta)",
         "fulldoc.downloaded": "Documento completo do projeto baixado",
+        "fulldoc.version_created": "Nova versão do documento final do projeto",
     }
 )

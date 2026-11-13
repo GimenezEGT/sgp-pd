@@ -1,0 +1,14 @@
+{% load sgp %}
+{% if rows %}
+<section class="painel" aria-label="Histórico de versões">
+  <h2>Histórico de versões</h2>
+  <p class="descricao">Cada versão aprovada entra na versão seguinte do documento final do projeto.</p>
+  <div class="tabela-rolagem"><table>
+    <thead><tr><th>Versão</th><th>Situação</th><th>Aberta em</th><th>Aberta por</th><th>Motivo da abertura</th><th>Aprovada em</th><th>Aprovada por</th><th>Versões do documento final</th></tr></thead>
+    <tbody>{% for row in rows %}<tr>
+      <td>{{ row.number }}</td><td>{{ row.situation }}</td><td>{{ row.opened_at|datahora|default:"—" }}</td><td>{{ row.opened_by }}</td><td>{{ row.reason|default:"—" }}</td>
+      <td>{{ row.approved_at|datahora|default:"—" }}</td><td>{{ row.approved_by|default:"—" }}</td><td>{{ row.finals|join:", "|default:"—" }}</td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+{% endif %}

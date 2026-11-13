@@ -130,6 +130,7 @@ def render(
     generated_label: str,
     identifier: bytes,
     verification_code: str = "",
+    final_version=None,
 ) -> tuple[bytes, int]:
     definition = layout.definition
     logo = layouts.logo_bytes(layout)
@@ -156,6 +157,7 @@ def render(
             "created": created,
             "generated_label": generated_label,
             "version": f"{project.version or 0:02d}",
+            "final_version": final_version.number_display if final_version else "—",
             "meta_title": f"{FORMAT_TITLE} {render_pdf.DASH} {project.code or project.title}",
         },
     )

@@ -49,7 +49,7 @@ Usar contas de teste da homologação (analista, líder, gestor, Qualidade, leit
 | C2.3 | Executar a verificação de integridade da trilha | cadeia íntegra, com número de eventos e último resumo | | |
 | C2.4 | Pessoa sem o perfil exigido tenta abrir a trilha e telas restritas | acesso negado com registro | | |
 
-### C3. Geração de documentos (features 006 e 009)
+### C3. Geração de documentos (features 006, 009 e 016)
 
 | Nº | Passo | Resultado esperado | Obtido / evidência | Executor e data |
 | --- | --- | --- | --- | --- |
@@ -58,7 +58,8 @@ Usar contas de teste da homologação (analista, líder, gestor, Qualidade, leit
 | C3.3 | Em "Verificar documento", informar o código impresso | documento, versão e resumo identificados | | |
 | C3.4 | Gerar de novo o mesmo documento | conteúdo idêntico ao da primeira geração | | |
 | C3.5 | Gerar o PDF de um rascunho | marca d'água de rascunho, sem selo | | |
-| C3.6 | Gerar o documento completo do projeto | capa, sumário com páginas, subdocumentos aprovados e quadro de versões | | |
+| C3.6 | Gerar o documento completo do projeto | capa com a versão do documento final e a do projeto, sumário com páginas, subdocumentos aprovados, quadro de versões e quadro das versões do documento final; nome do arquivo com a versão do documento final | | |
+| C3.7 | Aprovar uma nova versão de um subdocumento do projeto do C3.6 e abrir "Documento completo" | a versão do documento final sobe uma unidade, com a mudança ("parte: NN → NN"), quem aprovou, quando e a composição; evento na trilha; o "Histórico de versões" do subdocumento mostra a versão nova e a versão do documento final em que entrou | | |
 
 ### C4. Cópia e restauração (feature 014)
 
