@@ -2,14 +2,15 @@
 
 Data: 13/11/2026. Plano executado: `docs/plano-implementacao.md` ("Plano de Implementação com
 Spec-Driven Development"), features 001 a 012 na ordem de `prompts/`, mais a feature 013 pedida
-pelo usuário, a feature 014 com os entregáveis de operação e validação e a feature 015 com as
-correções vindas do teste do usuário (13/11/2026). Repositório local, privado, sem remoto (regra do
+pelo usuário, a feature 014 com os entregáveis de operação e validação, a feature 015 com as
+correções vindas do teste do usuário (13/11/2026) e a feature 016 com a versão própria do documento
+final do projeto, também pedida pelo usuário. Repositório local, privado, sem remoto (regra do
 plano: na rede da empresa).
 
 ## Situação
 
-- Portão de qualidade (`scripts/verificar.sh`) no `main`: ruff sem erros, 1.263 testes aprovados,
-  cobertura mínima atendida e matriz de rastreabilidade com 319 requisitos, nenhum sem cobertura
+- Portão de qualidade (`scripts/verificar.sh`) no `main`: ruff sem erros, 1.274 testes aprovados,
+  cobertura mínima atendida e matriz de rastreabilidade com 332 requisitos, nenhum sem cobertura
   ([docs/validacao/matriz-rastreabilidade.md](validacao/matriz-rastreabilidade.md)).
 - Cada feature passou pelo ciclo do spec-kit (especificar, esclarecer, planejar, checklist, tarefas,
   analisar, implementar, convergir até "Converged"), com commit a cada etapa, roteiro executado na
@@ -35,6 +36,7 @@ plano: na rede da empresa).
 | 013 | Revisão controlada dos modelos de subdocumento e de layout (pedido do usuário) | [013-resultados-execucao.md](validacao/013-resultados-execucao.md) |
 | 014 | Operação e validação: cópia diária e teste de restauração, IQ, OQ e revisão de acessos | [014-resultados-execucao.md](validacao/014-resultados-execucao.md) |
 | 015 | Correções do ciclo de revisão e assinatura vindas do teste do usuário: revisão única por versão, Gestor que elaborou com aviso, devolução e seção própria na fila, situação pelo nome | [015-resultados-execucao.md](validacao/015-resultados-execucao.md) |
+| 016 | Versão própria do documento final do projeto (pedido do usuário): sobe a cada aprovação de nova versão de uma parte, com o que mudou, a composição, a trilha, o histórico de cada parte e a reconstrução das versões dos projetos existentes | [016-resultados-execucao.md](validacao/016-resultados-execucao.md) |
 
 ## Como as paradas de revisão foram tratadas
 
@@ -129,6 +131,13 @@ decisões abaixo precisam ser ratificadas e os checklists revisados.
 | 011 | Os anexos (rótulos, instrução de uso, gerenciamento de risco, imagens) são incorporados ao documento ou enviados como PDFs separados? | Seguem como arquivos separados num pacote junto com o dossiê; o dossiê traz a lista de anexos (número, nome, origem e resumo criptográfico) e cada item cita o anexo correspondente | Assuntos Regulatórios |
 | 011 | Como o responsável técnico e legal assina? | O sistema gera a declaração com os dados do responsável e o bloco de assinatura; a assinatura é feita fora do sistema (certificado ICP-Brasil no PDF ou na plataforma de peticionamento) e, no registro do envio, Assuntos Regulatórios anexa o PDF assinado, arquivado com resumo criptográfico | Assuntos Regulatórios e o Jurídico |
 
+### Decididas pelo próprio usuário (2, não provisórias)
+
+| Feature | Pergunta | Resposta do usuário |
+| --- | --- | --- |
+| 016 | Quando a versão do documento final sobe: na aprovação de uma nova versão de parte ou já na abertura da nova versão em rascunho? | Na aprovação, quando a nova versão da parte passa a valer; abrir uma versão em rascunho não muda o documento final. |
+| 016 | Como fica o histórico dos projetos que já têm aprovações? | É reconstruído a partir das aprovações já registradas, em ordem de data, com as versões marcadas como reconstruídas. |
+
 Além das respostas do esclarecimento: a constituição está na versão 1.0.0 com a data de
 ratificação em aberto (`TODO(RATIFICATION_DATE)` em `.specify/memory/constitution.md`) — Gestor de
 P&D e Garantia da Qualidade.
@@ -193,7 +202,7 @@ Requisitos sem teste automatizado possível no desenvolvimento, registrados em
 | 013:SC-005 | Ciclo completo (abrir revisão, alterar um rótulo, enviar, aprovar e publicar) cronometrado na pilha real por quem conhece a tela (docs/validacao/013-resultados-execucao.md); repetir na homologação. |
 | 014:SC-004 | IQ e OQ executadas no servidor de homologação, com os relatórios guardados no painel Operação e validação e os roteiros docs/validacao/iq-roteiro.md e docs/validacao/oq-roteiro.md executados e assinados pela Garantia da Qualidade. |
 
-## Checklists de requisitos aguardando revisão (25 checklists, 302 itens)
+## Checklists de requisitos aguardando revisão (26 checklists, 317 itens)
 
 | Feature | Checklist | Revisados | Público |
 | --- | --- | --- | --- |
@@ -222,6 +231,7 @@ Requisitos sem teste automatizado possível no desenvolvimento, registrados em
 | 014 | `evidencias-validacao.md` | 0/20 | Garantia da Qualidade e TI |
 | 014 | `recuperacao-integridade.md` | 0/22 | TI e Garantia da Qualidade |
 | 015 | `segregacao-assinatura.md` | 0/12 | Garantia da Qualidade |
+| 016 | `rastreabilidade-versoes.md` | 0/15 | Garantia da Qualidade |
 
 ## Observações sobre o ambiente de desenvolvimento
 
