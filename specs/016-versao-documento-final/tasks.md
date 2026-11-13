@@ -16,12 +16,12 @@ description: "Task list for feature 016 — Versionamento do documento final do 
 
 ## Phase 2: User Story 1 - Versão própria que acompanha as partes (P1) 🎯 MVP
 
-- [ ] T003 [P] [US1] Testes em `tests/fulldoc/test_final_versions.py`: aprovação do projeto gera a versão 01 com TAP e Plano numa só versão; aprovação da Entrada gera a 02 com "Entrada de Projeto: — → 01"; nova versão aprovada gera "01 → 02"; envio, devolução e nova versão em rascunho não mudam a versão; composição com versão, data e resumo de cada parte; evento `fulldoc.version_created`; registro imutável (FR-001 a FR-005, SC-001)
+- [ ] T003 [P] [US1] Testes em `tests/fulldoc/test_final_versions.py`: aprovação do projeto gera a versão 01 com TAP e Plano numa só versão; aprovação da Entrada gera a 02 com "Entrada de Projeto: — → 01"; nova versão aprovada gera "01 → 02"; envio, devolução e nova versão em rascunho não mudam a versão; composição com versão, data e resumo de cada parte; evento `fulldoc.version_created`; registro imutável; numeração sequencial sem lacuna em aprovações seguidas; aprovação de Alteração de Projeto também gera versão (FR-001 a FR-005, SC-001)
 - [ ] T004 [US1] Chamar `versioning.register` em `approve` e `approve_project` de `sgp/signatures/services.py`, na mesma transação, depois do congelamento
 
 ## Phase 3: User Story 3 - Documento completo gerado traz a versão (P1)
 
-- [ ] T005 [P] [US3] Testes: recomposição antes de gerar quando a aprovação foi gravada por fora do fluxo; documento gerado aponta para a versão; nome do arquivo e capa com a versão do documento final e a do projeto; parte "Versões do documento final" no PDF; documento gerado antes da 016 não é reaproveitado para uma versão registrada (FR-007, FR-010, SC-002)
+- [ ] T005 [P] [US3] Testes: recomposição antes de gerar quando a aprovação foi gravada por fora do fluxo; documento gerado aponta para a versão; nome do arquivo e capa com a versão do documento final e a do projeto; parte "Versões do documento final" no PDF; documento gerado antes da 016 não é reaproveitado para uma versão registrada; rascunho de projeto sem aprovação indica que não há versão do documento final (FR-007, FR-010, SC-002)
 - [ ] T006 [US3] Implementar em `sgp/fulldoc/services.py`, `compose.py` e `templates/fulldoc/pdf/document.html` (capa, quadro, nome do arquivo, código de verificação e resumo pela versão do documento final)
 
 ## Phase 4: User Story 2 - Rastreabilidade na tela do projeto (P1)
