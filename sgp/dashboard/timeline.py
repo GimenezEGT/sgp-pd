@@ -12,7 +12,13 @@ CATEGORIES = {
     "marcos": ("Marcos", ("projects.milestone_",)),
     "documentos": (
         "Subdocumentos e versões",
-        ("subdocuments.", "signatures.new_version", "documents.generated", "fulldoc.generated"),
+        (
+            "subdocuments.",
+            "signatures.new_version",
+            "documents.generated",
+            "fulldoc.generated",
+            "fulldoc.version_created",
+        ),
     ),
     "assinaturas": (
         "Assinaturas e decisões",

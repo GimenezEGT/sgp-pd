@@ -132,7 +132,9 @@ def test_documento_gerado_traz_a_versao_e_o_quadro(
     assert again.result == document and len(_versions(project)) == 2
     client.force_login(project.leader)
     page = client.get(reverse("documents:verify"), {"codigo": document.verification_code})
-    assert f"02 do documento final (projeto {document.project_version:02d})" in page.content.decode()
+    assert (
+        f"02 do documento final (projeto {document.project_version:02d})" in page.content.decode()
+    )
 
 
 @pytest.mark.req("016:FR-007")
@@ -149,6 +151,10 @@ def test_resumo_de_reaproveitamento_inclui_a_versao(signed_project, make_project
 @pytest.mark.req("016:FR-006")
 @pytest.mark.req("016:SC-003")
 def test_tela_do_projeto_mostra_o_historico(client, signed_project, manager):
+    from sgp.dashboard import timeline
+
+    on_timeline = timeline.events(manager, signed_project, "documentos")
+    assert [e.event_type for e in on_timeline].count("fulldoc.version_created") == 1
     client.force_login(manager)
     page = client.get(reverse("fulldoc:project", args=[signed_project.pk])).content.decode()
     assert "Versões do documento final" in page and "Versão do documento final" in page
@@ -228,3 +234,37 @@ def test_reconstrucao_a_partir_das_aprovacoes(open_project, manager):
     ]
     assert versioning.ensure_current(project, by=manager) == versions[3]
     assert history.rebuild(django_apps) == 0
+
+
+@pytest.mark.req("016:FR-005")
+@pytest.mark.req("016:FR-009")
+def test_versoes_reconstruidas_entram_na_trilha(open_project, manager, events):
+    from sgp.audit.services import SYSTEM_ACTOR
+    from sgp.fulldoc.apps import record_reconstruction_events
+
+    project = open_project()
+    moment = timezone.now() - timedelta(days=3)
+    for kind, obj in (("charter", project.charter), ("business_plan", project.business_plan)):
+        ApprovedVersion.objects.create(
+            kind=kind,
+            object_id=obj.pk,
+            project=project,
+            version=1,
+            content={},
+            content_hash=kind.ljust(64, "0"),
+            approved_by=manager,
+            approved_at=moment,
+        )
+    assert history.rebuild(django_apps) == 1
+    assert events("fulldoc.version_created") == []
+    assert record_reconstruction_events(sender=None) == 1
+    (event,) = events("fulldoc.version_created")
+    (version,) = _versions(project)
+    assert event.object_id == str(version.pk) and event.actor_id is None
+    assert event.actor_username == SYSTEM_ACTOR and event.reason == history.TRAIL_NOTE
+    assert event.new_value["motivo"] == "reconstruction" and event.new_value["versao"] == 1
+    assert event.new_value["aprovada_por"] == manager.username
+    assert event.new_value["aprovada_em"] == moment.isoformat()
+    assert event.occurred_at > moment
+    assert record_reconstruction_events(sender=None) == 0
+    assert record_reconstruction_events(sender=None, using="outro") == 0

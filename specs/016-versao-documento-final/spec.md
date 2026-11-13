@@ -116,7 +116,7 @@ histórico.
 - **FR-006**: A tela do projeto DEVE mostrar o histórico das versões do documento final e a composição de qualquer versão.
 - **FR-007**: O documento completo gerado DEVE indicar a versão do documento final que representa (capa, nome do arquivo e registro arquivado) e trazer o quadro das versões do documento final; a versão do projeto continua indicada à parte.
 - **FR-008**: A tela de cada parte DEVE mostrar o histórico de versões da parte: número, situação, motivo da abertura, quem abriu e quando, quem aprovou e quando, e as versões do documento final em que cada versão entrou.
-- **FR-009**: Projetos com aprovações anteriores a esta funcionalidade DEVEM ter o histórico das versões do documento final reconstruído a partir das aprovações já registradas, em ordem de data (aprovações do mesmo instante numa só versão), com as versões marcadas como reconstruídas.
+- **FR-009**: Projetos com aprovações anteriores a esta funcionalidade DEVEM ter o histórico das versões do documento final reconstruído a partir das aprovações já registradas, em ordem de data (aprovações do mesmo instante numa só versão), com as versões marcadas como reconstruídas e um evento na trilha para cada uma, gravado no momento da reconstrução (a trilha não aceita data passada; a data e o aprovador originais vão no evento).
 - **FR-010**: O documento completo DEVE sempre corresponder a uma versão registrada do documento final: se a composição vigente não estiver registrada, o sistema registra a versão antes de gerar, com o motivo "recomposição".
 
 ### Key Entities *(include if feature involves data)*

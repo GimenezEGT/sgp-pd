@@ -263,7 +263,9 @@ def run_request(request_id: int) -> FullDocumentRequest:
 
 
 def history(project):
-    return FullDocument.objects.filter(project=project).select_related("generated_by")
+    return FullDocument.objects.filter(project=project).select_related(
+        "generated_by", "final_version"
+    )
 
 
 def download(document: FullDocument, *, by, request=None) -> bytes:

@@ -30,7 +30,13 @@
   por projeto, as aprovações em ordem de data; aprovações do mesmo aprovador com menos de 5
   segundos de diferença (TAP e Plano na aprovação do projeto) formam uma versão; versões marcadas
   como reconstruídas, com a data e o aprovador da aprovação. A mesma função é testada com o registro
-  de modelos atual. Sem evento retroativo na trilha (a trilha não aceita data passada).
+  de modelos atual.
+- Evento na trilha (FR-005): a trilha não aceita data passada, então a migração não grava evento;
+  logo depois das migrações (sinal `post_migrate` do app, com o banco na última migração e os
+  modelos atuais), `history.record_missing_events` grava `fulldoc.version_created` para cada
+  versão reconstruída que ainda não tem evento: ator "sistema", motivo "Reconstrução a partir das
+  aprovações registradas (feature 016)" e, no valor, a data e o aprovador originais; sem repetir.
+  Encontrado na conferência da pilha real (0 eventos depois da migração) e corrigido.
 - Rationale: resposta do usuário no esclarecimento (reconstruir).
 
 ## R5. Documento gerado

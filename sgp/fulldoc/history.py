@@ -10,6 +10,7 @@ PLAN_TITLE = "Plano de Negócios"
 CHANGE = "alteracao"
 GROUP_WINDOW = timedelta(seconds=5)
 REASON = "reconstruction"
+TRAIL_NOTE = "Reconstrução a partir das aprovações registradas (feature 016)"
 
 
 def _digest(entries: list[dict]) -> str:
@@ -125,3 +126,53 @@ def rebuild(apps, flow: list[str] | None = None) -> int:
             )
             created += 1
     return created
+
+
+def record_missing_events() -> int:
+    """Evento na trilha para cada versão reconstruída que ainda não tem.
+
+    O evento é gravado no momento em que a reconstrução é registrada (a trilha não aceita data
+    passada); a data e o aprovador originais vão no valor do evento. Roda depois das migrações,
+    com os modelos atuais, e não repete eventos já gravados.
+    """
+    from django.db import transaction
+
+    from sgp.audit.models import AuditEvent
+    from sgp.audit.services import record_event
+
+    from .models import FinalDocumentVersion, change_text
+
+    recorded = set(
+        AuditEvent.objects.filter(
+            event_type="fulldoc.version_created", object_type="fulldoc.finaldocumentversion"
+        ).values_list("object_id", flat=True)
+    )
+    count = 0
+    with transaction.atomic():
+        versions = (
+            FinalDocumentVersion.objects.filter(reason=REASON)
+            .select_related("project", "registered_by")
+            .order_by("project_id", "number")
+        )
+        for version in versions:
+            if str(version.pk) in recorded:
+                continue
+            approver = version.registered_by
+            record_event(
+                "fulldoc.version_created",
+                actor=None,
+                obj=version,
+                project_id=version.project_id,
+                new_value={
+                    "versao": version.number,
+                    "motivo": version.reason,
+                    "mudancas": [change_text(change) for change in version.changes],
+                    "resumo_composicao": version.composition_hash,
+                    "partes": len(version.composition),
+                    "aprovada_em": version.created_at.isoformat(),
+                    "aprovada_por": approver.username if approver else "",
+                },
+                reason=TRAIL_NOTE,
+            )
+            count += 1
+    return count

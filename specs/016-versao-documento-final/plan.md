@@ -14,7 +14,7 @@ aprovação do projeto gera uma versão com TAP e Plano), com evento na trilha. 
 gerado (009) aponta para a versão do documento final, que aparece na capa, no nome do arquivo e num
 quadro próprio; a tela do projeto mostra o histórico; cada parte mostra o próprio histórico de
 versões e em quais versões do documento final entrou. As aprovações já registradas reconstroem o
-histórico na migração.
+histórico na migração, e cada versão reconstruída ganha evento na trilha logo depois das migrações.
 
 ## Technical Context
 
@@ -69,7 +69,8 @@ specs/016-versao-documento-final/
 sgp/fulldoc/
 ├── models.py              # FinalDocumentVersion; FullDocument.final_version
 ├── versioning.py          # composição, registrar, recompor, histórico do projeto e das partes
-├── history.py             # reconstrução a partir das aprovações (usada pela migração)
+├── history.py             # reconstrução a partir das aprovações (usada pela migração) e eventos
+├── apps.py                # post_migrate: evento na trilha das versões reconstruídas
 ├── compose.py             # quadro "Versões do documento final"; resumo inclui a versão
 ├── services.py            # geração aponta para a versão; nome do arquivo e código pela versão
 ├── templatetags/fulldoc_versions.py  # histórico de versões de uma parte (telas da 004 e 002)

@@ -21,7 +21,9 @@
 
 ## Eventos
 
-`fulldoc.version_created` (nova versão: número, motivo, mudanças, resumo da composição).
+`fulldoc.version_created` (nova versão: número, motivo, mudanças, resumo da composição). Para as
+versões reconstruídas, gravado pelo "sistema" logo depois das migrações (sinal `post_migrate`),
+com a data e o aprovador originais no valor (`aprovada_em`, `aprovada_por`).
 
 ## Migrações
 

@@ -23,6 +23,7 @@ EXPECTED_ORDER = [
     "Verificação Final",
     "Saída",
     "Quadro de versões",
+    "Versões do documento final",  # feature 016
     "Resumo da trilha de auditoria",
     "Histórico do caderno de laboratório",
     "Lista de anexos",
