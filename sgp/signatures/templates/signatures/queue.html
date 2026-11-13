@@ -22,4 +22,23 @@
   </tbody>
 </table>
 </div>
+{% if own_rows %}
+<h2>Elaborados por você — aguardam outro aprovador</h2>
+<p class="descricao">Você assinou estes documentos como Elaborado; a aprovação precisa de outro Gestor de P&amp;D ou de quem tem delegação vigente. Abra o documento para devolvê-lo com comentário.</p>
+<div class="tabela-rolagem">
+<table>
+  <thead><tr><th>Documento</th><th>Projeto</th><th>Enviado em</th><th>Dias em revisão</th></tr></thead>
+  <tbody>
+  {% for row in own_rows %}
+    <tr>
+      <td><a href="{{ row.url }}">{{ row.title }}</a></td>
+      <td>{{ row.project.code|default:row.project.title }}</td>
+      <td>{{ row.since|datahora }}</td>
+      <td class="numero">{{ row.days }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endif %}
 {% endblock %}

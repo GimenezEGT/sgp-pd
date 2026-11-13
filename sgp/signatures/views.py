@@ -6,11 +6,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from sgp.accounts.profiles import Profile, deny_access, profile_required
+from sgp.accounts.profiles import Profile, active_profiles, deny_access, profile_required
 from sgp.core.access import can_access_project
 
 from . import services
-from .documents import IN_REVIEW, load
+from .documents import IN_REVIEW, STATUS_LABELS, load
 from .forms import DelegationForm, EndDelegationForm
 from .models import ApprovalDelegation, ApprovedVersion, DocumentKind, ReviewComment
 
@@ -36,6 +36,10 @@ def _context(request, adapter, obj, **extra):
         "kind": adapter.kind,
         "title": adapter.title(obj),
         "status": adapter.status(obj),
+        "status_label": STATUS_LABELS.get(adapter.status(obj), adapter.status(obj)),
+        "approver": services.is_approver(request.user),
+        "own_submission": services.own_submission(request.user, adapter, obj),
+        "can_delegate": Profile.RD_MANAGER in active_profiles(request.user),
         "version": adapter.version(obj),
         "digest": content_hash(adapter.snapshot(obj)),
         "signatures": services.signatures_of(adapter, obj),
@@ -191,7 +195,12 @@ def queue_view(request):
     if not services.is_approver(request.user):
         return deny_access(request, "fila de revisão exige Gestor de P&D ou delegação vigente")
     rows = services.review_queue(request.user)
-    return render(request, "signatures/queue.html", {"rows": rows, "in_review": IN_REVIEW})
+    own_rows = services.review_queue(request.user, own=True)
+    return render(
+        request,
+        "signatures/queue.html",
+        {"rows": rows, "own_rows": own_rows, "in_review": IN_REVIEW},
+    )
 
 
 @require_http_methods(["GET", "POST"])
