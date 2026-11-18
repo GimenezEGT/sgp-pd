@@ -21,6 +21,10 @@ x-app: &app
     # Destino das cópias de segurança (feature 014): diretório do host montado pela TI de outro
     # servidor ou compartilhamento; nunca o mesmo disco dos dados.
     - ${BACKUP_HOST_DIR:-./var/backups}:/app/var/backups
+    # Certificados fora do repositório (somente leitura): PKCS#12 do selo dos PDFs oficiais e CA do
+    # AD para o LDAPS. Ex.: DOCUMENT_SEAL_PKCS12=/run/sgp-segredos/selo.p12 e
+    # LDAP_CA_CERT_FILE=/run/sgp-segredos/ca-ad.pem no .env.
+    - ${SGP_SECRETS_DIR:-./deploy/segredos}:/run/sgp-segredos:ro
   restart: unless-stopped
 
 services:

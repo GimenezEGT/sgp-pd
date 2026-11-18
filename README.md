@@ -19,6 +19,61 @@ docker compose exec web python manage.py grant_initial_admin admin.ti --motivo "
 Acesse `https://localhost:8443/` (certificado autoassinado de desenvolvimento). Usuários do
 diretório fictício: veja `deploy/ldap-dev/seed.ldif` (senha `Senha#Dev01`).
 
+## Instalar em outra máquina
+
+Tudo roda no Docker: na máquina nova não é preciso instalar Python, PostgreSQL nem bibliotecas.
+
+1. **Pré-requisitos.** Windows 10/11 ou macOS (Intel ou Apple Silicon): Docker Desktop (no Windows,
+   com WSL 2). Linux: Docker Engine com o plugin Compose v2 e o usuário no grupo `docker`. Git.
+   Uns 6 GB livres em disco. Internet na primeira construção (imagens base e pacotes); sem internet,
+   veja "Máquina sem internet".
+2. **Levar o código.** O repositório é privado e fica na rede da empresa (sem cópia na internet).
+   - Pasta compartilhada da rede (recomendado): nesta máquina, uma vez,
+     `git clone --bare . //servidor/pasta/sgp-pd.git` e `git remote add rede //servidor/pasta/sgp-pd.git`;
+     depois de cada mudança, `git push rede main`. Na máquina nova:
+     `git clone //servidor/pasta/sgp-pd.git sgp-pd`.
+   - Sem pasta de rede: `git bundle create sgp-pd.bundle --all` aqui, leve o arquivo e, na máquina
+     nova, `git clone sgp-pd.bundle sgp-pd`.
+3. **Configurar.** Na pasta `sgp-pd`: `cp .env.example .env` (PowerShell:
+   `Copy-Item .env.example .env`). Para testes, os valores fictícios servem; troque senhas e chave se
+   outras pessoas forem usar. Porta ocupada no computador: troque `HTTPS_PORT`, `HTTP_PORT` ou
+   `LDAP_DEV_PORT` no `.env`.
+4. **Subir.**
+
+   ```bash
+   docker compose up -d --build
+   docker compose exec web python manage.py selo_teste
+   docker compose exec web python manage.py grant_initial_admin admin.ti --motivo "Implantação" --aprovacao "Gestão da TI"
+   ```
+
+   A primeira construção leva alguns minutos; o `web` cria o banco (migrações) ao subir. O
+   `selo_teste` cria o certificado de teste do selo dos PDFs oficiais (só em desenvolvimento). Acesse
+   `https://localhost:8443/` e aceite o certificado autoassinado; usuários do diretório fictício em
+   `deploy/ldap-dev/seed.ldif` (senha `Senha#Dev01`). O banco começa vazio: `gestor.pd`,
+   `ana.analista` e `qualidade.ar` entram com o perfil do grupo do diretório; os demais pedem acesso
+   em "Solicitar acesso" e o `admin.ti` aprova.
+5. **Levar os dados (opcional).** Os projetos ficam no banco e nos arquivos desta máquina, não no
+   Git. Aqui, `docker compose exec web python manage.py copia_seguranca`; copie a pasta da cópia
+   (`BACKUP_HOST_DIR`, padrão `var/backups`) para a máquina nova e siga
+   [docs/operacao/recuperacao.md](docs/operacao/recuperacao.md) (em desenvolvimento, use
+   `docker compose` sem `-f docker-compose.yml`).
+
+Outras máquinas da rede acessando esta: inclua o nome ou o IP dela em `DJANGO_ALLOWED_HOSTS`, o
+endereço completo (`https://nome:8443`) em `DJANGO_CSRF_TRUSTED_ORIGINS` e o nome em `SGP_CERT_CN`
+(apague `deploy/nginx/certs/sgp.*` para gerar o certificado de novo), libere a porta no firewall e
+rode `docker compose up -d`. Para uso real, siga "Homologação e produção" (AD e certificados da
+empresa).
+
+- **Linux:** os contêineres de desenvolvimento gravam na pasta do projeto como o usuário uid 1000.
+  Se `id -u` não for 1000, dê acesso: `sudo setfacl -R -m u:1000:rwX -m d:u:1000:rwX .`
+- **Máquina sem internet:** numa máquina com internet e a mesma arquitetura (x86 ou ARM), rode
+  `docker compose build` e `docker compose pull`, depois
+  `docker save -o sgp-imagens.tar sgp-pd:dev sgp-pd-nginx:latest postgres:17-bookworm redis:7.4-alpine osixia/openldap:1.5.0`;
+  na máquina nova, `docker load -i sgp-imagens.tar` e `docker compose up -d` (sem `--build`).
+- **Windows, Docker Desktop não inicia** ("Inference manager … dockerInference"): feche o Docker
+  Desktop, renomeie as pastas `%LOCALAPPDATA%\Docker\run` e `%LOCALAPPDATA%\docker-secrets-engine`
+  e abra o Docker Desktop de novo.
+
 ## Testes e portão de qualidade
 
 ```bash
@@ -37,7 +92,10 @@ docker compose -f docker-compose.yml up -d --build
 
 Sem o arquivo de override: sem LDAP fictício, imagem `runtime` com gunicorn. Configure no `.env` o
 AD da empresa (`LDAPS`), o certificado do Nginx em `deploy/nginx/certs/` e
-`DJANGO_DEBUG=false`. As variáveis estão em
+`DJANGO_DEBUG=false`. O PKCS#12 do selo e a CA do AD ficam numa pasta do servidor fora do
+repositório, indicada em `SGP_SECRETS_DIR` e montada em `/run/sgp-segredos` (somente leitura,
+legível pelo uid 1000): `DOCUMENT_SEAL_PKCS12=/run/sgp-segredos/selo.p12` e
+`LDAP_CA_CERT_FILE=/run/sgp-segredos/ca-ad.pem`. As variáveis estão em
 [specs/001-fundacao-acesso-auditoria/contracts/configuracao.md](specs/001-fundacao-acesso-auditoria/contracts/configuracao.md).
 
 Cópias de segurança (feature 014): `BACKUP_HOST_DIR` aponta para o diretório do host montado pela TI

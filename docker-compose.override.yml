@@ -34,6 +34,8 @@ services:
   ldap:
     image: osixia/openldap:1.5.0
     command: ["--copy-service", "--loglevel", "warning"]
+    # Volta sozinho quando o Docker reinicia, como os demais serviços (sem ele ninguém entra).
+    restart: unless-stopped
     environment:
       LDAP_ORGANISATION: "Empresa ficticia (dev)"
       LDAP_DOMAIN: "sgp.dev.local"
@@ -45,4 +47,5 @@ services:
         soft: 1024
         hard: 1024
     ports:
-      - "3890:389"
+      # Porta do LDAP fictício no computador (só para consulta com ferramentas de LDAP).
+      - "${LDAP_DEV_PORT:-3890}:389"

@@ -13,6 +13,7 @@ var/
 media/
 staticfiles/
 deploy/nginx/certs/
+deploy/segredos/
 docs/modelos/
 *.log
 .claude/settings.local.json

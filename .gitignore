@@ -12,6 +12,7 @@ htmlcov/
 .hypothesis/
 
 # Ambiente e segredos (nunca no repositório)
+/deploy/segredos/
 .env
 *.env.local
 *.pem

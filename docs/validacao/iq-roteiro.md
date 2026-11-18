@@ -12,7 +12,7 @@ Qualidade. Versão do sistema a qualificar: o commit do `main` liberado.
 | Repositório clonado da rede da empresa no commit a qualificar | `git rev-parse HEAD` registrado |
 | `.env` preenchido a partir do `.env.example` (sem valores no repositório) | segredos, AD (`LDAPS`), SMTP, selo, banco |
 | Certificado TLS do Nginx em `deploy/nginx/certs/` | emitido para o nome do servidor |
-| Certificado PKCS#12 do selo da empresa em local protegido, apontado por `DOCUMENT_SEAL_PKCS12` | senha em `DOCUMENT_SEAL_PASSWORD` |
+| Certificado PKCS#12 do selo da empresa e CA do AD na pasta protegida `SGP_SECRETS_DIR` (montada em `/run/sgp-segredos`), apontados por `DOCUMENT_SEAL_PKCS12` e `LDAP_CA_CERT_FILE` | senha em `DOCUMENT_SEAL_PASSWORD`; pasta legível só pela TI e pelo uid 1000 |
 | Destino das cópias montado de outro servidor ou compartilhamento (`BACKUP_HOST_DIR`), acesso só da TI | nunca no disco dos dados |
 
 ## Passos
