@@ -27,13 +27,19 @@ Tudo roda no Docker: na máquina nova não é preciso instalar Python, PostgreSQ
    com WSL 2). Linux: Docker Engine com o plugin Compose v2 e o usuário no grupo `docker`. Git.
    Uns 6 GB livres em disco. Internet na primeira construção (imagens base e pacotes); sem internet,
    veja "Máquina sem internet".
-2. **Levar o código.** O repositório é privado e fica na rede da empresa (sem cópia na internet).
-   - Pasta compartilhada da rede (recomendado): nesta máquina, uma vez,
+2. **Levar o código.** O repositório é privado no GitHub
+   ([GimenezEGT/sgp-pd](https://github.com/GimenezEGT/sgp-pd)), por decisão do usuário em
+   18/11/2026; o plano previa mantê-lo só na rede da empresa (ratificar com a TI e a Garantia da
+   Qualidade).
+   - GitHub (recomendado): na máquina nova, entre numa conta com acesso ao repositório
+     (`gh auth login` ou a janela de login que o Git abre) e rode
+     `git clone https://github.com/GimenezEGT/sgp-pd.git`. Mudanças: `git push` aqui e `git pull` lá.
+   - Pasta compartilhada da rede: nesta máquina, uma vez,
      `git clone --bare . //servidor/pasta/sgp-pd.git` e `git remote add rede //servidor/pasta/sgp-pd.git`;
      depois de cada mudança, `git push rede main`. Na máquina nova:
      `git clone //servidor/pasta/sgp-pd.git sgp-pd`.
-   - Sem pasta de rede: `git bundle create sgp-pd.bundle --all` aqui, leve o arquivo e, na máquina
-     nova, `git clone sgp-pd.bundle sgp-pd`.
+   - Sem rede: `git bundle create sgp-pd.bundle --all` aqui, leve o arquivo e, na máquina nova,
+     `git clone sgp-pd.bundle sgp-pd`.
 3. **Configurar.** Na pasta `sgp-pd`: `cp .env.example .env` (PowerShell:
    `Copy-Item .env.example .env`). Para testes, os valores fictícios servem; troque senhas e chave se
    outras pessoas forem usar. Porta ocupada no computador: troque `HTTPS_PORT`, `HTTP_PORT` ou

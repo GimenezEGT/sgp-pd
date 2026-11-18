@@ -1,11 +1,12 @@
 # Relatório final da execução do plano (SGP-P&D)
 
-Data: 13/11/2026. Plano executado: `docs/plano-implementacao.md` ("Plano de Implementação com
+Data: 18/11/2026. Plano executado: `docs/plano-implementacao.md` ("Plano de Implementação com
 Spec-Driven Development"), features 001 a 012 na ordem de `prompts/`, mais a feature 013 pedida
 pelo usuário, a feature 014 com os entregáveis de operação e validação, a feature 015 com as
 correções vindas do teste do usuário (13/11/2026) e a feature 016 com a versão própria do documento
-final do projeto, também pedida pelo usuário. Repositório local, privado, sem remoto (regra do
-plano: na rede da empresa).
+final do projeto, também pedida pelo usuário. Repositório privado no GitHub
+([GimenezEGT/sgp-pd](https://github.com/GimenezEGT/sgp-pd)) desde 18/11/2026, por decisão do
+usuário; o plano pedia mantê-lo na rede da empresa (ratificar com a TI e a Garantia da Qualidade).
 
 ## Situação
 

@@ -9,7 +9,7 @@ Qualidade. Versão do sistema a qualificar: o commit do `main` liberado.
 | Item | Conferência |
 | --- | --- |
 | Servidor Linux com Docker e Docker Compose | `docker version` e `docker compose version` registrados |
-| Repositório clonado da rede da empresa no commit a qualificar | `git rev-parse HEAD` registrado |
+| Repositório clonado no commit a qualificar (GitHub privado `GimenezEGT/sgp-pd` ou cópia na rede da empresa) | `git rev-parse HEAD` registrado |
 | `.env` preenchido a partir do `.env.example` (sem valores no repositório) | segredos, AD (`LDAPS`), SMTP, selo, banco |
 | Certificado TLS do Nginx em `deploy/nginx/certs/` | emitido para o nome do servidor |
 | Certificado PKCS#12 do selo da empresa e CA do AD na pasta protegida `SGP_SECRETS_DIR` (montada em `/run/sgp-segredos`), apontados por `DOCUMENT_SEAL_PKCS12` e `LDAP_CA_CERT_FILE` | senha em `DOCUMENT_SEAL_PASSWORD`; pasta legível só pela TI e pelo uid 1000 |
